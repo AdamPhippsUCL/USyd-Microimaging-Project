@@ -1,0 +1,95 @@
+% Script to save DTI sequence information as structure
+
+%% Initial details
+
+% Imaging data folder
+ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
+
+% Image type
+ImageType = 'MAT';
+
+% Sample name
+SampleName = '20241128_UQ1';
+
+% Series Description
+SeriesDescriptions = {
+    '40u_verdict_seq5_v2',...
+    '40u_DtiStandard_2012',...
+};
+
+
+%% Define structure
+
+for indx = 1:length(SeriesDescriptions)
+
+    SeriesDescription = SeriesDescriptions{indx};
+
+    DTIstruct = struct();
+    
+    switch SampleName
+    
+        case '20241128_UQ1'
+    
+            switch SeriesDescription
+
+                case '40u_verdict_seq1_v2'
+    
+                    DiffusionBValue = [0, 0, 0, 0,...
+                                    1000, 1000, 1000,...
+                                    1000, 1000, 1000];
+    
+                    DiffusionEffBValue = [];
+    
+                    DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];  
+
+                case '40u_verdict_seq5_v2'
+    
+                    DiffusionBValue = [0, 0, 0, 0,...
+                                    3000, 3000, 3000,...
+                                    3000, 3000, 3000];
+    
+                    DiffusionEffBValue = [40.874806178439, 40.874806178439, 40.874806178439, 40.874806178439,...
+                                        3004.32428616017, 3001.62509019329, 3001.19552738335,...
+                                        3009.2638063984, 3001.13797189685, 2999.56521800681];
+    
+                    DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    
+ 
+    
+                case '40u_DtiStandard_2012'
+    
+                    DiffusionBValue = [0, 0,...
+                                1200, 1200, 1200,...
+                                1200, 1200, 1200];
+    
+                    DiffusionEffBValue = [...
+                    40.874806178439, 40.874806178439, 1208.20116109981, 1201.34090122179,...
+                    1200.98664722903, 1211.12175725522, 1200.93918208441, 1199.64215559077...    
+                    ];
+    
+                    % TBC
+                    DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0];
+    
+    
+            end
+    
+    
+            
+    end
+
+
+    % Append to structure
+    DTIstruct.DiffusionBValue = DiffusionBValue;
+    DTIstruct.DiffusionEffBValue = DiffusionEffBValue;
+    DTIstruct.DiffusionDirection = DiffusionDirection;
+
+
+end
+
+
+
+%% Save structure
+
+folder = fullfile(ImagingDataFolder, ImageType, SampleName, SeriesDescription);
+mkdir(folder);
+save(fullfile(folder, 'DTIstruct.mat'), "DTIstruct");

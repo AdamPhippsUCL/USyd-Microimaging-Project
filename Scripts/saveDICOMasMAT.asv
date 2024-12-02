@@ -68,12 +68,11 @@ end
 
 
 %% Voxel coordinates
-VoxelCoordinates = constructVoxelCoordinates(dinfo);
+v
 
 %% Save dinfo structure and image array
 
 save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'dinfo.mat'), 'dinfo');
 save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'ImageArray.mat'), 'ImageArray');
-save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'VoxelCoordinates.mat'), 'VoxelCoordinates');
 
 
