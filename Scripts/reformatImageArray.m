@@ -9,7 +9,7 @@ ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\
 SampleName = '20241128_UQ1';
 
 % Series description
-SeriesDescription = '40u_verdict_seq1_v2';
+SeriesDescription = '40u_verdict_seq5_v2';
 
 %% Load image array and DICOM 
 
