@@ -6,15 +6,11 @@
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
 
 % Sample name
-SampleName = '20241128_UQ1';
+SampleName = '20241213_WSU1';
 
 % Series description
 SeriesDescriptions = {...
-    '40u_verdict_seq1_v2',...
-    '40u_verdict_seq2_v2',...
-    '40u_verdict_seq3_v2',...
-    '40u_verdict_seq4_v2',...
-    '40u_verdict_seq5_v2',...
+    '160001'...
     };
 
 
@@ -32,17 +28,21 @@ for seriesindx = 1:length(SeriesDescriptions)
     % Load voxel coordinates
     VoxelCoordinates = load(fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'axialVoxelCoordinates.mat')).VoxelCoordinates;
     
+    % SELECT FRAMES FOR DENOISING
+    ImageArray = ImageArray;
+    dinfo = dinfo;
+
     %% Denoising
     
     % Define window
-    window = [5 5];
+    window = [5 5 1];
     
     % Apply denoising
     ImageArrayDN = denoise(ImageArray, window);
     
     
     
-    % % Example slices
+    % Example slices
     % slice = 15;
     % figure;
     % imshow(ImageArray(:,:,slice,6), [0 5e-4])

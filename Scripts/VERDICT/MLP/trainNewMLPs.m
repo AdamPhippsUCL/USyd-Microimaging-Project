@@ -5,7 +5,7 @@ basef = char("C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Pro
 
 % Specify protocols 
 modeltypes = {'Original VERDICT'};
-schemenames = {'UQ Scheme v2'};
+schemenames = {'UQ3 Full'};
 
 TrainingDataFolder = [basef '/MLP/training data'];
 ModelFolder = [basef '/MLP/models'];

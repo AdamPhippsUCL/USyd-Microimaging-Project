@@ -19,19 +19,24 @@ TrainingDataFolder = [basef '/MLP/training data'];
 
 % If multiple, define as a cell array of char arrays
 modeltypes = {'Original VERDICT'};
-schemenames = {'UQ Scheme v2'};
+schemenames = {'UQ3 Full'};
 
 schemesfolder = [basef '/Schemes'];
 
 
 
-%% Cell sizes
+%% VERDICT model
 
 % Cell Radius distribution R~Normal( muR, sigmaR)
-muRmin = 6;
+muRmin = 3;
 muRmax = 9;
-sigmaRmin = 1.5;
-sigmaRmax = 2.5;
+sigmaRmin = 1;
+sigmaRmax = 2;
+
+% Diffusivities
+dIC=2;
+dEES=1;
+dVASC=8;
 
 
 %% Create training data
@@ -54,6 +59,9 @@ for indx = 1:length(modeltypes)
         T2 = T2,...
         randmuRs=[muRmin, muRmax],...
         randsigmaRs=[sigmaRmin, sigmaRmax],...
+        dIC=dIC,...
+        dEES=dEES,...
+        dVASC=dVASC,...
         schemesfolder=schemesfolder,...
         savedata=savedata,...
         outputfolder=outputfolder...

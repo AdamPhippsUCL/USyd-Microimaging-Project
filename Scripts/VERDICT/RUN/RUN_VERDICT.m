@@ -8,27 +8,29 @@ clear;
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
 
 % Sample name
-SampleName = '20241128_UQ1';
+SampleName = '20241218_UQ3';
 
 % Series descriptions
 SeriesDescriptions = {...
-    '40u_verdict_seq1_v2 (320 micron)',...
-    '40u_verdict_seq2_v2 (320 micron)',...
-    '40u_verdict_seq3_v2 (320 micron)',...
-    '40u_verdict_seq4_v2 (320 micron)',...
-    '40u_verdict_seq5_v2 (320 micron)',...
+    '40u_verdict_seq1_LR',...
+    '40u_verdict_seq2_LR',...
+    '40u_verdict_seq3_LR',...
+    '40u_verdict_seq4_LR',...
+    '40u_verdict_seq5_LR',...
     };
 
+% Denoised data
+UseDenoisedData = true;
 
 %% VERDICT processing details
-
-verdictfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Scripts\VERDICT";
 
 % Model type
 modeltype = 'Original VERDICT';
 
 % Scheme name
-schemename = 'UQ Scheme v2';
+schemename = 'UQ3 Full';
+schemesfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\Schemes";
+load(fullfile(schemesfolder, schemename));
 
 % Fitting technique
 fittingtechnique = 'MLP';
@@ -48,7 +50,12 @@ for seriesindx = 1:length(SeriesDescriptions)
     SeriesDescription = SeriesDescriptions{seriesindx};
 
     % Load image and dinfo
-    thisfolder = fullfile(ImagingDataFolder, 'MAT DN', SampleName, SeriesDescription);
+    switch UseDenoisedData
+        case true
+            thisfolder = fullfile(ImagingDataFolder, 'MAT DN', SampleName, SeriesDescription);
+        case false
+            thisfolder = fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription);
+    end
     ImageArray = load(fullfile(thisfolder, 'axialImageArray.mat')).ImageArray;
     dinfo = load(fullfile(thisfolder, 'axialdinfo.mat')).dinfo;
 
@@ -56,12 +63,7 @@ for seriesindx = 1:length(SeriesDescriptions)
     DINFOS(seriesindx).dinfo = dinfo;
     ImageArrays(seriesindx).ImageArray = ImageArray;
 
-    
 end
-
-% == Load scheme
-
-scheme = load(fullfile(verdictfolder, 'Schemes', [schemename '.mat'])).scheme;
 
 
 % == Construct Y matrix
@@ -96,7 +98,6 @@ for seriesindx = 1:length(SeriesDescriptions)
     % Normalize and append to Y array
     Y(:,:,:,2*seriesindx) = bimg./b0img; 
 
-   
 end
 
 % Check scheme agreement
@@ -120,6 +121,15 @@ modelfolder = fullfile(modelsfolder, modeltype, schemename);
     );
 
 
+%% Save outputs
 
+outputfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting');
 
+outf = fullfile(outputfolder, SampleName, modeltype, schemename, fittingtechnique);
+mkdir(outf)
+
+save(fullfile(outf, 'fIC.mat'), 'fIC');
+save(fullfile(outf, 'fEES.mat'), 'fEES');
+save(fullfile(outf, 'fVASC.mat'), 'fVASC');
+save(fullfile(outf, 'R.mat'), 'R');
 

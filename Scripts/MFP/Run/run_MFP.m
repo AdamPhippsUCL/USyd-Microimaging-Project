@@ -1,6 +1,7 @@
-% MATLAB script to run VERDICT processing
+% MATLAB script to run MFP processing
 
-clear;
+% Project folder
+projectfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project";
 
 %% Image details
 
@@ -8,33 +9,36 @@ clear;
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
 
 % Sample name
-SampleName = '20241128_UQ1';
+SampleName = '20241218_UQ3';
 
 % Series descriptions
 SeriesDescriptions = {...
-    '40u_verdict_seq1_v2',...
-    '40u_verdict_seq2_v2',...
-    '40u_verdict_seq3_v2',...
-    '40u_verdict_seq4_v2',...
-    '40u_verdict_seq5_v2',...
+    '40u_verdict_seq1_LR',...
+    '40u_verdict_seq2_LR',...
+    '40u_verdict_seq3_LR',...
+    '40u_verdict_seq4_LR',...
+    '40u_verdict_seq5_LR',...
     };
 
+% Denoised data
+UseDenoisedData = true;
 
-%% VERDICT processing details
+%% Processing details
 
-verdictfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Scripts\VERDICT";
+% Model folder
+modelsfolder = fullfile(projectfolder, 'Scripts', 'MFP', 'MLP', 'models' );
 
 % Model type
-modeltype = 'Original VERDICT';
+modeltype = 'MFP v1';
 
 % Scheme name
-schemename = 'UQ Scheme v2';
+schemename = 'UQ3 Full';
+schemesfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\Schemes";
+load(fullfile(schemesfolder, schemename));
 
 % Fitting technique
 fittingtechnique = 'MLP';
 
-% Model folder
-modelsfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Scripts\VERDICT\MLP\models";
 
 %% Data preprocessing
 
@@ -48,7 +52,12 @@ for seriesindx = 1:length(SeriesDescriptions)
     SeriesDescription = SeriesDescriptions{seriesindx};
 
     % Load image and dinfo
-    thisfolder = fullfile(ImagingDataFolder, 'MAT DN', SampleName, SeriesDescription);
+    switch UseDenoisedData
+        case true
+            thisfolder = fullfile(ImagingDataFolder, 'MAT DN', SampleName, SeriesDescription);
+        case false
+            thisfolder = fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription);
+    end
     ImageArray = load(fullfile(thisfolder, 'axialImageArray.mat')).ImageArray;
     dinfo = load(fullfile(thisfolder, 'axialdinfo.mat')).dinfo;
 
@@ -56,19 +65,14 @@ for seriesindx = 1:length(SeriesDescriptions)
     DINFOS(seriesindx).dinfo = dinfo;
     ImageArrays(seriesindx).ImageArray = ImageArray;
 
-    
 end
-
-% == Load scheme
-
-scheme = load(fullfile(verdictfolder, 'Schemes', [schemename '.mat'])).scheme;
 
 
 % == Construct Y matrix
 
 % Initialise Y matrix
 Y = ones([size(ImageArrays(1).ImageArray, 1:3), length(scheme)]);
-bvec = zeros(1, 2*length(SeriesDescription));
+bvec = zeros(1, 2*length(SeriesDescriptions));
 
 for seriesindx = 1:length(SeriesDescriptions)
 
@@ -96,9 +100,7 @@ for seriesindx = 1:length(SeriesDescriptions)
     % Normalize and append to Y array
     Y(:,:,:,2*seriesindx) = bimg./b0img; 
 
-   
 end
-
 
 % Check scheme agreement
 if ~all(bvec == [scheme(:).bval])
@@ -106,6 +108,28 @@ if ~all(bvec == [scheme(:).bval])
 end
 
 
+%% MFP fitting
+
+% Define MLP model folder
+modelfolder = fullfile(modelsfolder, modeltype, schemename);
+
+[R, D] = mfp_fit( ...
+    Y, ...
+    scheme, ...
+    modeltype = modeltype,...
+    fittingtechnique = fittingtechnique,...
+    modelfolder = modelfolder...
+    );
 
 
+
+%% Save outputs
+
+outputfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting');
+
+outf = fullfile(outputfolder, SampleName, modeltype, schemename, fittingtechnique);
+mkdir(outf)
+
+save(fullfile(outf, 'R.mat'), 'R');
+save(fullfile(outf, 'D.mat'), 'D');
 

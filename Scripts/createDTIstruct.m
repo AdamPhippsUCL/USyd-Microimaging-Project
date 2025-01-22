@@ -9,16 +9,16 @@ ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\
 ImageType = 'MAT';
 
 % Sample name
-SampleName = '20241128_UQ1';
+SampleName = '20241218_UQ3';
 
 % Series Description
 SeriesDescriptions = {
-    '40u_verdict_seq1_v2',...
-    '40u_verdict_seq2_v2',...    
-    '40u_verdict_seq3_v2',...
-    '40u_verdict_seq4_v2',...
-    '40u_verdict_seq5_v2',...
-    % '40u_DtiStandard_2012',...
+    '40u_verdict_seq1_LR',...
+    '40u_verdict_seq2_LR',...    
+    '40u_verdict_seq3_LR',...
+    '40u_verdict_seq4_LR',...
+    '40u_verdict_seq5_LR',...
+    '40u_DtiStandard_2012',...
 };
 
 
@@ -131,6 +131,86 @@ for indx = 1:length(SeriesDescriptions)
     
             end
     
+        case '20241218_UQ3'
+
+            switch SeriesDescription
+
+                case '40u_verdict_seq1_LR'
+
+                    DiffusionBValue = [0, 0, 600, 600, 600, 600, 600, 600];
+
+                    DiffusionEffBValue = [...
+                        40.874806178439, 40.874806178439, 615.400011401037, 600.741695507857,... 
+                        600.546228372043, 624.156238401682, 603.737798260018, 611.650682773699...  
+                    ];
+    
+                    % TBC
+                    DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0]; 
+
+                case '40u_verdict_seq2_LR'
+
+                    DiffusionBValue = [0, 0, 900, 900, 900, 900, 900, 900];
+
+                    DiffusionEffBValue = [...
+                        40.874806178439, 40.874806178439, 912.881316083634, 900.806818909437,... 
+                        900.594094361001, 923.184038820087, 901.485234531137, 910.699217185179...
+                    ];
+    
+                    % TBC
+                    DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0]; 
+
+                case '40u_verdict_seq3_LR'
+
+                    DiffusionBValue = [0, 0, 1200, 1200, 1200, 1200, 1200, 1200];
+
+                    DiffusionEffBValue = [...
+                        40.874806178439, 40.874806178439, 1212.58939971525, 1200.85650837969,...
+                        1200.63061634199, 1222.36703414999, 1200.60034992734, 1209.90395810655...
+                    ];
+    
+                    % TBC
+                    DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0]; 
+
+                case '40u_verdict_seq4_LR'
+
+                    DiffusionBValue = [0, 0, 1500, 1500, 1500, 1500, 1500, 1500];
+
+                    DiffusionEffBValue = [...
+                        40.874806178439, 40.874806178439, 1512.42699031062, 1500.88218898693,... 
+                        1500.6494917022, 1521.9192709351, 1500.61831347838, 1509.46944383666...
+                    ];
+    
+                    % TBC
+                    DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0]; 
+
+                    
+
+                case '40u_verdict_seq5_LR'
+
+                    DiffusionBValue = [0, 0, 1800, 1800, 1800, 1800, 1800, 1800];
+
+                    DiffusionEffBValue = [...
+                        40.874806178439, 40.874806178439, 1812.2517664077, 1800.90859884585,... 
+                        1800.66890306562, 1821.44065604551, 1800.63678714002, 1809.0058829866...
+                    ];
+    
+                    % TBC
+                    DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0]; 
+
+
+                case '40u_DtiStandard_2012'
+
+                    DiffusionBValue = [0, 0, 1200, 1200, 1200, 1200, 1200, 1200];
+
+                    DiffusionEffBValue = [...
+                        40.874806178439, 40.874806178439, 1212.81394810932, 1200.81874320395,... 
+                        1200.60285877035, 1222.99391390378, 1201.04836987655, 1210.51384296977...
+                    ];
+    
+                    % TBC
+                    DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0]; 
+                    
+            end
     
             
     end

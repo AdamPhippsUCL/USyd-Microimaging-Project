@@ -3,14 +3,16 @@
 %% Initial definitions
 
 % Sample name
-SampleName = '20241128_UQ1';
+SampleName = '20241213_WSU1';
 
 % DICOM folder
-DICOMfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\Imaging Data\20241128_112522_RB_Q1_RB_Q1_1_1\36\pdata\1\dicom";
+DICOMfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\Imaging Data\20241213_125526_RB_FixedProstate_d20241213_1_1\16\pdata\1\dicom";
 
 % Imaging data folder (to save MAT images)
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
 
+% Image type
+imgtype = 'T2';
 
 %% Read DICOM information
 
@@ -26,6 +28,10 @@ dinfo=dfparse(dfnames);
 % Series description
 SeriesDescription = dinfo(1).SeriesDescription;
 
+if strcmp(SeriesDescription, '')
+    SeriesDescription = num2str(dinfo(1).SeriesNumber);
+end
+
 % PV Scaling
 RS = [dinfo.RescaleSlope];
 RI = [dinfo.RescaleIntercept];
@@ -34,24 +40,29 @@ SS = [dinfo.Private_2005_100e];
 
 %% Diffusion Information (read manually from Method file)
 
-% Load DTI information structure
-DTIstruct = load( fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'DTIstruct.mat') ).DTIstruct;
-bvals = DTIstruct.DiffusionBValue;
-effbvals = DTIstruct.DiffusionEffBValue;
+switch imgtype 
 
-[dinfo(:).DiffusionBValue] = deal(0);
-[dinfo(:).DiffusionEffBValue] = deal(0);
-
-% Append to dinfo structure
-for sl = unique([dinfo(:).sl])
-    framebools = ([dinfo(:).sl] == sl);
-    indices = find(framebools);
-    for bindx = 1:length(indices)
-        bval = bvals(bindx);
-        indice = indices(bindx);
-        dinfo(indice).DiffusionBValue = bvals(bindx);
-        dinfo(indice).DiffusionEffBValue = effbvals(bindx);
-    end
+    case 'DTI'
+        % Load DTI information structure
+        DTIstruct = load( fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'DTIstruct.mat') ).DTIstruct;
+        bvals = DTIstruct.DiffusionBValue;
+        effbvals = DTIstruct.DiffusionEffBValue;
+        
+        [dinfo(:).DiffusionBValue] = deal(0);
+        [dinfo(:).DiffusionEffBValue] = deal(0);
+        
+        % Append to dinfo structure
+        for sl = unique([dinfo(:).sl])
+            framebools = ([dinfo(:).sl] == sl);
+            indices = find(framebools);
+            for bindx = 1:length(indices)
+                bval = bvals(bindx);
+                indice = indices(bindx);
+                dinfo(indice).DiffusionBValue = bvals(bindx);
+                dinfo(indice).DiffusionEffBValue = effbvals(bindx);
+            end
+        end
+    
 end
 
 
@@ -72,6 +83,8 @@ VoxelCoordinates = constructVoxelCoordinates(dinfo);
 
 %% Save dinfo structure and image array
 
+folder = fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription);
+mkdir(folder);
 save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'dinfo.mat'), 'dinfo');
 save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'ImageArray.mat'), 'ImageArray');
 save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'VoxelCoordinates.mat'), 'VoxelCoordinates');
