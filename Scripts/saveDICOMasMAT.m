@@ -1,18 +1,20 @@
 % MATLAB Script to save DICOM image as MAT array with corresponding dinfo structure
 
+clear;
+
 %% Initial definitions
 
 % Sample name
-SampleName = '20241213_WSU1';
+SampleName = '20250224_UQ4';
 
 % DICOM folder
-DICOMfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\Imaging Data\20241213_125526_RB_FixedProstate_d20241213_1_1\16\pdata\1\dicom";
+DICOMfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\Imaging Data\20250224_101912_RB_Q4_RB_Q4_1_1\48\pdata\1\dicom";
 
 % Imaging data folder (to save MAT images)
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
 
 % Image type
-imgtype = 'T2';
+imgtype = 'DTI';
 
 %% Read DICOM information
 
@@ -32,6 +34,9 @@ if strcmp(SeriesDescription, '')
     SeriesDescription = num2str(dinfo(1).SeriesNumber);
 end
 
+% % USING NUMBER!!
+% SeriesDescription = num2str(dinfo(1).SeriesNumber);
+
 % PV Scaling
 RS = [dinfo.RescaleSlope];
 RI = [dinfo.RescaleIntercept];
@@ -43,6 +48,7 @@ SS = [dinfo.Private_2005_100e];
 switch imgtype 
 
     case 'DTI'
+
         % Load DTI information structure
         DTIstruct = load( fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'DTIstruct.mat') ).DTIstruct;
         bvals = DTIstruct.DiffusionBValue;
@@ -78,8 +84,6 @@ for frameindx = 1:Nframes
 end
 
 
-%% Voxel coordinates
-VoxelCoordinates = constructVoxelCoordinates(dinfo);
 
 %% Save dinfo structure and image array
 
@@ -87,6 +91,9 @@ folder = fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription);
 mkdir(folder);
 save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'dinfo.mat'), 'dinfo');
 save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'ImageArray.mat'), 'ImageArray');
-save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'VoxelCoordinates.mat'), 'VoxelCoordinates');
 
+
+% %% Voxel coordinates
+% VoxelCoordinates = constructVoxelCoordinates(dinfo);
+% save(fullfile(ImagingDataFolder, 'MAT' , SampleName, SeriesDescription, 'VoxelCoordinates.mat'), 'VoxelCoordinates');
 

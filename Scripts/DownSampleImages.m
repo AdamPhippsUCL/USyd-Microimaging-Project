@@ -7,16 +7,27 @@ clear;
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
 
 % Sample name
-SampleName = '20241218_UQ3';
+SampleName = '20250224_UQ4';
 
 % Series description
 SeriesDescriptions = {...
-    '3DMGE_20u',...
+    % '3DMGE_20u'
+    'SE_b0_SPOIL10%',...
+    'STEAM_ShortDELTA_15',...
+    'STEAM_ShortDELTA_20',...
+    'STEAM_ShortDELTA_30',...
+    'STEAM_ShortDELTA_40',...
+    'STEAM_ShortDELTA_50',...
+    'STEAM_LongDELTA_40',...
+    'STEAM_LongDELTA_60',...
+    'STEAM_LongDELTA_80',...
+    'STEAM_LongDELTA_100',...
+    'STEAM_LongDELTA_120'...
     };
 
 
 % Downsample settings
-downsamplewindow = [2,2,2]; 
+downsamplewindow = [2,3,4]; 
 overlap = false;
 
 for seriesindx = 1:length(SeriesDescriptions)
@@ -24,20 +35,27 @@ for seriesindx = 1:length(SeriesDescriptions)
     SeriesDescription = SeriesDescriptions{seriesindx};
 
     % Load image
-    ImageArray = load(fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'axialImageArray.mat')).ImageArray;
+    ImageArray = load(fullfile(ImagingDataFolder, 'MAT DN', SampleName, SeriesDescription, 'axialImageArray.mat')).ImageArray;
 
     % Load dinfo
-    dinfo = load(fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'axialdinfo.mat')).dinfo;
+    dinfo = load(fullfile(ImagingDataFolder, 'MAT DN', SampleName, SeriesDescription, 'axialdinfo.mat')).dinfo;
 
-    % Load VoxelCoordinates
-    VoxelCoordinates = load(fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'axialVoxelCoordinates.mat')).VoxelCoordinates;
- 
+    try
+        % Load VoxelCoordinates
+        VoxelCoordinates = load(fullfile(ImagingDataFolder, 'MAT DN', SampleName, SeriesDescription, 'axialVoxelCoordinates.mat')).VoxelCoordinates;
+    catch
+        disp('')
+    end     
 
     % Downsample image
     ImageArray = downsample(ImageArray, downsamplewindow, overlap=overlap);
 
-    % Downsample voxel coordinates
-    VoxelCoordinates = downsample(VoxelCoordinates, downsamplewindow, overlap=overlap);
+    try
+        % Downsample voxel coordinates
+        VoxelCoordinates = downsample(VoxelCoordinates, downsamplewindow, overlap=overlap);
+    catch
+        disp('')
+    end
 
     % Update voxel size information in dinfo
     [dinfo(:).PixelSpacing] = deal([dinfo(1).PixelSpacing].*downsamplewindow(1:2));
@@ -46,11 +64,16 @@ for seriesindx = 1:length(SeriesDescriptions)
 
     % Save downsampled data
     SeriesDescription = [SeriesDescription ' (' num2str(dinfo(1).SliceThickness*1000) ' micron)' ];
-    folder = fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription);
+    folder = fullfile(ImagingDataFolder, 'MAT DN', SampleName, SeriesDescription);
     mkdir(folder)
     save(fullfile(folder, 'axialImageArray.mat'), 'ImageArray');
     save(fullfile(folder, 'axialdinfo.mat'), 'dinfo');
-    save(fullfile(folder, 'axialVoxelCoordinates.mat'), 'VoxelCoordinates');
+
+    try
+        save(fullfile(folder, 'axialVoxelCoordinates.mat'), 'VoxelCoordinates');
+    catch
+        disp('')
+    end
 
     Meta = struct();
     Meta.downsamplewindow = downsamplewindow;

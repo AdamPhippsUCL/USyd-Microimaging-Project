@@ -4,11 +4,11 @@
 basef = char("C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Scripts\VERDICT");
 
 % Number of training data samples
-Nvoxel = 20000;
+Nvoxel = 50000;
 
 % Noise 
 noisetype = 'Rice';
-sigma0 = 0.01;
+sigma0 = 0.02;
 T2 = 10000;
 
 % Training data folder
@@ -18,23 +18,32 @@ TrainingDataFolder = [basef '/MLP/training data'];
 %% Protocols
 
 % If multiple, define as a cell array of char arrays
-modeltypes = {'Original VERDICT'};
-schemenames = {'UQ3 Full'};
+modeltypes = {'No VASC VERDICT (AMICO)'};
+schemenames = {'20250224_UQ4 ShortDELTA'};
 
-schemesfolder = [basef '/Schemes'];
+schemesfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\DW-MRI-Modelling\Schemes";
 
 
+%% VERDICT model parameter ranges
 
-%% VERDICT model
+fICs = [0, 1];
+fVASCs = [0, 0];
+
 
 % Cell Radius distribution R~Normal( muR, sigmaR)
+
+Rvals = linspace(0.1, 15.1, 16);
+
 muRmin = 3;
-muRmax = 9;
+muRmax = 15;
+Rs = [muRmin, muRmax];
+
 sigmaRmin = 1;
 sigmaRmax = 2;
+sigmaRs = [sigmaRmin, sigmaRmax];
 
 % Diffusivities
-dIC=2;
+dIC=1;
 dEES=1;
 dVASC=8;
 
@@ -48,7 +57,7 @@ for indx = 1:length(modeltypes)
 
     disp([modeltype ' ' schemename])
 
-    outputfolder = [TrainingDataFolder '/' modeltype '/' schemename '/'];
+    outputfolder = fullfile(TrainingDataFolder, modeltype, schemename);
     
     createVERDICTdata( ...
         modeltype,...
@@ -57,8 +66,11 @@ for indx = 1:length(modeltypes)
         noisetype = noisetype,...
         sigma0 = sigma0,...
         T2 = T2,...
-        randmuRs=[muRmin, muRmax],...
-        randsigmaRs=[sigmaRmin, sigmaRmax],...
+        fICs = fICs,...
+        fVASCs = fVASCs,...
+        Rs = Rs, ...
+        Rvals = Rvals,....
+        sigmaRs=sigmaRs,...
         dIC=dIC,...
         dEES=dEES,...
         dVASC=dVASC,...

@@ -6,10 +6,10 @@
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
 
 % Sample name
-SampleName = '20241213_WSU1';
+SampleName = '20250203_UQ3';
 
 % Series description
-SeriesDescription = '160001';
+SeriesDescription = '3DMGE_20u (40 micron)';
 
 %% Load image + info
 
@@ -44,7 +44,7 @@ save(fullfile(folder, 'T2.mat'), 'T2');
 
 %% Display example images
 
-slice = 450;
+slice = 100;
 
 figure;
 imgslice = ImageArray(:,:,slice, 1);
@@ -52,7 +52,7 @@ imshow(imgslice, [])
 
 figure;
 T2slice = T2(:,:,slice);
-imshow(T2slice, [0, 20]);
+imshow(T2slice, [0, 60]);
 
 
 % %% Experiment with histograms

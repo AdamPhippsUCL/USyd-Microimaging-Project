@@ -9,16 +9,17 @@ ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\
 ImageType = 'MAT';
 
 % Sample name
-SampleName = '20241218_UQ3';
+SampleName = '20250224_UQ4';
 
 % Series Description
 SeriesDescriptions = {
-    '40u_verdict_seq1_LR',...
-    '40u_verdict_seq2_LR',...    
-    '40u_verdict_seq3_LR',...
-    '40u_verdict_seq4_LR',...
-    '40u_verdict_seq5_LR',...
-    '40u_DtiStandard_2012',...
+    'SE_b0_SPOIL10%',...
+    'STEAM_DELTA_15',...
+    'STEAM_DELTA_20',...
+    'STEAM_DELTA_30',...
+    'STEAM_DELTA_40',...
+    'STEAM_DELTA_50',...
+    '40u_DtiSTE_SPOIL5%'
 };
 
 
@@ -211,8 +212,149 @@ for indx = 1:length(SeriesDescriptions)
                     DiffusionDirection = [0, 0, 0, 0, 0, 0, 0, 0]; 
                     
             end
-    
+
+
+        case '20250131_CPC1'
+
+            switch SeriesDescription
+
+                case '192670001' % STEAM DELTA 80 B 1000
+
+                    DiffusionBValue = [0, 1000, 1000, 1000];
+                    
+                    % TBC
+                    DiffusionEffBValue = [0, 1000, 1000, 1000];
+                    DiffusionDirection = [0, 0, 0, 0];
+
+                case '192700001' % STEAM DELTA 120 B 2000
+
+                    DiffusionBValue = [0, 2000, 2000, 2000];
+
+                    % TBC
+                    DiffusionEffBValue = [0, 2000, 2000, 2000];
+                    DiffusionDirection = [0, 0, 0, 0];  
+
+                case '192720001' % STEAM DELTA 40 B1500
+
+                    DiffusionBValue = [0, 1500, 1500, 1500];
+
+                    % TBC
+                    DiffusionEffBValue = [0, 1500, 1500, 1500];
+                    DiffusionDirection = [0, 0, 0, 0];    
+
+
+              case '192690001' % SE DELTA 15 B 2000  
+
+                    DiffusionBValue = [0, 2000, 2000, 2000];
+
+                    % TBC
+                    DiffusionEffBValue = [0, 2000, 2000, 2000];
+                    DiffusionDirection = [0, 0, 0, 0]; 
+
+              case '192710001' % SE DELTA 20 B 1500  
+
+                    DiffusionBValue = [0, 1500, 1500, 1500];
+
+                    % TBC
+                    DiffusionEffBValue = [0, 1500, 1500, 1500];
+                    DiffusionDirection = [0, 0, 0, 0];    
+
+
+              case '192730001' % SE DELTA 20 B 1500  
+
+                    DiffusionBValue = [0, 1000, 1000, 1000];
+
+                    % TBC
+                    DiffusionEffBValue = [0, 1000, 1000, 1000];
+                    DiffusionDirection = [0, 0, 0, 0];                      
+            end
+
+
+
+        case '20250224_UQ4'
             
+            switch SeriesDescription
+
+                case 'SE_b0_SPOIL10%'
+
+                    DiffusionBValue = [0, 0, 0, 0];
+                    DiffusionDirection = [0, 0, 0, 0];
+                    DiffusionEffBValue = [40.874806178439 40.874806178439 40.874806178439 40.874806178439];
+
+
+                % case 'STEAM_DELTA_40'
+                % 
+                %     DiffusionBValue = [0, 1000, 1000, 1000, 1000, 1000, 1000];
+                %     DiffusionDirection = [0,0,0,0,0,0,0];
+                %     DiffusionEffBValue = [31.4555326508071 1030.00865891474 1022.785232274 1016.82344802067 1007.11154118745 1016.024651232 994.196831972685];
+                % 
+                % 
+                % case 'STEAM_DELTA_60'
+                % 
+                %     DiffusionBValue = [0, 1250, 1250, 1250, 1250, 1250, 1250];
+                %     DiffusionDirection = [0,0,0,0,0,0,0];
+                %     DiffusionEffBValue = [49.3776905745272 1293.67897606535 1283.17531330854 1274.50621838444 1262.69815513832 1273.34467933978 1241.60461141643];
+                % 
+                % 
+                % case 'STEAM_DELTA_80'
+                % 
+                %     DiffusionBValue = [0, 1500, 1500, 1500, 1500, 1500, 1500];
+                %     DiffusionDirection = [0,0,0,0,0,0,0];
+                %     DiffusionEffBValue = [67.2998484982473 1556.88949057735 1543.21734229189 1531.93316894712 1518.27178656765 1530.42124549473 1489.10661789428];
+                % 
+                % case 'STEAM_DELTA_100'
+                % 
+                %     DiffusionBValue = [0, 1750, 1750, 1750, 1750, 1750, 1750];
+                %     DiffusionDirection = [0,0,0,0,0,0,0];
+                %     DiffusionEffBValue = [85.2220064219674 1819.8907093611 1803.10094285096 1789.24367391537 1773.83542155106 1787.3869911749 1736.65151519978];
+                % 
+                % case 'STEAM_DELTA_120'
+                % 
+                %     DiffusionBValue = [0, 2000, 2000, 2000, 2000, 2000, 2000];
+                %     DiffusionDirection = [0,0,0,0,0,0,0];
+                %     DiffusionEffBValue = [103.144164345687 2082.77829673617 2062.89852901701 2046.49095792332 2029.39237426483 2044.29256990009 1984.21969891062];
+                % 
+                % 
+                case 'STEAM_DELTA_15'
+
+                    DiffusionBValue = [0, 1000, 1000, 1000, 1000, 1000, 1000];
+                    DiffusionDirection = [0,0,0,0,0,0,0];
+                    DiffusionEffBValue = [9.05283524615702 1012.54659566948 1009.51440180003 1007.01181036206 1002.41998289654 1006.67649765716 997.513785410845];
+
+                case 'STEAM_DELTA_20'
+
+                    DiffusionBValue = [0, 1250, 1250, 1250, 1250, 1250, 1250];
+                    DiffusionDirection = [0,0,0,0,0,0,0];
+                    DiffusionEffBValue = [13.533374727087 1269.19965780595 1264.56105207128 1260.73262437321 1253.70811402484 1260.21966791236 1246.20268502774];
+
+                case 'STEAM_DELTA_30'
+
+                    DiffusionBValue = [0, 1500, 1500, 1500, 1500, 1500, 1500];
+                    DiffusionDirection = [0,0,0,0,0,0,0];
+                    DiffusionEffBValue = [22.4944536889471 1529.76232974936 1522.57766985809 1516.6478813608 1505.76773317781 1515.85337156174 1494.14269803435];    
+            
+                case 'STEAM_DELTA_40'
+
+                    DiffusionBValue = [0, 1750, 1750, 1750, 1750, 1750, 1750];
+                    DiffusionDirection = [0,0,0,0,0,0,0];
+                    DiffusionEffBValue = [31.4555326508071 1789.60487926892 1780.04918401636 1772.16248476409 1757.69173988364 1771.10577593863 1742.23028522713];  
+
+                case 'STEAM_DELTA_50'
+
+                    DiffusionBValue = [0, 2000, 2000, 2000, 2000, 2000, 2000];
+                    DiffusionDirection = [0,0,0,0,0,0,0];
+                    DiffusionEffBValue = [40.4166116126672 2049.11559200975 2037.26951111784 2027.49246456673 2009.55325555165 2026.1824752991 1990.38587549958];  
+
+                case '40u_DtiSTE_SPOIL5%'
+
+                    DiffusionBValue  = [0, 0, 1200, 1200, 1200, 1200, 1200, 1200];
+                    DiffusionDirection = [0,0,0,0,0,0,0,0];
+                    DiffusionEffBValue = [497.009991353231 497.009991353231 1450.51908514414 1279.40842320093 1232.78246418072 1492.57145401906 1294.52249145437 1339.17154968835];
+
+
+
+            end
+
     end
 
 

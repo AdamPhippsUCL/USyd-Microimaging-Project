@@ -13,17 +13,18 @@ SNR = 50; % SNR at TE=0;
 sigma0 = 1/SNR;
 
 % Tissue settings
-dIC=2;
-dEES=2;
-Rs = linspace(6,9,3); % Different cell sizes to consider
-T2 = 30;
+dIC=1;
+dEES=1;
+Rs = linspace(4,12,9); % Different cell sizes to consider
+T2 = 25;
 
 % Imaging settings
-bvals = [800,1000,1200];%linspace(400,2000,17);
-Gmax = 3000;
-Deltas = linspace(1,50,51);
-deltas = linspace(1,30,31);
-TEconst = 5; % TE = delta + DELTA + TEconst
+bvals = linspace(400,3000,27);
+TEconst=22;
+Gmax = 300;
+Deltas = linspace(2,180,91);
+deltas = linspace(1,5,5);
+
 
 
 
@@ -67,8 +68,9 @@ for bindx = 1:length(bvals)
                 delta = deltas(dindx);
                 Delta = Deltas(Dindx);
     
-                % Echo time
-                TE = delta+Delta+TEconst;
+                % % Echo time
+                % TE = delta+Delta+TEconst;
+                TE= 2*delta + 10 ;
     
                 % b=0 signal
                 b0 = exp(-TE/T2);
@@ -116,44 +118,43 @@ for bindx = 1:length(bvals)
 
     % total
     totalcontrast = ICcontrast.*Rcontrast;
+
+    % f=figure;
+    % tiledlayout(1,3);
+    % sgtitle(['b value: ' num2str(bval)])
     % 
+    % % IC contrast
+    % nexttile;
+    % imshow(ICcontrast,[min(ICcontrast(ICcontrast>0.001)) max(ICcontrast(:))])
+    % colorbar;
+    % xlabel('Delta')
+    % ylabel('delta')
+    % title(['IC contrast to noise ratio, Max = ' num2str(max(ICcontrast(:))) ])
+    % axis('on', 'image');
+    % xticklabels(Deltas(xticks))
+    % yticklabels(deltas(yticks))
+
+    % % R contrast
+    % nexttile;
+    % imshow(Rcontrast,[min(Rcontrast(Rcontrast>0.001)) max(Rcontrast(:))])
+    % colorbar;
+    % xlabel('Delta')
+    % ylabel('delta')
+    % title(['R contrast to noise ratio, Max = ' num2str(max(Rcontrast(:))) ])
+    % axis('on', 'image');
+    % xticklabels(Deltas(xticks))
+    % yticklabels(deltas(yticks))
     % 
-    f=figure;
-    tiledlayout(1,3);
-    sgtitle(['b value: ' num2str(bval)])
-
-    % IC contrast
-    nexttile;
-    imshow(ICcontrast,[min(ICcontrast(ICcontrast>0.001)) max(ICcontrast(:))])
-    colorbar;
-    xlabel('Delta')
-    ylabel('delta')
-    title(['IC contrast to noise ratio, Max = ' num2str(max(ICcontrast(:))) ])
-    axis('on', 'image');
-    xticklabels(Deltas(xticks))
-    yticklabels(deltas(yticks))
-
-    % R contrast
-    nexttile;
-    imshow(Rcontrast,[min(Rcontrast(Rcontrast>0.001)) max(Rcontrast(:))])
-    colorbar;
-    xlabel('Delta')
-    ylabel('delta')
-    title(['R contrast to noise ratio, Max = ' num2str(max(Rcontrast(:))) ])
-    axis('on', 'image');
-    xticklabels(Deltas(xticks))
-    yticklabels(deltas(yticks))
-
-    % R contrast
-    nexttile;
-    imshow(totalcontrast,[min(totalcontrast(totalcontrast>0.001)) max(totalcontrast(:))])
-    colorbar;
-    xlabel('Delta')
-    ylabel('delta')
-    title(['Total contrast to noise ratio, Max = ' num2str(max(totalcontrast(:))) ])
-    axis('on', 'image');
-    xticklabels(Deltas(xticks))
-    yticklabels(deltas(yticks))
+    % % R contrast
+    % nexttile;
+    % imshow(totalcontrast,[min(totalcontrast(totalcontrast>0.001)) max(totalcontrast(:))])
+    % colorbar;
+    % xlabel('Delta')
+    % ylabel('delta')
+    % title(['Total contrast to noise ratio, Max = ' num2str(max(totalcontrast(:))) ])
+    % axis('on', 'image');
+    % xticklabels(Deltas(xticks))
+    % yticklabels(deltas(yticks))
 
 
     % Maximum IC contrast
@@ -170,11 +171,11 @@ for bindx = 1:length(bvals)
     RbestDELTAs(bindx) = Deltas(I2);
 
 
-    % Maximum 'total' contrast
-    [maxtotalcontrast(bindx),I] = max(totalcontrast(:));
-    [I1, I2] = ind2sub(size(totalcontrast),I);
-    totalbestdeltas(bindx) = deltas(I1);
-    totalbestDELTAs(bindx) = Deltas(I2);
+    % % Maximum 'total' contrast
+    % [maxtotalcontrast(bindx),I] = max(totalcontrast(:));
+    % [I1, I2] = ind2sub(size(totalcontrast),I);
+    % totalbestdeltas(bindx) = deltas(I1);
+    % totalbestDELTAs(bindx) = Deltas(I2);
 
 end
 
@@ -215,21 +216,21 @@ legend;
 xlabel('b value (s/mm^2)')
 ylabel('Best delta/DELTA (ms)')
 
-
-% Maximum total contrast
-figure;
-tiledlayout(1,2);
-sgtitle('Total contrast')
-
-nexttile;
-plot(bvals, maxtotalcontrast, '*-');
-xlabel('b value (s/mm^2)')
-ylabel('Max total contrast')
-
-nexttile;
-plot(bvals, totalbestdeltas, '*-', DisplayName = 'delta');
-hold on
-plot(bvals, totalbestDELTAs, '*-', DisplayName = 'DELTA');
-legend;
-xlabel('b value (s/mm^2)')
-ylabel('Best delta/DELTA (ms)')
+% 
+% % Maximum total contrast
+% figure;
+% tiledlayout(1,2);
+% sgtitle('Total contrast')
+% 
+% nexttile;
+% plot(bvals, maxtotalcontrast, '*-');
+% xlabel('b value (s/mm^2)')
+% ylabel('Max total contrast')
+% 
+% nexttile;
+% plot(bvals, totalbestdeltas, '*-', DisplayName = 'delta');
+% hold on
+% plot(bvals, totalbestDELTAs, '*-', DisplayName = 'DELTA');
+% legend;
+% xlabel('b value (s/mm^2)')
+% ylabel('Best delta/DELTA (ms)')

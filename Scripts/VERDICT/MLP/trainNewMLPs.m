@@ -4,8 +4,8 @@
 basef = char("C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Scripts\VERDICT");
 
 % Specify protocols 
-modeltypes = {'Original VERDICT'};
-schemenames = {'UQ3 Full'};
+modeltypes = {'No VASC VERDICT (AMICO)'};
+schemenames = {'20250224_UQ4 ShortDELTA'};
 
 TrainingDataFolder = [basef '/MLP/training data'];
 ModelFolder = [basef '/MLP/models'];
@@ -20,7 +20,8 @@ for indx = 1:length(modeltypes)
 
     trainMLP( ...
         datafolder,...
-        modelfolder...
+        modelfolder,...
+        scaleparams=false...
         );
     
 end

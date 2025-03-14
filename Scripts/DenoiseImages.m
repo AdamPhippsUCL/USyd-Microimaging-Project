@@ -6,11 +6,16 @@
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
 
 % Sample name
-SampleName = '20241213_WSU1';
+SampleName = '20250224_UQ4';
 
 % Series description
 SeriesDescriptions = {...
-    '160001'...
+    % 'SE_b0_SPOIL10%',...
+    'STEAM_ShortDELTA_15',...
+    'STEAM_ShortDELTA_20',...
+    'STEAM_ShortDELTA_30',...
+    'STEAM_ShortDELTA_40',...
+    'STEAM_ShortDELTA_50',...
     };
 
 
@@ -25,9 +30,13 @@ for seriesindx = 1:length(SeriesDescriptions)
     % Load dinfo
     dinfo = load(fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'axialdinfo.mat')).dinfo;
     
-    % Load voxel coordinates
-    VoxelCoordinates = load(fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'axialVoxelCoordinates.mat')).VoxelCoordinates;
-    
+    try
+        % Load voxel coordinates
+        VoxelCoordinates = load(fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'axialVoxelCoordinates.mat')).VoxelCoordinates;
+    catch
+        disp('')
+    end
+
     % SELECT FRAMES FOR DENOISING
     ImageArray = ImageArray;
     dinfo = dinfo;
@@ -59,7 +68,11 @@ for seriesindx = 1:length(SeriesDescriptions)
     
     save(fullfile(folder, 'axialImageArray.mat'), 'ImageArray');
     save(fullfile(folder, 'axialdinfo.mat'), 'dinfo');
-    save(fullfile(folder, 'axialVoxelCoordinates.mat'), 'VoxelCoordinates');
+    try
+        save(fullfile(folder, 'axialVoxelCoordinates.mat'), 'VoxelCoordinates');
+    catch
+        disp('')
+    end    
     save(fullfile(folder, 'window.mat'), 'window');
     
 

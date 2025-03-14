@@ -2,34 +2,39 @@
 
 clear;
 
+projectfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project";
+
 %% Image details
 
 % Imaging data folder 
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
 
 % Sample name
-SampleName = '20241218_UQ3';
+SampleName = '20250131_CPC1';
 
 % Series descriptions
 SeriesDescriptions = {...
-    '40u_verdict_seq1_LR',...
-    '40u_verdict_seq2_LR',...
-    '40u_verdict_seq3_LR',...
-    '40u_verdict_seq4_LR',...
-    '40u_verdict_seq5_LR',...
+    % % STEAM
+    % '192700001',...
+    % '192720001',...
+    % '192670001',...
+    % SE
+    '192690001',...
+    '192710001',...
+    '192730001',...
     };
 
 % Denoised data
-UseDenoisedData = true;
+UseDenoisedData = false;
 
 %% VERDICT processing details
 
 % Model type
-modeltype = 'Original VERDICT';
+modeltype = 'No VASC VERDICT (AMICO)';
 
 % Scheme name
-schemename = 'UQ3 Full';
-schemesfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\Schemes";
+schemename = '20250131_CPC SE';
+schemesfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\DW-MRI-Modelling\Schemes";
 load(fullfile(schemesfolder, schemename));
 
 % Fitting technique
@@ -37,6 +42,7 @@ fittingtechnique = 'MLP';
 
 % Model folder
 modelsfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Scripts\VERDICT\MLP\models";
+
 
 %% Data preprocessing
 
