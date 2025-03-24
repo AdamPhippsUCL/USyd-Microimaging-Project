@@ -7,8 +7,8 @@ TrainingDataFolder = fullfile(projectfolder, 'Scripts', 'RDI', 'MLP', 'training 
 ModelFolder = fullfile(projectfolder, 'Scripts', 'RDI', 'MLP', 'models');
 
 % Specify protocols 
-modeltypes = {'RDI - 2 compartment - 4 param'};
-schemenames = {'20250224_UQ4 MixedDELTA2'};
+modeltypes = {'RDI - 1 compartment - 2 param'};
+schemenames = {'20250224_UQ4 ShortDELTA'};
 
 % scale params
 scaleparams = true;

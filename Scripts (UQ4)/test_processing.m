@@ -43,23 +43,20 @@ STROMA = and( ~logical(GLANDULAR), ~logical(LUMEN));
 %% Load parameter maps
 
 % Model type
-modeltype = 'RDI - 2 compartment - 4 param';
+modeltype = 'ADC';
 
 % Scheme name
-schemename = '20250224_UQ4 MixedDELTA1';
+schemename = '20250224_UQ4 LongDELTA';
 
 % Fitting technique
-fittingtechnique = 'MLP';
+fittingtechnique = 'LSQ';
 
 % Parameter folder
 paramfolder = fullfile(projectfolder, "Outputs", "Model Fitting", samplename, modeltype, schemename, fittingtechnique);
 
-% Load parameter maps
-% parammap = load(fullfile(paramfolder, 'ADC.mat')).ADC;
-parammap = load(fullfile(paramfolder, 'fIC.mat')).fIC;
-% R = load(fullfile(paramfolder, 'R.mat')).R;
-% dIC = load(fullfile(paramfolder, 'dIC.mat')).dIC;
-% dEES = load(fullfile(paramfolder, 'dEES.mat')).dEES;
+% Load parameter map
+parammap = load(fullfile(paramfolder, 'ADC.mat')).ADC;
+
 
 szmap = size(parammap);
 
@@ -99,7 +96,7 @@ end
 
 %% TEST SCATTER
 
-sl = 15:16;
+sl = 15:17;
 
 % Parameters
 paramvals = parammap(sl,:,:);
@@ -176,14 +173,14 @@ P = P(1,2);
 RL = RL(1,2);
 RU = RU(1,2);
 
-legendHandle = legend(Location='northwest');
+legendHandle = legend(Location='northeast');
 
 
 % Get legend position
 legendPos = legendHandle.Position; 
 
 % Define textbox position directly below legend
-textboxPos = [legendPos(1)-0.01, legendPos(2) - legendPos(4) + 0.00, legendPos(3) + 0.045, legendPos(4)];
+textboxPos = [legendPos(1)-0.01, legendPos(2) - legendPos(4) + 0.00, legendPos(3) + 0.1, legendPos(4)];
 
-annotation('textbox', textboxPos, 'String', ['R = ' sprintf('%.3f', R) ' (' sprintf('%.3f', RL) ', ' sprintf('%.3f', RU) ')'], ...
+annotation('textbox', textboxPos, 'String', ['CC = ' sprintf('%.3f', R) ' (' sprintf('%.3f', RL) ', ' sprintf('%.3f', RU) ')'], ...
     'EdgeColor', 'none', 'BackgroundColor', 'none', 'FontSize', 10);

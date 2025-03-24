@@ -7,8 +7,8 @@ projectfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\
 mfpfolder = char("C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\MFP-Processing");
 
 % Specify protocols 
-modeltypes = {'MFP v1'};
-schemenames = {'UQ3 Full'};
+modeltypes = {'MFP v2'};
+schemenames = {'20250224_UQ4 ShortDELTA'};
 
 TrainingDataFolder = fullfile(projectfolder, 'Scripts', 'MFP',  'MLP', 'training data');
 ModelFolder = fullfile(projectfolder, 'Scripts', 'MFP',  'MLP', 'models');
@@ -24,7 +24,7 @@ for indx = 1:length(modeltypes)
     trainMLP( ...
         datafolder,...
         modelfolder,...
-        maxepochs = 500 ...
+        maxepochs = 150 ...
         );
     
 end

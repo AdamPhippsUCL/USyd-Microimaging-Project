@@ -8,7 +8,7 @@ clear;
 SampleName = '20250224_UQ4';
 
 % DICOM folder
-DICOMfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\Imaging Data\20250224_101912_RB_Q4_RB_Q4_1_1\48\pdata\1\dicom";
+DICOMfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\Imaging Data\20250224_101912_RB_Q4_RB_Q4_1_1\21\pdata\1\dicom";
 
 % Imaging data folder (to save MAT images)
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";
@@ -53,6 +53,13 @@ switch imgtype
         DTIstruct = load( fullfile(ImagingDataFolder, 'MAT', SampleName, SeriesDescription, 'DTIstruct.mat') ).DTIstruct;
         bvals = DTIstruct.DiffusionBValue;
         effbvals = DTIstruct.DiffusionEffBValue;
+
+        try
+            direcs = DTIstruct.DiffusionDirection;
+        catch
+            disp('')
+        end
+
         
         [dinfo(:).DiffusionBValue] = deal(0);
         [dinfo(:).DiffusionEffBValue] = deal(0);
@@ -66,6 +73,11 @@ switch imgtype
                 indice = indices(bindx);
                 dinfo(indice).DiffusionBValue = bvals(bindx);
                 dinfo(indice).DiffusionEffBValue = effbvals(bindx);
+                try
+                    dinfo(indice).DiffusionDirection = direcs(bindx,:);
+                catch
+                    disp('')
+                end
             end
         end
     

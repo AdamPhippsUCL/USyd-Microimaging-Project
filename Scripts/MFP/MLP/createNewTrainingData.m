@@ -7,7 +7,7 @@ projectfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\
 mfpfolder = char("C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\MFP-Processing");
 
 % Number of training samples
-Nvoxel = 10000;
+Nvoxel = 50000;
 
 % Noise 
 noisetype = 'Rice';
@@ -22,21 +22,21 @@ TrainingDataFolder = fullfile(projectfolder, 'Scripts', 'MFP',  'MLP', 'training
 %% Protocols
 
 % If multiple, define as a cell array of char arrays
-modeltypes = {'MFP v1'};
-schemenames = {'UQ3 Full'};
+modeltypes = {'MFP v2'};
+schemenames = {'20250224_UQ4 ShortDELTA'};
 
 % Set schemes folder
-schemesfolder = char("C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\Schemes");
+schemesfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\DW-MRI-Modelling\Schemes";
 
 %% Training data settings
 
 % Range of MFP
-Rmin = 1;
+Rmin = 4;
 Rmax = 40;
 
 % Diffusivity range
-Dmin = 2;
-Dmax = 2;
+Dmin = 0.5;
+Dmax = 3;
 
 
 %% Create training data

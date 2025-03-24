@@ -9,7 +9,7 @@ Nvoxel = 50000;
 
 % Noise 
 noisetype = 'Rice';
-sigma0 = 0.02;
+sigma0 = 0.01;
 T2 = 10000;
 
 % Training data folder
@@ -20,20 +20,20 @@ TrainingDataFolder = fullfile(projectfolder, 'Scripts', 'RDI', 'MLP', 'training 
 %% Protocol
 
 % Model type
-modeltype = 'RDI - 2 compartment - 4 param';
+modeltype = 'RDI - 1 compartment - 2 param';
 
 % Scheme name
-schemename = '20250224_UQ4 MixedDELTA2';
+schemename = '20250224_UQ4 ShortDELTA';
 schemesfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\DW-MRI-Modelling\Schemes";
 
 %% Parameter ranges
 
 % Intracellular compartment
 fICs = [0, 1];
-dICs = [0.5, 3];
+dICs = [0.5, 2];
 Rs = [4, 16];
 % Extracellular compartment
-dEESs = [0.5, 3];
+dEESs = [0.5, 2];
 
 % AMICO
 Rvals = linspace(0.1,20.1,21);

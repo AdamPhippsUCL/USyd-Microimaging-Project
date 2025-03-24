@@ -11,6 +11,7 @@ SampleName = '20250224_UQ4';
 
 % Series description
 SeriesDescriptions = {...
+    % '3DMGE_20u'
     'SE_b0_SPOIL10%',...
     'STEAM_ShortDELTA_15',...
     'STEAM_ShortDELTA_20',...
@@ -26,7 +27,7 @@ SeriesDescriptions = {...
 
 
 % Downsample settings
-downsamplewindow = [1,5,5]; 
+downsamplewindow = [2,2,4]; 
 overlap = false;
 
 for seriesindx = 1:length(SeriesDescriptions)

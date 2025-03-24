@@ -27,7 +27,7 @@ SeriesDescriptions = {...
 
 
 % Downsample settings
-downsamplewindow = [2,3,4]; 
+downsamplewindow = [3,3,4]; 
 overlap = false;
 
 for seriesindx = 1:length(SeriesDescriptions)

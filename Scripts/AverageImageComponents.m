@@ -9,7 +9,7 @@ ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\
 SampleName = '20250224_UQ4';
 
 % Series description
-SeriesDescription = 'STEAM_ShortDELTA_15';
+SeriesDescription = '40u_DtiSE_2012_SPOIL10%';
 
 % Use denoised data
 UseDenoisedData = false;
