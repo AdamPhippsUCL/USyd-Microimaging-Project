@@ -41,14 +41,14 @@ set(mask, 'AlphaData', 0.2)
 %% Load parameter maps
 
 % Model type
-modeltype = 'MFP v2';
-% modeltype = 'RDI - 2 compartment - 4 param';
+% modeltype = 'MFP v2';
+modeltype = 'RDI - 2 compartment - 4 param';
 
 % Parameter
-parameter = 'R';
+parameter = 'C';
 
 % Scheme name
-schemename = '20250224_UQ4 ShortDELTA';
+schemename = '20250224_UQ4 AllDELTA';
 % schemename = 'STEAM_ShortDELTA_50 (640 micron)';
 
 % Fitting technique
@@ -76,6 +76,12 @@ switch parameter
         parammap = load(fullfile(paramfolder, 'dIC.mat')).dIC;
     case 'FA'
         parammap = load(fullfile(paramfolder, 'FA.mat')).FA;
+    case 'fs'
+        parammap = load(fullfile(paramfolder, 'fs.mat')).fs;
+    case 'fg'
+        parammap = load(fullfile(paramfolder, 'fg.mat')).fg;
+    case 'fl'
+        parammap = load(fullfile(paramfolder, 'fl.mat')).fl;
 end
 
 
@@ -100,7 +106,7 @@ switch samplename
            1:size(baseImg,1) ...
             );
         
-        samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 < 80^2, 1, 1, size(baseImg,3));
+        samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 < 75^2, 1, 1, size(baseImg,3));
 
 end
 % for indx = 1:size(baseImg, 1)
@@ -294,7 +300,7 @@ end
 
 figure
 ax1 = axes;
-pcolor(ax1, Xsmall, Ysmall, rescale(squeeze(baseImg(160,:,:)), 0,1))
+pcolor(ax1, Xsmall, Ysmall, rescale(squeeze(baseImg(120,:,:)), 0,1))
 shading flat; % Remove grid-like shading
 grid off;
 colormap(ax1,gray);
@@ -302,7 +308,7 @@ colormap(ax1,gray);
 
 hold on
 ax2 = axes;
-m=pcolor(ax2, Xsmall, Ysmall, rescale(squeeze(param_large(160,:,:)), 0,1));
+m=pcolor(ax2, Xsmall, Ysmall, rescale(squeeze(param_large(120,:,:)), 0,1));
 shading flat; % Remove grid-like shading
 grid off;
 set(m, 'FaceAlpha', 0.5);

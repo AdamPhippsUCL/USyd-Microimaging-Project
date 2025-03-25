@@ -1,5 +1,7 @@
 % MATLAB script to test diffusion tensor calculation
 
+clear;
+
 %% Image details
 
 % Imaging data folder 
@@ -9,7 +11,7 @@ ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\
 SampleName = '20250224_UQ4';
 
 % Series description
-SeriesDescription = 'STEAM_ShortDELTA_50 (640 micron)';%'40u_DtiSE_2012_SPOIL10% (20 micron)';
+SeriesDescription = '40u_DtiSE_2012_SPOIL10% (20 micron)';
 
 % Use denoised data
 UseDenoisedData = true;
@@ -53,6 +55,9 @@ bvals = transpose(bvals);
 direcs = [dinfo(bslices).DiffusionDirection];
 direcs = reshape(direcs, [3,sum(bslices)]);
 direcs = transpose(direcs);
+% Normalise
+norms = sqrt(sum(direcs.^2, 2));
+direcs = direcs./norms;
 
 
 % % SELECT small image region
@@ -76,9 +81,9 @@ FA = squeeze(FA);
 
 %% Save Dx, Dy, Dz, and FA
 
-Dx = squeeze(D_tensors(:,:,:,1));
-Dy = squeeze(D_tensors(:,:,:,2));
-Dz = squeeze(D_tensors(:,:,:,3));
+Dx = real(squeeze(D_tensors(:,:,:,1)));
+Dy = real(squeeze(D_tensors(:,:,:,2)));
+Dz = real(squeeze(D_tensors(:,:,:,3)));
 D = (1/3)*(Dx + Dy + Dz);
 
 projectfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project";

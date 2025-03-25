@@ -8,7 +8,7 @@ ModelFolder = fullfile(projectfolder, 'Scripts', 'RDI', 'MLP', 'models');
 
 % Specify protocols 
 modeltypes = {'RDI - 1 compartment - 2 param'};
-schemenames = {'20250224_UQ4 ShortDELTA'};
+schemenames = {'20250224_UQ4 AllDELTA'};
 
 % scale params
 scaleparams = true;

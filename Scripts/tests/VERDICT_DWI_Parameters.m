@@ -13,17 +13,17 @@ SNR = 50; % SNR at TE=0;
 sigma0 = 1/SNR;
 
 % Tissue settings
-dIC=1;
-dEES=1;
-Rs = linspace(4,12,9); % Different cell sizes to consider
-T2 = 25;
+dIC=2;
+dEES=2;
+Rs = linspace(6,9,3); % Different cell sizes to consider
+T2 = 80;
 
 % Imaging settings
-bvals = linspace(400,3000,27);
+bvals = [1000,1800];
 TEconst=22;
-Gmax = 300;
-Deltas = linspace(2,180,91);
-deltas = linspace(1,5,5);
+Gmax = 60;
+Deltas = linspace(1,50,50);
+deltas = linspace(1,20,20);
 
 
 
@@ -119,31 +119,31 @@ for bindx = 1:length(bvals)
     % total
     totalcontrast = ICcontrast.*Rcontrast;
 
-    % f=figure;
-    % tiledlayout(1,3);
-    % sgtitle(['b value: ' num2str(bval)])
+    f=figure;
+    tiledlayout(1,3);
+    sgtitle(['b value: ' num2str(bval)])
     % 
-    % % IC contrast
-    % nexttile;
-    % imshow(ICcontrast,[min(ICcontrast(ICcontrast>0.001)) max(ICcontrast(:))])
-    % colorbar;
-    % xlabel('Delta')
-    % ylabel('delta')
-    % title(['IC contrast to noise ratio, Max = ' num2str(max(ICcontrast(:))) ])
-    % axis('on', 'image');
-    % xticklabels(Deltas(xticks))
-    % yticklabels(deltas(yticks))
+    % IC contrast
+    nexttile;
+    imshow(ICcontrast,[min(ICcontrast(ICcontrast>0.001)) max(ICcontrast(:))])
+    colorbar;
+    xlabel('Delta')
+    ylabel('delta')
+    title(['IC contrast to noise ratio, Max = ' num2str(max(ICcontrast(:))) ])
+    axis('on', 'image');
+    xticklabels(Deltas(xticks))
+    yticklabels(deltas(yticks))
 
-    % % R contrast
-    % nexttile;
-    % imshow(Rcontrast,[min(Rcontrast(Rcontrast>0.001)) max(Rcontrast(:))])
-    % colorbar;
-    % xlabel('Delta')
-    % ylabel('delta')
-    % title(['R contrast to noise ratio, Max = ' num2str(max(Rcontrast(:))) ])
-    % axis('on', 'image');
-    % xticklabels(Deltas(xticks))
-    % yticklabels(deltas(yticks))
+    % R contrast
+    nexttile;
+    imshow(Rcontrast,[min(Rcontrast(Rcontrast>0.001)) max(Rcontrast(:))])
+    colorbar;
+    xlabel('Delta')
+    ylabel('delta')
+    title(['R contrast to noise ratio, Max = ' num2str(max(Rcontrast(:))) ])
+    axis('on', 'image');
+    xticklabels(Deltas(xticks))
+    yticklabels(deltas(yticks))
     % 
     % % R contrast
     % nexttile;

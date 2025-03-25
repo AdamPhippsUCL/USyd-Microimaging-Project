@@ -55,13 +55,13 @@ switch samplename
            1:size(baseImg,1) ...
             );
         
-        samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 < 75^2, 1, 1, size(baseImg,3));
+        samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 < 78^2, 1, 1, size(baseImg,3));
 
 end
 
 %% LOAD LOW RES DW-MRI images
 
-schemename = '20250224_UQ4 ShortDELTA';
+schemename = '20250224_UQ4 AllDELTA';
 schemesfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Code\DW-MRI-Modelling\Schemes";
 load(fullfile(schemesfolder, schemename));
 nscheme = length(scheme);
@@ -72,11 +72,11 @@ SeriesDescriptions = {
     'STEAM_ShortDELTA_30 (640 micron)',...
     'STEAM_ShortDELTA_40 (640 micron)',...
     'STEAM_ShortDELTA_50 (640 micron)',...
-    % 'STEAM_LongDELTA_40 (640 micron)',...
-    % 'STEAM_LongDELTA_60 (640 micron)',...
-    % 'STEAM_LongDELTA_80 (640 micron)',...
-    % 'STEAM_LongDELTA_100 (640 micron)',...
-    % 'STEAM_LongDELTA_120 (640 micron)'...
+    'STEAM_LongDELTA_40 (640 micron)',...
+    'STEAM_LongDELTA_60 (640 micron)',...
+    'STEAM_LongDELTA_80 (640 micron)',...
+    'STEAM_LongDELTA_100 (640 micron)',...
+    'STEAM_LongDELTA_120 (640 micron)'...
 };
 
 Nimg = length(SeriesDescriptions);
@@ -147,6 +147,7 @@ LUMENvals = squeeze(COMPOSITION(:,:,:,3));
 % Flatten COMPOSITION and remove zeros
 composition = reshape(COMPOSITION,[prod(szmap), 3]);
 bool =  sum(composition,2)>0;
+% bool = (composition(:,3)>0.1);
 composition = composition(bool, :);
 
 % Flatten IMGS and remove zeros (from COMPOSITION)
@@ -202,16 +203,25 @@ indxs = 1:size(composition, 1);
 
 % Optimisation
 func = @(b, X) test_func2(b,X);
-beta0 = [0.5,0.5,0.5];
-lb = [0.01,0.01,0.01];
+beta0 = [0.7,0.5,0.1];
+lb = [0.0,0.0,0.0];
 ub = [1,1,1];
+
+% Lumen diffusivity
+Dl = 0.002;
+err = 0.001;
     
 % signals = zeros(3, Nimg,Nboot); % BOOTSTRAPPING
 signals = zeros(3, Nimg, 2); % STANDARD ERROR
-for imgindx = 1:5
+for imgindx = 1:Nimg
       
     X = composition(indxs,:);
     y = transpose(imgs(imgindx, indxs));
+
+    % Set lumen prior
+    Sl = exp(-scheme(2*imgindx).bval*Dl);
+    lb(3)=Sl-err;
+    ub(3)=Sl+err;
 
 
     % BOOTSTRAPPING METHOD
@@ -252,7 +262,7 @@ for imgindx = 1:5
     signals(:,imgindx,1) = beta_fit;
     signals(:,imgindx,2) = stderr;
 
-
+    % 
     % y_pred = func(beta_fit, X);
     % figure
     % scatter(y_pred, y)
@@ -316,16 +326,25 @@ s = signals;
 bvals = [scheme(2:2:end).bval];
 bshift = 15;
 
+Deltas = [scheme(2:2:end).DELTA];
+[Ds, I] = sort(Deltas);
+Dshift=2;
+
 figure
-errorbar(bvals-1*bshift, s(1,:,1), s(1,:,2), '*--', color=[0.4660 0.6740 0.1880], DisplayName='Stroma');
-hold on
-errorbar(bvals+0*bshift, s(2,:,1), s(2,:,2), '*--', color=[0.8500 0.3250 0.0980], DisplayName='Glandular');
-errorbar(bvals+1*bshift, s(3,:,1), s(3,:,2), '*--', color=[0 0.4470 0.7410], DisplayName = 'Lumen');
-legend;
-xticks(bvals); 
-xticklabels(bvals)
+% errorbar(bvals-1*bshift, s(1,:,1), s(1,:,2), '*', color=[0.4660 0.6740 0.1880], DisplayName='Stroma');
+% hold on
+% errorbar(bvals+0*bshift, s(2,:,1), s(2,:,2), '*', color=[0.8500 0.3250 0.0980], DisplayName='Glandular');
+% errorbar(bvals+1*bshift, s(3,:,1), s(3,:,2), '*', color=[0 0.4470 0.7410], DisplayName = 'Lumen');
+% xticks(bvals); 
+% xticklabels(bvals)
 % ylim([0,0.6])
-xlabel('b-value')
+% xlabel('b-value')
+errorbar(Ds-1*Dshift, s(1,:,1), s(1,:,2), '*', color=[0.4660 0.6740 0.1880], DisplayName='Stroma');
+hold on
+errorbar(Ds+0*Dshift, s(2,:,1), s(2,:,2), '*', color=[0.8500 0.3250 0.0980], DisplayName='Glandular');
+errorbar(Ds+1*Dshift, s(3,:,1), s(3,:,2), '*', color=[0 0.4470 0.7410], DisplayName = 'Lumen');
+legend;
+xlabel('Delta')
 ylabel('Predicted normalized signal')
 
 % Create legend handles (use a dummy line for the legend)
@@ -346,51 +365,46 @@ legend([l1, l2, l3], {'Stroma', 'Glandular', 'Lumen'}, 'Location', 'northeast');
 % % plot(bvals+1*bshift, log(s(3,:,1)), '*--', color=[0 0.4470 0.7410], DisplayName = 'Lumen');
 % 
 
-%% Model fitting to signals 
+%% ADC MODEL FITTING
 
-% ====== ADC MODEL
+% 
+% S = squeeze(signals(1,:,1));
+% 
+% Y = ones([1,1,1,nscheme]);
+% Y(:,:,:,2:2:end) = S;
+% 
+% Nparam = 2;
+% 
+% % Model fitting
+% [ADC,S0] = calcADC(Y,[scheme(:).bval]);
+% ADC
+% 
+% % Predictions
+% Y_pred = zeros(size(Y));
+% for indx = 1:length(Y)
+%     bval = scheme(indx).bval;
+%     Y_pred(indx) = ADC_model(bval, S0, ADC);
+% end
+% 
+% % Residual error
+% reserror = sum((Y_pred(:,:,:,2:2:end)-Y(:,:,:,2:2:end)).^2);
+% 
+% % AIC
+% ADC_AIC = (nscheme/2)*log(2*reserror/nscheme)+2*Nparam
+% 
+% figure
+% scatter(squeeze(Y), squeeze(Y_pred))
+% hold on
+% plot(squeeze(Y), squeeze(Y))
+% title('ADC')
+
+
+
+%% RDI MODEL FITTING
 
 S = squeeze(signals(2,:,1));
-Y = ones([1,1,1,nscheme]);
-Y(:,:,:,2:2:end) = S;
 
-Nparam = 2;
-
-% Model fitting
-[ADC,S0] = calcADC(Y,[scheme(:).bval]);
-
-% Predictions
-Y_pred = zeros(size(Y));
-for indx = 1:length(Y)
-    bval = scheme(indx).bval;
-    Y_pred(indx) = ADC_model(bval, S0, ADC);
-end
-
-% Residual error
-reserror = sum((Y_pred(:,:,:,2:2:end)-Y(:,:,:,2:2:end)).^2);
-
-% AIC
-ADC_AIC = nscheme*log(2*reserror/nscheme)+2*Nparam
-
-figure
-scatter(squeeze(Y), squeeze(Y_pred))
-hold on
-plot(squeeze(Y), squeeze(Y))
-title('ADC')
-
-
-
-% % ===== RDI models
-
-S = squeeze(signals(2,:,1));
-Y = ones([nscheme,1]);
-Y(2:2:end) = S;
-
-schemename = schemename;
-fittingtechnique = 'MLP';
-
-
-function Y_out = model_func(b,X, modeltype, RDI_model)   
+function Y_out = RDI_model_func(b,X, modeltype, RDI_model)   
     N = size(X,1);
     Y_out = zeros([N,1]);
 
@@ -404,25 +418,18 @@ end
 % == 1 compartment
 
 % Model fitting
-modeltype = 'RDI - 1 compartment - 2 param';
-Nparam = 2;
-% modelfolder = fullfile(projectfolder, 'Scripts', 'RDI', fittingtechnique, 'models', modeltype, schemename);
-% [fIC, fEES, R, dIC, dEES]= RDI_fit(Y, scheme, modeltype=modeltype, modelfolder=modelfolder, fittingtechnique=fittingtechnique);
+modeltype = 'RDI - 2 compartment - 3 param';
+Nparam = 3;
 
-func = @(b,X) model_func(b, X, modeltype, @RDI_model);
+Y = ones([1,1,1,nscheme]);
+Y(:,:,:,2:2:end) = S;
 
-X = zeros(nscheme, 3);
-X(:,1) = [scheme(:).bval];
-X(:,2) = [scheme(:).delta];
-X(:,3) = [scheme(:).DELTA];
-
-beta0 = [10,2];
-lb = [1,0.1];
-ub = [40,3];
-
-beta = lsqcurvefit(func, beta0, X, Y, lb, ub);
-R = beta(1);
-dIC = beta(2);
+schemename = schemename;
+fittingtechnique = 'LSQ';
+modelfolder = fullfile(projectfolder, 'Scripts', 'RDI', fittingtechnique, 'models', modeltype, schemename);
+clear outputs;
+[outputs{1:Nparam}] = RDI_fit(Y, scheme, modeltype=modeltype, modelfolder=modelfolder, fittingtechnique=fittingtechnique);
+model_params = cell2mat(outputs)
 
 % Predictions
 Y_pred = zeros(size(Y));
@@ -430,67 +437,133 @@ for indx = 1:length(Y)
     bval = scheme(indx).bval;
     delta = scheme(indx).delta;
     DELTA = scheme(indx).DELTA;
-    Y_pred(indx) = RDI_model( [R, dIC], [bval,delta,DELTA], modeltype = modeltype);
+    Y_pred(indx) = RDI_model( model_params, [bval,delta,DELTA], modeltype = modeltype);
 end
 
 % Residual error
 reserror = sum((Y_pred(2:2:end)-Y(2:2:end)).^2);
 
 % AIC
-RDI1_AIC = nscheme*log(2*reserror/nscheme)+2*Nparam
+RDI_AIC = (nscheme/2)*log(2*reserror/nscheme)+2*Nparam
 
 figure
 scatter(squeeze(Y), squeeze(Y_pred))
 hold on
 plot(squeeze(Y), squeeze(Y))
-title('RDI - 1 compartment - 2 param')
+title(modeltype)
 
 
-% == 2 compartment
-
-% Model fitting
-modeltype = 'RDI - 2 compartment - 4 param';
-Nparam = 4;
+% % == 2 compartment
+% 
+% % Model fitting
+% modeltype = 'RDI - 2 compartment - 4 param';
+% Nparam = 4;
+% schemename = schemename;
+% 
+% % MLP fitting
+% 
+% Y = ones([1,1,1,nscheme]);
+% Y(:,:,:,2:2:end) = S;
+% 
+% fittingtechnique = 'MLP';
 % modelfolder = fullfile(projectfolder, 'Scripts', 'RDI', fittingtechnique, 'models', modeltype, schemename);
-% [fIC, fEES, R, dIC, dEES]= RDI_fit(Y, scheme, modeltype=modeltype, modelfolder=modelfolder, fittingtechnique=fittingtechnique);
+% [fIC, fEES, R, dIC, dEES]= RDI_fit(Y, scheme, modeltype=modeltype, modelfolder=modelfolder, fittingtechnique=fittingtechnique)
+% 
+% 
+% % LSQ FITTING
+% 
+% Y = ones([nscheme,1]);
+% Y(2:2:end) = S;
+% 
+% RDI2_func = @(b,X) RDI_model_func(b, X, modeltype, @RDI_model);
+% 
+% X = zeros(nscheme, 3);
+% X(:,1) = [scheme(:).bval];
+% X(:,2) = [scheme(:).delta];
+% X(:,3) = [scheme(:).DELTA];
+% 
+% beta0 = [0.5, 20, 2, 2];
+% lb = [0, 10, 0.1, 0.1];
+% ub = [1, 20,1, 1];
+% 
+% beta = lsqcurvefit(RDI2_func, beta0, X, Y, lb, ub);
+% fIC = beta(1)
+% R = beta(2)
+% dIC = beta(3)
+% dEES = beta(4)
+% 
+% 
+% % Predictions
+% Y_pred = zeros(size(Y));
+% for indx = 1:length(Y)
+%     bval = scheme(indx).bval;
+%     delta = scheme(indx).delta;
+%     DELTA = scheme(indx).DELTA;
+%     Y_pred(indx) = RDI_model( [fIC, R, dIC, dEES], [bval,delta,DELTA], modeltype = modeltype);
+% end
+% 
+% % Residual error
+% reserror = sum((Y_pred(2:2:end)-Y(2:2:end)).^2);
+% 
+% % AIC
+% RDI2_AIC = (nscheme/2)*log(2*reserror/nscheme)+2*Nparam
+% 
+% 
+% figure
+% scatter(squeeze(Y), squeeze(Y_pred))
+% hold on
+% plot(squeeze(Y), squeeze(Y))
+% title('RDI - 2 compartment - 4 param')
 
 
-func = @(b,X) model_func(b, X, modeltype, @RDI_model);
+%% DKI MODEL FITTING
 
-X = zeros(nscheme, 3);
-X(:,1) = [scheme(:).bval];
-X(:,2) = [scheme(:).delta];
-X(:,3) = [scheme(:).DELTA];
-
-beta0 = [0.5, 20, 2, 2];
-lb = [0, 1, 0.1, 0.1];
-ub = [1, 40,3, 3];
-
-beta = lsqcurvefit(func, beta0, X, Y, lb, ub);
-fIC = beta(1);
-R = beta(2);
-dIC = beta(3);
-dEES = beta(4);
-
-
-% Predictions
-Y_pred = zeros(size(Y));
-for indx = 1:length(Y)
-    bval = scheme(indx).bval;
-    delta = scheme(indx).delta;
-    DELTA = scheme(indx).DELTA;
-    Y_pred(indx) = RDI_model( [fIC, R, dIC, dEES], [bval,delta,DELTA], modeltype = modeltype);
-end
-
-% Residual error
-reserror = sum((Y_pred(2:2:end)-Y(2:2:end)).^2);
-
-% AIC
-RDI2_AIC = nscheme*log(2*reserror/nscheme)+2*Nparam
-
-
-figure
-scatter(squeeze(Y), squeeze(Y_pred))
-hold on
-plot(squeeze(Y), squeeze(Y))
-title('RDI - 2 compartment - 4 param')
+% S = squeeze(signals(1,:,1));
+% 
+% Y = ones([nscheme,1]);
+% Y(2:2:end) = S;
+% 
+% Nparam = 3;
+% 
+% 
+% function Y_out = DKI_model_func(b,X, DKI_model)   
+%     N = size(X,1);
+%     Y_out = zeros([N,1]);
+% 
+%     for i=1:N
+%         Y_out(i) = DKI_model(b,X(i,:));
+%     end
+% 
+% end
+% 
+% 
+% DKI_func = @(b,X) DKI_model_func(b, X, @DKI_model);
+% 
+% X = zeros(nscheme, 1);
+% X(:,1) = [scheme(:).bval];
+% 
+% beta0 = [1, 0.002, 0.5];
+% lb = [0.8,0.0001, 0];
+% ub = [1.2, 0.1, 3];
+% 
+% beta = lsqcurvefit(DKI_func, beta0, X, Y, lb, ub);
+% S0 = beta(1)
+% D = beta(2)
+% K = beta(3)
+% 
+% 
+% % Predictions
+% Y_pred = zeros(size(Y));
+% for indx = 1:length(Y)
+%     bval = scheme(indx).bval;
+%     Y_pred(indx) = DKI_model( [S0, D, K], [bval]);
+% end
+% 
+% figure
+% scatter(squeeze(Y), squeeze(Y_pred))
+% hold on
+% plot(squeeze(Y), squeeze(Y))
+% title('DKI')
+% 
+% 
+% DKI_AIC = (nscheme/2)*log(2*reserror/nscheme)+2*Nparam

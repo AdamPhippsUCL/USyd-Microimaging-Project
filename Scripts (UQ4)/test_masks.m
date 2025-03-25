@@ -2,6 +2,8 @@
 
 clear;
 
+%%
+
 % Folders
 projectfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project";
 
@@ -28,7 +30,9 @@ dwFA = load(fullfile(projectfolder, 'Outputs', 'Model Fitting', SampleName, 'DTI
 % STROMA
 % STROMA = or(FA>0.15,D>0.015).*and(MGE<1.2e-7, MGE>4e-8);
 % STROMA = (FA>0.15).*and(MGE<1.2e-7, MGE>4e-8);
-STROMA = (dwFA>0.0016).*and(MGE<1.2e-7, MGE>5e-8);
+% STROMA = (dwFA>0.0015).*and(MGE<1.2e-7, MGE>5e-8);
+% STROMA = (dwFA>7.728728e-5).*and(MGE<1.2e-7, MGE>5e-8);
+STROMA = (dwFA>7.73e-5).*and(MGE<1.2e-7, MGE>5e-8);
 
 % LUMEN
 LUMEN = (MGE>1.2e-7);
@@ -45,9 +49,9 @@ displaymasks(:,:,:,2) = logical(STROMA);
 displaymasks(:,:,:,3) = logical(LUMEN);
 
 figure
-imshow(squeeze(MGE(163,:,:)),[]);
+imshow(squeeze(MGE(120,:,:)),[]);
 hold on
-mask = imshow(squeeze(displaymasks(163,:,:,:)));
+mask = imshow(squeeze(displaymasks(120,:,:,:)));
 set(mask, 'AlphaData', 0.2)
 
 
