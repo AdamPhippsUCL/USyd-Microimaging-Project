@@ -41,6 +41,10 @@ b0slices = [dinfo(:).DiffusionBValue] == 0;
 b0img = ImageArray(:,:,:,b0slices);
 b0img = mean(b0img, 4);
 
+% b0 values
+b0vals = [dinfo(b0slices).DiffusionEffBValue];
+b0val = b0vals(1);
+
 % b>0 slice 
 bslices = [dinfo(:).DiffusionBValue] ~= 0;
 
@@ -51,10 +55,14 @@ bimgs = ImageArray(:,:,:,bslices);
 bvals = [dinfo(bslices).DiffusionEffBValue];
 bvals = transpose(bvals);
 
+% Effective b values
+effbvals = bvals-b0val;
+
 % Directions
 direcs = [dinfo(bslices).DiffusionDirection];
 direcs = reshape(direcs, [3,sum(bslices)]);
 direcs = transpose(direcs);
+
 % Normalise
 norms = sqrt(sum(direcs.^2, 2));
 direcs = direcs./norms;
@@ -72,7 +80,7 @@ direcs = direcs./norms;
 %% Diffusion tensor and FA calculation
 
 % Test DTI function
-D_tensors = computeDiffusionTensor(bimgs, b0img, bvals, direcs);
+D_tensors = computeDiffusionTensor(bimgs, b0img, effbvals, direcs);
 
 % Calculate FA
 FA = computeFA(D_tensors);

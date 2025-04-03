@@ -9,10 +9,10 @@ ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\
 SampleName = '20250224_UQ4';
 
 % Series description
-SeriesDescription = '40u_DtiSE_2012_SPOIL10%';
+SeriesDescription =  'SE_b0_SPOIL5%';
 
 % Use denoised data
-UseDenoisedData = false;
+UseDenoisedData = true;
 
 %% Load image
 

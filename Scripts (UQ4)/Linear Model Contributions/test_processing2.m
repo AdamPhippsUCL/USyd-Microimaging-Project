@@ -41,7 +41,7 @@ set(mask, 'AlphaData', 0.2)
 %% Load parameter maps
 
 % Model type
-% modeltype = 'MFP v2';
+% modeltype = 'ADC';
 modeltype = 'RDI - 2 compartment - 4 param';
 
 % Parameter
@@ -52,7 +52,7 @@ schemename = '20250224_UQ4 AllDELTA';
 % schemename = 'STEAM_ShortDELTA_50 (640 micron)';
 
 % Fitting technique
-fittingtechnique = 'MLP';
+fittingtechnique = 'LSQ';
 
 
 % Parameter folder
@@ -62,18 +62,31 @@ paramfolder = fullfile(projectfolder, "Outputs", "Model Fitting", samplename, mo
 switch parameter
     case 'ADC'
         parammap = load(fullfile(paramfolder, 'ADC.mat')).ADC;
+        intercept = true;
     case 'fIC'
         parammap = load(fullfile(paramfolder, 'fIC.mat')).fIC;
+        intercept = false;
     case 'D'
         parammap = load(fullfile(paramfolder, 'D.mat')).D;
+        intercept = true;
     case 'R'
         parammap = load(fullfile(paramfolder, 'R.mat')).R;
+        intercept = true;
     case 'C'
         parammap = load(fullfile(paramfolder, 'C.mat')).C;
+        intercept = false;
     case 'dEES'
         parammap = load(fullfile(paramfolder, 'dEES.mat')).dEES;
+        intercept = true;
     case 'dIC'
         parammap = load(fullfile(paramfolder, 'dIC.mat')).dIC;
+        intercept = true;
+    case 'd'
+        parammap = load(fullfile(paramfolder, 'd.mat')).d;
+        intercept = true;
+    case 'K'
+        parammap = load(fullfile(paramfolder, 'K.mat')).K;
+        intercept = true;        
     case 'FA'
         parammap = load(fullfile(paramfolder, 'FA.mat')).FA;
     case 'fs'
@@ -177,10 +190,10 @@ lumenvals = LUMENvals(:);
 
 mask = (stromavals + glandularvals + lumenvals > 0);
 
-% figure
-% scatter(glandularvals(mask),parammap(mask) )
-% lsline
-% title('E')
+figure
+scatter(glandularvals(mask),parammap(mask) )
+lsline
+title('G')
 % 
 % figure
 % scatter(stromavals(mask),parammap(mask) )
@@ -202,8 +215,10 @@ X(:,3) = lumenvals(mask);
 
 Y = paramvals(mask);
 
+
+
 % Fit a multiple linear regression model
-mdl = fitlm(X, Y);
+mdl = fitlm(X, Y,'Intercept', intercept);
 
 % Display regression summary
 disp(mdl);
@@ -220,20 +235,41 @@ title('Actual vs. Predicted Values (LM)');
 hold on;
 plot(Y, Y, 'r--'); % 45-degree reference line
 
-b = mdl.Coefficients.Estimate(2:end); % Exclude intercept
-sx = std(X);  % Standard deviation of predictors
-sy = std(Y);  % Standard deviation of response
-beta_std = (b .* sx') / sy; % Standardised coefficients
-disp(table(mdl.CoefficientNames(2:end)', beta_std, 'VariableNames', {'Predictor', 'Standardised_Coeff'}));
+switch intercept
+    case true
+        b = mdl.Coefficients.Estimate(2:end); % Exclude intercept
 
-% Standardise confidence intervals
-ci_raw = coefCI(mdl, 0.05);  % 95% CI (default)
-ci_std = (ci_raw(2:end, :) .* sx') / sy;  % Exclude intercept row
+        sx = std(X);  % Standard deviation of predictors
+        sy = std(Y);  % Standard deviation of response
+        beta_std = (b .* sx') / sy; % Standardised coefficients
+        disp(table(mdl.CoefficientNames(2:end)', beta_std, 'VariableNames', {'Predictor', 'Standardised_Coeff'}));
+        
+        % Standardise confidence intervals
+        ci_raw = coefCI(mdl, 0.05);  % 95% CI (default)
+        ci_std = (ci_raw(2:end, :) .* sx') / sy;  % Exclude intercept row
+        % Display results in a table
+        Standardised_Coeff_Table = table(mdl.CoefficientNames(2:end)', beta_std, ci_std(:,1), ci_std(:,2), ...
+            'VariableNames', {'Predictor', 'Standardised_Coeff', 'Lower_CI', 'Upper_CI'});
+        disp(Standardised_Coeff_Table)
 
-% Display results in a table
-Standardised_Coeff_Table = table(mdl.CoefficientNames(2:end)', beta_std, ci_std(:,1), ci_std(:,2), ...
-    'VariableNames', {'Predictor', 'Standardised_Coeff', 'Lower_CI', 'Upper_CI'});
-disp(Standardised_Coeff_Table)
+    case false
+        b = mdl.Coefficients.Estimate(1:end); % 
+        
+        sx = std(X);  % Standard deviation of predictors
+        sy = std(Y);  % Standard deviation of response
+        beta_std = (b .* sx') / sy; % Standardised coefficients
+        disp(table(mdl.CoefficientNames(1:end)', beta_std, 'VariableNames', {'Predictor', 'Standardised_Coeff'}));
+
+        % Standardise confidence intervals
+        ci_raw = coefCI(mdl, 0.05);  % 95% CI (default)
+        ci_std = (ci_raw(1:end, :) .* sx') / sy;  
+        Standardised_Coeff_Table = table(mdl.CoefficientNames(1:end)', beta_std, ci_std(:,1), ci_std(:,2), ...
+            'VariableNames', {'Predictor', 'Standardised_Coeff', 'Lower_CI', 'Upper_CI'});
+        disp(Standardised_Coeff_Table)       
+end
+
+
+
 
 % Results structure
 RESULTS = struct();
@@ -243,10 +279,12 @@ RESULTS.mdl = mdl;
 
 figure
 bar(beta_std)
+hold on
 xticklabels({'S', 'G', 'L'})
-ylim([-1,1])
+% ylim([-1,1])
 title([modeltype '; ' parameter])
-
+errorbar(1:3, mean(ci_std,2), range(ci_std,2)/2, 'k', 'LineStyle', 'none', 'Marker', 'none')
+ylabel('Standardised coefficient')
 
 % %% Non-linear model
 % 
@@ -317,6 +355,8 @@ ax2.Visible = 'off'; % Hide second axes to avoid overlapping ticks
 colormap(ax2,hot);
 % 
 
+set(ax1, 'YDir', 'reverse');
+set(ax2, 'YDir', 'reverse');
 
 % % hold on
 % % ax2 = axes;

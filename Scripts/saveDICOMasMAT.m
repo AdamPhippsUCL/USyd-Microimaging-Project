@@ -8,7 +8,7 @@ clear;
 SampleName = '20250224_UQ4';
 
 % DICOM folder
-DICOMfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\Imaging Data\20250224_101912_RB_Q4_RB_Q4_1_1\21\pdata\1\dicom";
+DICOMfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\Imaging Data\20250224_101912_RB_Q4_RB_Q4_1_1\38\pdata\1\dicom";
 
 % Imaging data folder (to save MAT images)
 ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\Projects\USyd Microimaging Project\USyd-Microimaging-Project\Imaging Data";

@@ -11,7 +11,7 @@ ImagingDataFolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\
 SampleName = '20250224_UQ4';
 
 % Series description
-SeriesDescription = 'STEAM_DELTA_120';
+SeriesDescription =  'SE_b0_SPOIL5%';
 
 
 %% Load image array and DICOM 

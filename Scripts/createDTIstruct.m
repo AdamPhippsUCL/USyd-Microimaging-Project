@@ -15,12 +15,12 @@ SampleName = '20250224_UQ4';
 % Series Description
 SeriesDescriptions = {
     % '40u_DtiSE_2012_SPOIL10%'
-    % 'SE_b0_SPOIL10%',...
+    'SE_b0_SPOIL5%',...
     % 'STEAM_DELTA_15',...
     % 'STEAM_DELTA_20',...
     % 'STEAM_DELTA_30',...
     % 'STEAM_DELTA_40',...
-    'STEAM_DELTA_120',...
+    % 'STEAM_DELTA_120',...
     % '40u_DtiSTE_SPOIL5%'
 };
 
@@ -278,6 +278,12 @@ for indx = 1:length(SeriesDescriptions)
             
             switch SeriesDescription
 
+                case 'SE_b0_SPOIL5%'
+
+                    DiffusionBValue = [0, 0, 0, 0];
+                    DiffusionDirection = [0, 0, 0, 0];
+                    DiffusionEffBValue = [10.3045556509301 10.3045556509301 10.3045556509301 10.3045556509301];
+                
                 case 'SE_b0_SPOIL10%'
 
                     DiffusionBValue = [0, 0, 0, 0];

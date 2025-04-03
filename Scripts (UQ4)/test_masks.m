@@ -32,7 +32,7 @@ dwFA = load(fullfile(projectfolder, 'Outputs', 'Model Fitting', SampleName, 'DTI
 % STROMA = (FA>0.15).*and(MGE<1.2e-7, MGE>4e-8);
 % STROMA = (dwFA>0.0015).*and(MGE<1.2e-7, MGE>5e-8);
 % STROMA = (dwFA>7.728728e-5).*and(MGE<1.2e-7, MGE>5e-8);
-STROMA = (dwFA>7.73e-5).*and(MGE<1.2e-7, MGE>5e-8);
+STROMA = (dwFA>8e-5).*and(MGE<1.2e-7, MGE>5e-8);
 
 % LUMEN
 LUMEN = (MGE>1.2e-7);
@@ -49,9 +49,9 @@ displaymasks(:,:,:,2) = logical(STROMA);
 displaymasks(:,:,:,3) = logical(LUMEN);
 
 figure
-imshow(squeeze(MGE(120,:,:)),[]);
+imshow(squeeze(MGE(128,:,:)),[]);
 hold on
-mask = imshow(squeeze(displaymasks(120,:,:,:)));
+mask = imshow(squeeze(displaymasks(128,:,:,:)));
 set(mask, 'AlphaData', 0.2)
 
 

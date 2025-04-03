@@ -55,7 +55,7 @@ switch samplename
            1:size(baseImg,1) ...
             );
         
-        samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 < 78^2, 1, 1, size(baseImg,3));
+        samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 <75^2, 1, 1, size(baseImg,3));
 
 end
 
@@ -66,7 +66,20 @@ schemesfolder = "C:\Users\adam\OneDrive - University College London\UCL PhD\PhD\
 load(fullfile(schemesfolder, schemename));
 nscheme = length(scheme);
 
+% Correct for non-zero b0 value
+effb0 = 10.3;
+for indx = 1:nscheme
+   if scheme(indx).bval==0
+       continue
+   end
+   scheme(indx).bval = scheme(indx).bval-effb0;
+end
+
+
+UseDenoisedData = true;
+
 SeriesDescriptions = {
+    'SE_b0_SPOIL5% (640 micron)',...
     'STEAM_ShortDELTA_15 (640 micron)',...
     'STEAM_ShortDELTA_20 (640 micron)',...
     'STEAM_ShortDELTA_30 (640 micron)',...
@@ -79,31 +92,79 @@ SeriesDescriptions = {
     'STEAM_LongDELTA_120 (640 micron)'...
 };
 
-Nimg = length(SeriesDescriptions);
+Nimg = length(SeriesDescriptions)-1;
 
-for sdindx = 1:Nimg
 
-    sd = SeriesDescriptions{sdindx};
-    img = load(fullfile(projectfolder, 'Imaging Data', 'MAT DN', samplename, sd, 'axialImageArray.mat')).ImageArray;
-    dinfo = load(fullfile(projectfolder, 'Imaging Data', 'MAT DN', samplename, sd, 'axialdinfo.mat')).dinfo;
+%% Data preprocessing
 
-    % Average over gradient directions
-    bimgs = img(:,:,:,[dinfo(:).DiffusionBValue]>0);
-    bimg = mean(bimgs, 4);
+% == Load images and dinfo
 
-    % Normalize 
-    b0imgs = img(:,:,:,[dinfo(:).DiffusionBValue]==0);
-    b0img = mean(b0imgs, 4);
-    img = bimg./b0img;
-    szimg = size(img);
+ImageArrays = struct();
+DINFOS = struct();
 
-    if sdindx == 1
-        IMGS = zeros([Nimg, size(img)]);
+for seriesindx = 1:length(SeriesDescriptions)
+
+    SeriesDescription = SeriesDescriptions{seriesindx};
+
+    % Load image and dinfo
+    switch UseDenoisedData
+        case true
+            thisfolder = fullfile(projectfolder, 'Imaging Data', 'MAT DN', samplename, SeriesDescription);
+        case false
+            thisfolder = fullfile(projectfolder, 'Imaging Data', 'MAT', samplename, SeriesDescription);
     end
+    ImageArray = load(fullfile(thisfolder, 'axialImageArray.mat')).ImageArray;
+    dinfo = load(fullfile(thisfolder, 'axialdinfo.mat')).dinfo;
 
-    IMGS(sdindx,:,:,:) = img;
+    % Append to structures
+    DINFOS(seriesindx).dinfo = dinfo;
+    ImageArrays(seriesindx).ImageArray = ImageArray;
 
 end
+
+
+szimg = size(ImageArray, 1:3);
+IMGS = zeros([Nimg, szimg]);
+
+% seriesindx = 1 used for data normalisation!
+img = ImageArrays(1).ImageArray;
+dinfo = DINFOS(1).dinfo;
+bvals = [dinfo(:).DiffusionBValue];
+b0bools = (bvals==0);
+b0imgs = img(:,:,:,b0bools);
+b0img = mean(b0imgs,4);
+meanb0 = mean(b0img(:));
+
+
+% seriesindx > 1 used for diffusion data
+for seriesindx = 2:length(SeriesDescriptions)
+
+    % Load image
+    img = ImageArrays(seriesindx).ImageArray;
+
+    % Load dinfo
+    dinfo = DINFOS(seriesindx).dinfo;
+    bvals = [dinfo(:).DiffusionBValue];
+
+    % b0 imgs
+    b0bools = (bvals==0);
+    b0imgs = img(:,:,:,b0bools);
+    thisb0img = mean(b0imgs,4);
+    thismeanb0 = mean(thisb0img(:));
+
+    % b imgs
+    bbools = (bvals > 0);
+    bimgs = img(:,:,:,bbools);
+    bimg = mean(bimgs,4);
+    bval = bvals(find(bbools,1));
+    bvec(2*(seriesindx-1))=bval;
+
+
+    % Normalize and append to Y array
+    IMGS(seriesindx-1,:,:,:) = (meanb0/thismeanb0)*(bimg./b0img); 
+
+end
+
 
 
 
@@ -208,7 +269,7 @@ lb = [0.0,0.0,0.0];
 ub = [1,1,1];
 
 % Lumen diffusivity
-Dl = 0.002;
+Dl = 0.0020;
 err = 0.001;
     
 % signals = zeros(3, Nimg,Nboot); % BOOTSTRAPPING
@@ -321,90 +382,91 @@ end
 
 % DISPLAY STANDARD ERROR RESULTS
 
-s = signals;
-
-bvals = [scheme(2:2:end).bval];
-bshift = 15;
-
-Deltas = [scheme(2:2:end).DELTA];
-[Ds, I] = sort(Deltas);
-Dshift=2;
-
 figure
-% errorbar(bvals-1*bshift, s(1,:,1), s(1,:,2), '*', color=[0.4660 0.6740 0.1880], DisplayName='Stroma');
-% hold on
-% errorbar(bvals+0*bshift, s(2,:,1), s(2,:,2), '*', color=[0.8500 0.3250 0.0980], DisplayName='Glandular');
-% errorbar(bvals+1*bshift, s(3,:,1), s(3,:,2), '*', color=[0 0.4470 0.7410], DisplayName = 'Lumen');
-% xticks(bvals); 
-% xticklabels(bvals)
-% ylim([0,0.6])
-% xlabel('b-value')
-errorbar(Ds-1*Dshift, s(1,:,1), s(1,:,2), '*', color=[0.4660 0.6740 0.1880], DisplayName='Stroma');
+
+
+
+% Deltas = [scheme(indices).DELTA];
+% % [Ds, I] = sort(Deltas);
+% Ds=Deltas;
+% I=1:length(Ds);
+% Dshift=2;
+
+% Short Delta
+indices = 2:2:10;
+s = signals(:,1:5,:);
+bvals = [scheme(indices).bval];
+bshift = 10;
+
+errorbar(bvals-1*bshift, s(1,:,1), s(1,:,2), '--*', color=[0.4660 0.6740 0.1880], DisplayName='Stroma (Short Delta)');
 hold on
-errorbar(Ds+0*Dshift, s(2,:,1), s(2,:,2), '*', color=[0.8500 0.3250 0.0980], DisplayName='Glandular');
-errorbar(Ds+1*Dshift, s(3,:,1), s(3,:,2), '*', color=[0 0.4470 0.7410], DisplayName = 'Lumen');
-legend;
-xlabel('Delta')
+errorbar(bvals-1*bshift, s(2,:,1), s(2,:,2), '--*', color=[0.8500 0.3250 0.0980], DisplayName='Glandular (Short Delta)');
+errorbar(bvals-1*bshift, s(3,:,1), s(3,:,2), '--*', color=[0 0.4470 0.7410], DisplayName = 'Lumen (Short Delta)');
+
+
+% Long Delta
+indices = 12:2:20;
+s = signals(:,6:10,:);
+
+errorbar(bvals+1*bshift, s(1,:,1), s(1,:,2), '--.', color=[0.4660 0.6740 0.1880], DisplayName='Stroma (Long Delta)');
+hold on
+errorbar(bvals+1*bshift, s(2,:,1), s(2,:,2), '--.', color=[0.8500 0.3250 0.0980], DisplayName='Glandular (Long Delta)');
+errorbar(bvals+1*bshift, s(3,:,1), s(3,:,2), '--.', color=[0 0.4470 0.7410], DisplayName = 'Lumen (Long Delta)');
+
+
+
+xticks(bvals); 
+xticklabels(bvals)
+ylim([-0.1,0.8])
+xlim([800,2200])
+xlabel('b-value')
+grid on
+% errorbar(Ds-1*Dshift, s(1,I,1), s(1,I,2), '--*', color=[0.4660 0.6740 0.1880], DisplayName='Stroma');
+% hold on
+% errorbar(Ds+0*Dshift, s(2,I,1), s(2,I,2), '--*', color=[0.8500 0.3250 0.0980], DisplayName='Glandular');
+% errorbar(Ds+1*Dshift, s(3,I,1), s(3,I,2), '--*', color=[0 0.4470 0.7410], DisplayName = 'Lumen');
+% legend;
+% xlabel('Delta')
 ylabel('Predicted normalized signal')
+% title(T)
 
-% Create legend handles (use a dummy line for the legend)
-l1 = plot(NaN, NaN, 's', 'MarkerFaceColor', [0.4660 0.6740 0.1880], 'MarkerEdgeColor', [0.4660 0.6740 0.1880]); % Dummy handle for blue group
-l2 = plot(NaN, NaN, 's', 'MarkerFaceColor', [0.8500 0.3250 0.0980], 'MarkerEdgeColor', [0.8500 0.3250 0.0980]); % Dummy handle for red group
-l3 = plot(NaN, NaN, 's', 'MarkerFaceColor', [0 0.4470 0.7410], 'MarkerEdgeColor', [0 0.4470 0.7410]); % Dummy handle for green group
+legend;
 
-% Add a legend
-legend([l1, l2, l3], {'Stroma', 'Glandular', 'Lumen'}, 'Location', 'northeast');
-
-
-
-% % LOG SIGNALS
-% figure;
-% plot(bvals-1*bshift, log(s(1,:,1)), '*--', color=[0.4660 0.6740 0.1880], DisplayName='Stroma');
-% hold on
-% plot(bvals+0*bshift, log(s(2,:,1)), '*--', color=[0.8500 0.3250 0.0980], DisplayName='Glandular');
-% % plot(bvals+1*bshift, log(s(3,:,1)), '*--', color=[0 0.4470 0.7410], DisplayName = 'Lumen');
+% % Create legend handles (use a dummy line for the legend)
+% l1 = plot(NaN, NaN, 's', 'MarkerFaceColor', [0.4660 0.6740 0.1880], 'MarkerEdgeColor', [0.4660 0.6740 0.1880]); % Dummy handle for blue group
+% l2 = plot(NaN, NaN, 's', 'MarkerFaceColor', [0.8500 0.3250 0.0980], 'MarkerEdgeColor', [0.8500 0.3250 0.0980]); % Dummy handle for red group
+% l3 = plot(NaN, NaN, 's', 'MarkerFaceColor', [0 0.4470 0.7410], 'MarkerEdgeColor', [0 0.4470 0.7410]); % Dummy handle for green group
 % 
+% % Add a legend
+% legend([l1, l2, l3], {'Stroma', 'Glandular', 'Lumen'}, 'Location', 'northeast');
 
-%% ADC MODEL FITTING
-
-% 
-% S = squeeze(signals(1,:,1));
-% 
-% Y = ones([1,1,1,nscheme]);
-% Y(:,:,:,2:2:end) = S;
-% 
-% Nparam = 2;
-% 
-% % Model fitting
-% [ADC,S0] = calcADC(Y,[scheme(:).bval]);
-% ADC
-% 
-% % Predictions
-% Y_pred = zeros(size(Y));
-% for indx = 1:length(Y)
-%     bval = scheme(indx).bval;
-%     Y_pred(indx) = ADC_model(bval, S0, ADC);
-% end
-% 
-% % Residual error
-% reserror = sum((Y_pred(:,:,:,2:2:end)-Y(:,:,:,2:2:end)).^2);
-% 
-% % AIC
-% ADC_AIC = (nscheme/2)*log(2*reserror/nscheme)+2*Nparam
-% 
-% figure
-% scatter(squeeze(Y), squeeze(Y_pred))
-% hold on
-% plot(squeeze(Y), squeeze(Y))
-% title('ADC')
+ax=gca();
+ax.FontSize=14;
 
 
+%% INITIALISE RESULTS STRUCTURE
 
-%% RDI MODEL FITTING
+RESULTS = struct();
 
-S = squeeze(signals(2,:,1));
+
+%% MODEL FITTING
+
+% delete 'results_tab.xlsx'
+
+component = 'G';
+
+
+switch component
+    case 'S'
+        S = squeeze(signals(1,:,1));
+    case 'G'
+        S = squeeze(signals(2,:,1));
+    case 'L'
+        S = squeeze(signals(3,:,1));
+end
 
 function Y_out = RDI_model_func(b,X, modeltype, RDI_model)   
+
     N = size(X,1);
     Y_out = zeros([N,1]);
 
@@ -414,22 +476,112 @@ function Y_out = RDI_model_func(b,X, modeltype, RDI_model)
 
 end
 
-
-% == 1 compartment
-
 % Model fitting
-modeltype = 'RDI - 2 compartment - 3 param';
-Nparam = 3;
+modeltype = 'RDI - 2 compartment - 4 param';
+% modeltype = 'ADC';
+
+R = 30;
+Rlb = 1;
+Rub = 100;
+
+d = 1;
+dlb = 0.1;
+dub = 3;
+
+fIC = 0.5;
+fIClb = 0;
+fICub = 1;
+
+S0 = 1;
+S0lb = 0.8;
+S0ub = 1.2;
+
+K = 1;
+Klb = 0;
+Kub = 3;
+
+lambda0=5e-2;
+
+switch modeltype
+
+    case 'ADC'
+
+        Nparam = 2;
+        beta0 = [S0, d];
+        lb = [S0lb, dlb];
+        ub = [S0ub, dub];
+
+    case 'DKI'
+
+        Nparam = 3;
+        beta0 = [S0, d, K];
+        lb = [S0lb, dlb, Klb];
+        ub = [S0ub, dub, Kub];
+
+    case 'RDI - 1 compartment - 2 param'
+        Nparam = 2;
+        beta0 = [R,d];
+        lb = [Rlb,dlb];
+        ub = [Rub,dub];
+
+    case 'RDI - 2 compartment - 3 param'
+
+        Nparam = 3;
+        beta0 = [fIC,R,d];
+        lb = [fIClb,Rlb,dlb];
+        ub = [fICub,Rub,dub];
+
+    case 'RDI - 2 compartment - 4 param'
+
+        Nparam = 4;
+        beta0 = [fIC,R,d,d];
+        lb = [fIClb,Rlb,dlb, dlb];
+        ub = [fICub,Rub,dub, dub];
+
+    case 'RDKI - 2 compartment - 5 param'
+
+        Nparam = 5;
+        beta0 = [fIC,R,d,d, K];
+        lb = [fIClb,Rlb,dlb, dlb, Klb];
+        ub = [fICub,Rub,dub, dub, Kub];
+
+
+    case 'RSI - 2 compartment - 4 param'
+
+        Nparam = 4;
+        beta0 = [0.4,d,0.6,d];
+        lb = [fIClb,dlb,fIClb, dlb];
+        ub = [fICub,dub,fICub, dub];
+
+end
+
+
+lambda = lambda0*ones(1,Nparam);
 
 Y = ones([1,1,1,nscheme]);
 Y(:,:,:,2:2:end) = S;
 
 schemename = schemename;
 fittingtechnique = 'LSQ';
+
+
+
 modelfolder = fullfile(projectfolder, 'Scripts', 'RDI', fittingtechnique, 'models', modeltype, schemename);
+
 clear outputs;
-[outputs{1:Nparam}] = RDI_fit(Y, scheme, modeltype=modeltype, modelfolder=modelfolder, fittingtechnique=fittingtechnique);
-model_params = cell2mat(outputs)
+clear stderr;
+[outputs{1:Nparam}, resnorm, stderr{1:Nparam}] = RDI_fit( ...
+    Y, ...
+    scheme, ...
+    modeltype=modeltype, ...
+    modelfolder=modelfolder, ...
+    fittingtechnique=fittingtechnique,...
+    beta0=beta0,...
+    lb=lb,...
+    ub=ub,...
+    lambda=lambda);
+
+model_params = cell2mat(outputs);
 
 % Predictions
 Y_pred = zeros(size(Y));
@@ -444,13 +596,29 @@ end
 reserror = sum((Y_pred(2:2:end)-Y(2:2:end)).^2);
 
 % AIC
-RDI_AIC = (nscheme/2)*log(2*reserror/nscheme)+2*Nparam
+N=nscheme/2;
+AIC = (N)*log(reserror/N)+2*Nparam;
 
 figure
 scatter(squeeze(Y), squeeze(Y_pred))
 hold on
 plot(squeeze(Y), squeeze(Y))
 title(modeltype)
+
+n = length(RESULTS)+1;
+if ~numel(fieldnames(RESULTS))
+    n = 1;
+end
+RESULTS(n).Component = component;
+RESULTS(n).ModelType = modeltype;
+RESULTS(n).ModelParams = model_params;
+RESULTS(n).StdErr = cell2mat(stderr);
+RESULTS(n).ResidualError = reserror;
+RESULTS(n).AIC=AIC;
+
+tab=struct2table(RESULTS);
+disp(tab);
+% writetable(tab, 'results_tab.xlsx')
 
 
 % % == 2 compartment
