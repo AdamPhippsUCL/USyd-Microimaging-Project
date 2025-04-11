@@ -12,16 +12,16 @@ ImagingDataFolder = fullfile(projectfolder, 'Imaging Data');
 ImageType = 'MAT';
 
 % Sample name
-SampleName = '20250224_UQ4';
+SampleName = '20250407_UQ5';
 
 % Series Description
 SeriesDescriptions = {
-    % '40u_DtiSE_2012_SPOIL10%'
-    'SE_b0_SPOIL5%',...
-    % 'STEAM_DELTA_15',...
-    % 'STEAM_DELTA_20',...
-    % 'STEAM_DELTA_30',...
+    '40u_DtiSE_2012_SPOIL10%'
+    % 'SE_b0_SPOIL5%',...
     % 'STEAM_DELTA_40',...
+    % 'STEAM_DELTA_60',...
+    % 'STEAM_DELTA_80',...
+    % 'STEAM_DELTA_100',...
     % 'STEAM_DELTA_120',...
 };
 
@@ -37,7 +37,7 @@ for indx = 1:length(SeriesDescriptions)
     switch SampleName
   
 
-        case '20250224_UQ4'
+        case {'250224_UQ4', '20250407_UQ5'}
             
             switch SeriesDescription
 
@@ -81,7 +81,7 @@ for indx = 1:length(SeriesDescriptions)
                         -0.0510337100409279 0.0854206311389746 -0.0196381403801375
                         ];
                     DiffusionEffBValue = [49.3776905745272 1293.67897606535 1283.17531330854 1274.50621838444 1262.69815513832 1273.34467933978 1241.60461141643];
-                
+
 
                 case 'STEAM_DELTA_80'
 
@@ -126,7 +126,7 @@ for indx = 1:length(SeriesDescriptions)
                         -0.0455274515984108 0.0762042118154156 -0.0175192923446577
                         ];
                     DiffusionEffBValue = [103.144164345687 2082.77829673617 2062.89852901701 2046.49095792332 2029.39237426483 2044.29256990009 1984.21969891062];
-
+                % 
                 % 
                 % case 'STEAM_DELTA_15'
                 % 
@@ -199,7 +199,7 @@ for indx = 1:length(SeriesDescriptions)
                 %         -0.0707882085660471 0.1184858684203 -0.0272398141535001
                 %         ];
                 %     DiffusionEffBValue = [40.4166116126672 2049.11559200975 2037.26951111784 2027.49246456673 2009.55325555165 2026.1824752991 1990.38587549958];  
-                % 
+
                 % 
                 % case '40u_DtiSTE_SPOIL5%'
                 % 
@@ -210,8 +210,7 @@ for indx = 1:length(SeriesDescriptions)
 
                 case '40u_DtiSE_2012_SPOIL10%'
 
-                    DiffusionBValue  = [0, 0, 1200, 1200, 1200, 1200, 1200, 1200];
-                    % TBC
+                    DiffusionBValue  = [0, 0, 1200, 1200, 1200, 1200, 1200, 1200];                   
                     DiffusionDirection = [
                                          0 0 0; 
                                          0 0 0; 
@@ -225,6 +224,36 @@ for indx = 1:length(SeriesDescriptions)
                     DiffusionEffBValue = [40.874806178439 40.874806178439 1211.95197497596 1200.95114689675 1200.70017607171 1220.63089472967 1200.66654944576 1208.22342214346];
 
             end
+
+
+        % case 
+        % 
+        %     switch SeriesDescription
+        % 
+        %         case 'SE_b0_SPOIL5%'
+        % 
+        %             DiffusionBValue = [0, 0, 0, 0];
+        %             DiffusionDirection = [0, 0, 0; 0, 0, 0; 0, 0, 0; 0, 0, 0];
+        %             DiffusionEffBValue = [10.3045556509301 10.3045556509301 10.3045556509301 10.3045556509301];
+        % 
+        %         case 'STEAM_DELTA_40'
+        % 
+        %             DiffusionBValue = [0, 1000, 1000, 1000, 1000, 1000, 1000];
+        %             DiffusionDirection = [
+        %                 0 0 0;
+        %                 0.0332096005523013 -0.0151127069086587 0.105249880965036; 
+        %                 -0.0688620598134244 0.0363253402738824 0.0796699146123788; 
+        %                 -0.0539385485048503 -0.0779129830615826 0.0585577405450395;
+        %                 0.109104586679705 0.0105898753043585 0.0198205103010379;
+        %                 0.031904136610893 0.0910231480097285 0.0557290006694651;
+        %                 -0.0560508828073122 0.093818414954694 -0.0215687847134349
+        %                 ];
+        %             DiffusionEffBValue = [31.4555326508071 1030.00865891474 1022.785232274 1016.82344802067 1007.11154118745 1016.024651232 994.196831972685];
+        % 
+        % 
+        %     end
+
+
 
     end
 

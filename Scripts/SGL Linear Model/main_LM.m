@@ -9,15 +9,17 @@ projectfolder = pwd;
 samplename = '20250224_UQ4';
 
 % modeltype = 'ADC';
-modeltype = 'RDI - 1 compartment - 2 param';
+modeltype = 'DKI';
 
 schemename = '20250224_UQ4 AllDELTA';
+scheme = load(fullfile(projectfolder, 'Schemes', [schemename '.mat'])).scheme;
+nscheme = length(scheme);
 
 fittingtechnique = 'LSQ';
 
-parameter = 'R';
+parameter = 'K';
 
-% Parameter folder
+% Parameter map
 paramfolder = fullfile(projectfolder, "Outputs", "Model Fitting", samplename, modeltype, schemename, fittingtechnique);
 parammap = load(fullfile(paramfolder,[parameter '.mat'])).(parameter);
 szmap = size(parammap);
@@ -101,7 +103,8 @@ composition = composition(bool, :);
 
 % Predictors and labels
 X = composition;
-y = parammap_flat(bool);
+paramvals = parammap_flat(bool);
+y = paramvals;
 
 % Fit a multiple linear regression model
 mdl = fitlm(X, y,'Intercept', intercept);
@@ -167,3 +170,28 @@ xticklabels({'S', 'G', 'L'})
 title([modeltype '; ' parameter])
 errorbar(1:3, mean(ci_std,2), range(ci_std,2)/2, 'k', 'LineStyle', 'none', 'Marker', 'none')
 ylabel('Standardised coefficient')
+
+
+
+%% AIC
+
+% Load resnorm
+resnorm = load(fullfile(paramfolder, 'RESNORM.mat')).RESNORM;
+
+% Number of parameters
+switch modeltype
+    case {'RDI - 2 compartment - 4 param'}
+        Nparam = 4;
+    case {'RDI - 2 compartment - 3 param', 'DKI'}
+        Nparam = 3;
+    case {'RDI - 1 compartment - 2 param', 'ADC'}
+        Nparam = 2;
+end
+
+% AIC
+AIC = (nscheme)*log((resnorm)/nscheme)-2*Nparam;
+AICflat = reshape(AIC, [prod(szmap), 1]);
+AICvals = AICflat(bool);
+
+figure
+histogram(AICvals)

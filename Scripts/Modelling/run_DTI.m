@@ -16,7 +16,7 @@ switch UseDenoisedData
 end
 
 % Sample name
-SampleName = '20250224_UQ4';
+SampleName = '20250407_UQ5';
 
 % Series description
 SeriesDescription = '40u_DtiSE_2012_SPOIL10% (20 micron)';
@@ -62,15 +62,15 @@ direcs = transpose(direcs);
 norms = sqrt(sum(direcs.^2, 2));
 direcs = direcs./norms;
 
-
-% Select small image region for testing
-xs = 300:340;
-ys = 50:200;
-zs = 120;
-
-b0img = b0img(zs,ys,xs);
-bimgs = bimgs(zs,ys,xs,:);
-
+% 
+% % Select small image region for testing
+% xs = 300:340;
+% ys = 50:200;
+% zs = 120;
+% 
+% b0img = b0img(zs,ys,xs);
+% bimgs = bimgs(zs,ys,xs,:);
+% 
 
 %% Diffusion tensor and FA calculation
 

@@ -8,7 +8,6 @@ projectfolder = pwd;
 
 % Sample
 samplename = '20250407_UQ5';
-% samplename = '20250224_UQ4';
 
 % Use denoised data
 UseDenoisedData = true;
@@ -153,22 +152,17 @@ for seriesindx = 2:length(SeriesDescriptions)
 
 
     thisb0prctiles = [
-        prctile(thisb0img(:), 10),...
-        prctile(thisb0img(:), 20),...
-        prctile(thisb0img(:), 30),...
-        prctile(thisb0img(:), 40),...
-        prctile(thisb0img(:), 50),...
-        prctile(thisb0img(:), 60),...
-        prctile(thisb0img(:), 70),...
-        prctile(thisb0img(:), 80),...
-        prctile(thisb0img(:), 90),...
-    ];
+    prctile(b0img(:), 10),...
+    prctile(b0img(:), 20),...
+    prctile(b0img(:), 30),...
+    prctile(b0img(:), 40),...
+    prctile(b0img(:), 50),...
+    prctile(b0img(:), 60),...
+    prctile(b0img(:), 70),...
+    prctile(b0img(:), 80),...
+    prctile(b0img(:), 90),...
+];
 
-    p = polyfit(b0prctiles, thisb0prctiles, 1);
-    alpha = p(1)
-
-    % figure
-    % scatter(b0prctiles, thisb0prctiles);
     % % Histogram matching
     % alphas = linspace(0.5,1.5,101);
     % errs = zeros(size(alphas));
@@ -195,9 +189,8 @@ for seriesindx = 2:length(SeriesDescriptions)
     bval = bvals(find(bbools,1));
 
     % Normalize and append to Y array
-    % IMGS(seriesindx,:,:,:) = (meanb0/thismeanb0)*(bimg./b0img); 
+    IMGS(seriesindx,:,:,:) = (meanb0/thismeanb0)*(bimg./b0img); 
     % IMGS(seriesindx,:,:,:) = (bimg./b0img); 
-    IMGS(seriesindx,:,:,:) = (1/alpha)*(bimg./b0img); 
 
 
 end
@@ -220,9 +213,7 @@ switch samplename
            1:size(baseImg,1) ...
             );
 
-        samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 <80^2, 1, 1, size(baseImg,3));
-        samplemask(:,:,1:20)=false;
-        samplemask(end-20:end)=false;
+        samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 <75^2, 1, 1, size(baseImg,3));
 
 
     case '20250407_UQ5'
@@ -236,9 +227,8 @@ switch samplename
            1:size(baseImg,1) ...
             );
 
-        samplemask(:,:,:) = repmat((Xs-122).^2 + (Ys-119).^2 <80^2, 1, 1, size(baseImg,3));
-        samplemask(:,:,1:20)=false;
-        samplemask(end-20:end)=false;
+        samplemask(:,:,:) = repmat((Xs-122).^2 + (Ys-119).^2 <70^2, 1, 1, size(baseImg,3));
+
 
 end
 

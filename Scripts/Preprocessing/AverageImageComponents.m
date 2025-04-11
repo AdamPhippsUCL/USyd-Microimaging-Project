@@ -6,10 +6,10 @@ projectfolder = pwd;
 %% Image details
 
 % Sample name
-SampleName = '20250224_UQ4';
+SampleName = '20250407_UQ5';
 
 % Series description
-SeriesDescription =  'SE_b0_SPOIL5%';
+SeriesDescription =  '3DMGE_20u';
 
 % Use denoised data
 UseDenoisedData = true;

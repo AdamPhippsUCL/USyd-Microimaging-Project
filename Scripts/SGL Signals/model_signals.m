@@ -3,11 +3,17 @@
 clear;
 projectfolder = pwd;
 
+%% Initialise results structure
+
+RESULTS = struct();
+
+
 %% Sample and scheme details
 
 outputfolder = fullfile(projectfolder, 'Outputs', 'Signal Measurement'); 
 
-samplename = '20250224_UQ4';
+samplename = '20250407_UQ5';
+% samplename = '20250224_UQ4';
 
 schemename = '20250224_UQ4 AllDELTA';
 
@@ -16,16 +22,14 @@ signals = load(fullfile(outputfolder, samplename, schemename, 'signals.mat')).si
 scheme = load(fullfile(outputfolder, samplename, schemename, 'scheme.mat')).scheme;
 nscheme = length(scheme);
 
-%% Initialise results structure
 
-RESULTS = struct();
 
 %% Modelling details
 
 component = 'S';
 
 % modeltype = 'DKI';
-modeltype = 'RDI - 2 compartment - 3 param';
+modeltype = 'RDI - 1 compartment - 2 param';
 
 fittingtechnique = 'LSQ';
 
@@ -63,7 +67,7 @@ switch modeltype
     case 'RDI - 2 compartment - 4 param'
 
         Nparam = 4;
-        beta0 = [0.5, 40, 1, 1];
+        beta0 = [0.5, 30, 1, 1];
         lb = [0, 1, 0, 0];
         ub = [1, 100, 3, 3];
 
@@ -136,10 +140,11 @@ n = length(RESULTS)+1;
 if ~numel(fieldnames(RESULTS))
     n = 1;
 end
+RESULTS(n).SampleName = samplename;
 RESULTS(n).Component = component;
 RESULTS(n).ModelType = modeltype;
 RESULTS(n).ModelParams = params;
-RESULTS(n).ParamError = params_err;
+RESULTS(n).ParamError = transpose(params_err);
 RESULTS(n).FitResidual = resnorm;
 RESULTS(n).AIC=AIC;
 

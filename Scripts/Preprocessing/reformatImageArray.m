@@ -9,10 +9,10 @@ projectfolder = pwd;
 ImagingDataFolder = fullfile(projectfolder, 'Imaging Data');
 
 % Sample name
-SampleName = '20250224_UQ4';
+SampleName = '20250407_UQ5';
 
 % Series description
-SeriesDescription =  'SE_b0_SPOIL5%';
+SeriesDescription =  '40u_DtiSE_2012_SPOIL10%';
 
 
 %% Load image array and DICOM 
