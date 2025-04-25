@@ -12,24 +12,17 @@ RESULTS = struct();
 
 outputfolder = fullfile(projectfolder, 'Outputs', 'Signal Measurement'); 
 
-samplename = '20250407_UQ5';
-% samplename = '20250224_UQ4';
-
 schemename = '20250224_UQ4 AllDELTA';
-
-% Measured signals and scheme
-signals = load(fullfile(outputfolder, samplename, schemename, 'signals.mat')).signals;
-scheme = load(fullfile(outputfolder, samplename, schemename, 'scheme.mat')).scheme;
+signals = load(fullfile(outputfolder, schemename, 'signals.mat')).signals;
+scheme = load(fullfile(outputfolder, schemename, 'scheme.mat')).scheme;
 nscheme = length(scheme);
-
-
 
 %% Modelling details
 
 component = 'S';
 
 % modeltype = 'DKI';
-modeltype = 'RDI - 1 compartment - 2 param';
+modeltype = 'RDI - 2 compartment - 4 param';
 
 fittingtechnique = 'LSQ';
 
@@ -53,28 +46,28 @@ switch modeltype
     case 'RDI - 1 compartment - 2 param'
 
         Nparam = 2;
-        beta0 = [40, 1];
+        beta0 = [20, 0.5];
         lb = [1, 0];
         ub = [100, 3];
 
     case 'RDI - 2 compartment - 3 param'
 
         Nparam = 2;
-        beta0 = [0.5, 40, 1];
+        beta0 = [0.1, 10, 1];
         lb = [0, 1, 0];
-        ub = [1, 100, 3];
+        ub = [1, 50, 3];
 
     case 'RDI - 2 compartment - 4 param'
 
         Nparam = 4;
-        beta0 = [0.5, 30, 1, 1];
+        beta0 = [0.1, 10, 1, 1];
         lb = [0, 1, 0, 0];
-        ub = [1, 100, 3, 3];
+        ub = [1, 50, 3, 3];
 
 end
 
 % Regularisation
-lambda = 0e-2;
+lambda = 0e-3;
 
 %% Model fitting 
 
@@ -127,6 +120,9 @@ xub = ones(size(s));
 % Estimate Jacobian at signals
 J = JacobianEst(func, s, step=step, xlb=xlb, xub=xub);
 
+% % Covariance matrix
+% CoV = inv(J'*J) * resnorm / (size(s,2) - Nparam);
+
 % Estimate parameter errors
 signal_var = diag(err.^2);
 params_var =  J*(signal_var*J');
@@ -140,7 +136,7 @@ n = length(RESULTS)+1;
 if ~numel(fieldnames(RESULTS))
     n = 1;
 end
-RESULTS(n).SampleName = samplename;
+% RESULTS(n).SampleName = samplename;
 RESULTS(n).Component = component;
 RESULTS(n).ModelType = modeltype;
 RESULTS(n).ModelParams = params;
@@ -150,6 +146,57 @@ RESULTS(n).AIC=AIC;
 
 disp(RESULTS);
 
+
+% Save RESULTS
+folder = fullfile(projectfolder, 'Outputs', 'Signal Measurement');
+save(fullfile(folder, 'RESULTS.mat'), 'RESULTS')
+
+
+%% Profile likelihood
+% 
+% fixedindx = 3;
+% 
+% Nvals = 100;
+% low = (40*lb(fixedindx)+ub(fixedindx))/40;
+% high = (40*ub(fixedindx)+lb(fixedindx))/40;
+% fixedvals = linspace(low,high,Nvals);%linspace(lb(fixedindx), ub(fixedindx),Nvals);
+% valspacing = fixedvals(2)-fixedvals(1);
+% resnorms = zeros(1,Nvals);
+% 
+% for findx = 1:Nvals
+% 
+%     fixedval = fixedvals(findx);
+% 
+%     thisbeta0 = beta0;
+%     thisbeta0(fixedindx) = fixedval;
+% 
+%     thislb = lb;
+%     thislb(fixedindx) = fixedval-0.5*valspacing;
+% 
+%     thisub = ub;
+%     thisub(fixedindx) = fixedval+0.5*valspacing;
+% 
+%     % Modelling predictions
+%     [params, resnorm] = fitting_func( ...
+%         s, ...
+%         scheme, ...
+%         modeltype = modeltype, ...
+%         fittingtechnique = fittingtechnique,...
+%         beta0=thisbeta0,...
+%         lb=thislb,...
+%         ub=thisub,...
+%         lambda=lambda ...
+%         );
+% 
+%     resnorms(findx)=resnorm;
+% 
+% end
+% 
+% 
+% figure
+% scatter(fixedvals, resnorms)
+% ylim([0, 0.005])
+% 
 
 %% Model fitting function (for Jacobian error estimation)
 
@@ -170,7 +217,7 @@ function [params, resnorm] = fitting_func(signals, scheme, opts)
 
     Y = reshape(signals, [1,1,1,length(signals)]);
 
-    [outputs{1:Nparam}, resnorm] = RDI_fit( ...
+    [outputs{1:Nparam}, resnorm, ] = RDI_fit( ...
         Y, ...
         scheme, ...
         modeltype=opts.modeltype, ...

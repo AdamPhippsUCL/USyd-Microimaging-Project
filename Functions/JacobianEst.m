@@ -39,7 +39,7 @@ for xindx = 1:Nx
 
 
     dx(xindx) = thisstep;
-    J(:, xindx) = (func(x0 + dx) - y0) / thisstep;
+    J(:, xindx) = (func(x0 + dx/2) - func(x0-dx/2)) / thisstep;
 
 end
 

@@ -76,7 +76,7 @@ modelsfolder = fullfile(projectfolder, 'Scripts', 'RDI', fittingtechnique, 'mode
 
 % Regularisation
 
-R = 45; Rlb = 1; Rub = 100;
+R = 25; Rlb = 1; Rub = 100;
 
 d = 1; dlb = 0.1; dub = 3;
 
@@ -88,7 +88,7 @@ fIC = 0.5; fIClb = 0; fICub = 1;
 
 S0 = 1; S0lb = 0.8; S0ub = 1.2;
 
-K = 0.6; Klb = 0; Kub = 3;
+K = 0.5; Klb = 0; Kub = 3;
 
 lambda0=1e-2;
 
@@ -184,8 +184,20 @@ switch averagedirections
         b0bools = (bvals==0);
         b0imgs = img(:,:,:,b0bools);
         b0img = mean(b0imgs,4);
-        meanb0 = mean(b0img(:));
+        % meanb0 = mean(b0img(:));
     
+        b0prctiles = [
+            prctile(b0img(:), 10),...
+            prctile(b0img(:), 20),...
+            prctile(b0img(:), 30),...
+            prctile(b0img(:), 40),...
+            prctile(b0img(:), 50),...
+            prctile(b0img(:), 60),...
+            prctile(b0img(:), 70),...
+            prctile(b0img(:), 80),...
+            prctile(b0img(:), 90),...
+        ];
+
         % Apply Gaussian smoothing
         % b0img = imgaussfilt(b0img, 0.5);
 
@@ -204,7 +216,21 @@ switch averagedirections
             b0bools = (bvals==0);
             b0imgs = img(:,:,:,b0bools);
             thisb0img = mean(b0imgs,4);
-            thismeanb0 = mean(thisb0img(:));
+
+            thisb0prctiles = [
+                prctile(thisb0img(:), 10),...
+                prctile(thisb0img(:), 20),...
+                prctile(thisb0img(:), 30),...
+                prctile(thisb0img(:), 40),...
+                prctile(thisb0img(:), 50),...
+                prctile(thisb0img(:), 60),...
+                prctile(thisb0img(:), 70),...
+                prctile(thisb0img(:), 80),...
+                prctile(thisb0img(:), 90),...
+            ];
+
+            p = polyfit(b0prctiles, thisb0prctiles, 1);
+
         
             % b imgs
             bbools = (bvals > 0);
@@ -214,67 +240,67 @@ switch averagedirections
             bvec(seriesindx)=bval;
         
             % Normalize and append to Y array
-            Y(:,:,:,seriesindx) = (meanb0/thismeanb0)*(bimg./b0img); 
+            Y(:,:,:,seriesindx) = (1/p(1))*((bimg./b0img)-p(2));
         
         end
         
 
-    case false
-
-        % Initialise Y matrix
-        Y = ones([Ndirec size(ImageArrays(1).ImageArray, 1:3), length(scheme)]);
-        bvec = zeros(1, length(scheme));
-        
-        % seriesindx = 1 used for data normalisation!
-        img = ImageArrays(1).ImageArray;
-        dinfo = DINFOS(1).dinfo;
-        bvals = [dinfo(:).DiffusionBValue];
-        b0bools = (bvals==0);
-        b0imgs = img(:,:,:,b0bools);
-        b0img = mean(b0imgs,4);
-        meanb0 = mean(b0img(:));
-        
-        % % Apply Gaussian smoothing
-        % b0img = imgaussfilt(b0img, 0.5);
-
-
-        % seriesindx > 1 used for diffusion data
-        for seriesindx = 2:length(SeriesDescriptions)
-        
-            % Load image
-            img = ImageArrays(seriesindx).ImageArray;
-        
-            % Load dinfo
-            dinfo = DINFOS(seriesindx).dinfo;
-            bvals = [dinfo(:).DiffusionBValue];
-        
-            % b0 imgs
-            b0bools = (bvals==0);
-            b0imgs = img(:,:,:,b0bools);
-            thisb0img = mean(b0imgs,4);
-            thismeanb0 = mean(thisb0img(:));
-        
-            % b imgs
-            bbools = (bvals > 0);
-            bval = bvals(find(bbools,1));
-            bvec(seriesindx)=bval;
-            bimgs = img(:,:,:,bbools);
-
-
-            for direcindx = 1:Ndirec
-                
-                bimg = bimgs(:,:,:,direcindx);
-                % Normalize and append to Y array
-                Y(direcindx,:,:,:,seriesindx) = (meanb0/thismeanb0)*(bimg./b0img); 
-
-            end
-            
-        end
-        
-        % % Check scheme agreement
-        % if ~all(bvec == [scheme(:).bval])
-        %     error('Scheme does not match data')
-        % end
+    % case false
+    % 
+    %     % Initialise Y matrix
+    %     Y = ones([Ndirec size(ImageArrays(1).ImageArray, 1:3), length(scheme)]);
+    %     bvec = zeros(1, length(scheme));
+    % 
+    %     % seriesindx = 1 used for data normalisation!
+    %     img = ImageArrays(1).ImageArray;
+    %     dinfo = DINFOS(1).dinfo;
+    %     bvals = [dinfo(:).DiffusionBValue];
+    %     b0bools = (bvals==0);
+    %     b0imgs = img(:,:,:,b0bools);
+    %     b0img = mean(b0imgs,4);
+    %     meanb0 = mean(b0img(:));
+    % 
+    %     % % Apply Gaussian smoothing
+    %     % b0img = imgaussfilt(b0img, 0.5);
+    % 
+    % 
+    %     % seriesindx > 1 used for diffusion data
+    %     for seriesindx = 2:length(SeriesDescriptions)
+    % 
+    %         % Load image
+    %         img = ImageArrays(seriesindx).ImageArray;
+    % 
+    %         % Load dinfo
+    %         dinfo = DINFOS(seriesindx).dinfo;
+    %         bvals = [dinfo(:).DiffusionBValue];
+    % 
+    %         % b0 imgs
+    %         b0bools = (bvals==0);
+    %         b0imgs = img(:,:,:,b0bools);
+    %         thisb0img = mean(b0imgs,4);
+    %         thismeanb0 = mean(thisb0img(:));
+    % 
+    %         % b imgs
+    %         bbools = (bvals > 0);
+    %         bval = bvals(find(bbools,1));
+    %         bvec(seriesindx)=bval;
+    %         bimgs = img(:,:,:,bbools);
+    % 
+    % 
+    %         for direcindx = 1:Ndirec
+    % 
+    %             bimg = bimgs(:,:,:,direcindx);
+    %             % Normalize and append to Y array
+    %             Y(direcindx,:,:,:,seriesindx) = (meanb0/thismeanb0)*(bimg./b0img); 
+    % 
+    %         end
+    % 
+    %     end
+    % 
+    %     % % Check scheme agreement
+    %     % if ~all(bvec == [scheme(:).bval])
+    %     %     error('Scheme does not match data')
+    %     % end
         
 end
 

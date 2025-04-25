@@ -6,10 +6,10 @@ projectfolder = pwd;
 
 %% Parameter map details
 
-samplename = '20250224_UQ4';
+SampleNames = {'20250224_UQ4', '20250407_UQ5'};
 
-% modeltype = 'ADC';
-modeltype = 'DKI';
+modeltype = 'ADC';
+% modeltype = 'RDI - 1 compartment - 2 param';
 
 schemename = '20250224_UQ4 AllDELTA';
 scheme = load(fullfile(projectfolder, 'Schemes', [schemename '.mat'])).scheme;
@@ -17,15 +17,8 @@ nscheme = length(scheme);
 
 fittingtechnique = 'LSQ';
 
-parameter = 'K';
-
-% Parameter map
-paramfolder = fullfile(projectfolder, "Outputs", "Model Fitting", samplename, modeltype, schemename, fittingtechnique);
-parammap = load(fullfile(paramfolder,[parameter '.mat'])).(parameter);
-szmap = size(parammap);
-parammap_flat = reshape(parammap, [prod(szmap), 1]);
-
-
+parameter = 'ADC';
+    
 % Intercept in model
 switch parameter
     case {'fIC', 'C'}
@@ -35,75 +28,136 @@ switch parameter
 end
 
 
+composition = [];
+paramvals = [];
 
-%% Load masks
+for sindx = 1:length(SampleNames)
 
-seriesdescription = '3DMGE_20u';
-maskfolder = fullfile(projectfolder, 'Outputs', 'Masks', samplename, seriesdescription);
-GLANDULAR = load(fullfile(maskfolder, 'GLANDULAR.mat')).GLANDULAR;
-STROMA = load(fullfile(maskfolder, 'STROMA.mat')).STROMA;
-LUMEN = load(fullfile(maskfolder, 'LUMEN.mat')).LUMEN;
-szmask = size(GLANDULAR);
+    samplename = SampleNames{sindx};
+    
 
+    % Parameter map
+    paramfolder = fullfile(projectfolder, "Outputs", "Model Fitting", samplename, modeltype, schemename, fittingtechnique);
+    parammap = load(fullfile(paramfolder,[parameter '.mat'])).(parameter);
+    szmap = size(parammap);
+    parammap_flat = reshape(parammap, [prod(szmap), 1]);
+    
+    
 
-%% Sample mask
-
-switch samplename
-
-    case '20250224_UQ4'
-
-        % Cylinder centred at (128, 114)      
-        samplemask = zeros(szmask);
-        
-        [Xs, Ys] = meshgrid( ...
-           1:szmask(2), ...
-           1:szmask(1) ...
-            );
-        
-        samplemask(:,:,:) = repmat( ( (Xs-128).^2 + (Ys-114).^2 < 75^2 ), 1, 1, szmask(3));
-
-end
+    % Load masks
+    seriesdescription = '3DMGE_20u';
+    maskfolder = fullfile(projectfolder, 'Outputs', 'Masks', samplename, seriesdescription);
+    GLANDULAR = load(fullfile(maskfolder, 'GLANDULAR.mat')).GLANDULAR;
+    STROMA = load(fullfile(maskfolder, 'STROMA.mat')).STROMA;
+    LUMEN = load(fullfile(maskfolder, 'LUMEN.mat')).LUMEN;
+    szmask = size(GLANDULAR);
 
 
-%% Construct composition image
+    % Sample mask
+    switch samplename
+    
+        case '20250224_UQ4'
+    
+            % Cylinder centred at (128, 114)      
+            samplemask = zeros(szmask);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szmask(2), ...
+               1:szmask(1) ...
+                );
+            
+            samplemask(:,:,:) = repmat( ( (Xs-128).^2 + (Ys-114).^2 < 75^2 ), 1, 1, szmask(3));
+    
+            samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 <75^2, 1, 1, szmask(3));
+            samplemask(:,:,1:20)=false;
+            samplemask(end-20:end)=false;
+    
+    
+        case '20250407_UQ5'
+    
+            % Cylinder centred at (122, 119), radius 70
+    
+            samplemask = zeros(szmask);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szmask(2), ...
+               1:szmask(1) ...
+                );
+    
+            samplemask(:,:,:) = repmat((Xs-122).^2 + (Ys-119).^2 <75^2, 1, 1, szmask(3));
+            samplemask(:,:,1:20)=false;
+            samplemask(end-20:end)=false;
+    end
 
-COMPOSITION = zeros([szmap, 3]);
-ResFactor = szmask./szmap;
-Nvoxel = prod(ResFactor);
 
-for rindx = 1:szmap(1)
-    for cindx = 1:szmap(2)
-        for slindx = 1:szmap(3)
-
-            rows = ((rindx-1)*ResFactor(1)+1:rindx*ResFactor(1));
-            cols = ((cindx-1)*ResFactor(2)+1:cindx*ResFactor(2));
-            slices = ((slindx-1)*ResFactor(3)+1:slindx*ResFactor(3));
-
-            % Test in sample
-            if ~all(logical(samplemask(rows, cols, slices)), "all")
-                continue
+    % Construct composition image
+    COMPOSITION = zeros([szmap, 3]);
+    ResFactor = szmask./szmap;
+    Nvoxel = prod(ResFactor);
+    
+    for rindx = 1:szmap(1)
+        for cindx = 1:szmap(2)
+            for slindx = 1:szmap(3)
+    
+                rows = ((rindx-1)*ResFactor(1)+1:rindx*ResFactor(1));
+                cols = ((cindx-1)*ResFactor(2)+1:cindx*ResFactor(2));
+                slices = ((slindx-1)*ResFactor(3)+1:slindx*ResFactor(3));
+    
+                % Test in sample
+                if ~all(logical(samplemask(rows, cols, slices)), "all")
+                    continue
+                end
+    
+                % COMPOSITION         
+                COMPOSITION(rindx, cindx, slindx, 1) = sum(double(STROMA(rows, cols, slices)), "all")/Nvoxel;
+                COMPOSITION(rindx, cindx, slindx, 2) = sum(double(GLANDULAR(rows, cols, slices)), "all")/Nvoxel;
+                COMPOSITION(rindx, cindx, slindx, 3) = sum(double(LUMEN(rows, cols, slices)), "all")/Nvoxel;        
+    
             end
-
-            % COMPOSITION         
-            COMPOSITION(rindx, cindx, slindx, 1) = sum(double(STROMA(rows, cols, slices)), "all")/Nvoxel;
-            COMPOSITION(rindx, cindx, slindx, 2) = sum(double(GLANDULAR(rows, cols, slices)), "all")/Nvoxel;
-            COMPOSITION(rindx, cindx, slindx, 3) = sum(double(LUMEN(rows, cols, slices)), "all")/Nvoxel;        
-
         end
     end
+    
+    % Select voxels with non-zero composition
+    thiscomposition = reshape(COMPOSITION,[prod(szmap), 3]);
+    bool =  sum(thiscomposition,2)>0;
+    thiscomposition = thiscomposition(bool, :);
+    thisparamvals = parammap_flat(bool);
+
+    composition = [composition; thiscomposition];
+    paramvals = [paramvals; thisparamvals];
+
 end
 
-% Select voxels with non-zero composition
-composition = reshape(COMPOSITION,[prod(szmap), 3]);
-bool =  sum(composition,2)>0;
-composition = composition(bool, :);
 
+
+%% Scatter plots
+
+x=composition(:,2);
+y=paramvals;
+
+figure
+scatter(x, y)
+corr(x, y)
+
+hold on;
+
+% Linear regression line
+p = polyfit(x, y, 1);             % Fit line: y = p(1)*x + p(2)
+x_fit = linspace(min(x), max(x), 100);
+y_fit = polyval(p, x_fit);
+
+plot(x_fit, y_fit, 'r-', 'LineWidth', 2); % Add regression line
+hold off;
+
+xlabel('x');
+ylabel('y');
+title('Scatter Plot with Regression Line');
+grid on;
 
 %% Linear model
 
 % Predictors and labels
 X = composition;
-paramvals = parammap_flat(bool);
 y = paramvals;
 
 % Fit a multiple linear regression model
@@ -195,3 +249,19 @@ AICvals = AICflat(bool);
 
 figure
 histogram(AICvals)
+
+
+ %% Non-linear models
+
+% 
+% % X: input matrix (nFeatures × nSamples)
+% % y: output vector (1 × nSamples)
+% hiddenLayerSize = 10;
+% net = fitnet(hiddenLayerSize);  % e.g., 
+% net = train(net, transpose(X), transpose(y));
+% 
+% 
+% y_pred = transpose(net(transpose(X))); 
+% 
+% figure
+% scatter(y, y_pred)

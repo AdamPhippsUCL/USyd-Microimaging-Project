@@ -6,8 +6,9 @@ projectfolder = pwd;
 %% Sample and Image details
 
 % Sample name
-SampleName = '20250407_UQ5';
-% SampleName = '20250224_UQ4';
+SampleName = '20250414_UQ6';
+% SampleName = '20250407_UQ5';
+SampleName = '20250224_UQ4';
 
 % Use denoised data
 UseDenoisedData = true;
@@ -50,7 +51,7 @@ switch SampleName
 
         MGElow = 5e-8;
         MGEhigh = 1.2e-7;
-        dwFAlow = 10e-5;
+        dwFAlow = 14e-5;
 
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
         LUMEN = (MGE>MGEhigh);
@@ -60,8 +61,19 @@ switch SampleName
     case '20250407_UQ5'
 
         MGElow = 1e-7;
-        MGEhigh = 3.2e-7;
-        dwFAlow = 10e-5;
+        MGEhigh = 3.4e-7;
+        dwFAlow = 14e-5;
+
+        STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
+        LUMEN = (MGE>MGEhigh);
+        GLANDULAR = and(~logical(STROMA), ~logical(LUMEN)).*(MGE>MGElow);
+
+
+    case '20250414_UQ6'
+
+        MGElow = 2e-8;
+        MGEhigh = 1.1e-7;
+        dwFAlow = 14e-5;
 
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
         LUMEN = (MGE>MGEhigh);
@@ -76,11 +88,17 @@ displaymasks(:,:,:,1) = logical(GLANDULAR);
 displaymasks(:,:,:,2) = logical(STROMA);
 displaymasks(:,:,:,3) = logical(LUMEN);
 
-sl=128;
+sl=140;
+cols = 400:630;
+rows = 54:200;
 figure
-imshow(squeeze(MGE(sl,:,:)),[0 prctile(squeeze(MGE(sl,:,:)), 99.5, 'all')]);
+imshow(squeeze(MGE(sl,rows,cols)),[0 prctile(squeeze(MGE(sl,rows,cols)), 99.9, 'all')]);
+figure
+imshow(squeeze(dwFA(sl,rows,cols)),[0 prctile(squeeze(dwFA(sl,rows,cols)), 99.9, 'all')]);
+figure
+imshow(squeeze(MGE(sl,rows,cols)),[0 prctile(squeeze(MGE(sl,rows,cols)), 99.9, 'all')]);
 hold on
-mask = imshow(squeeze(displaymasks(sl,:,:,:)));
+mask = imshow(squeeze(displaymasks(sl,rows,cols,:)));
 set(mask, 'AlphaData', 0.2)
 
 
