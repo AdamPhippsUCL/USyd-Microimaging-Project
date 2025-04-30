@@ -6,9 +6,9 @@ projectfolder = pwd;
 
 outputfolder = fullfile(projectfolder, 'Outputs', 'Signal Measurement'); 
 
-schemename = '20250224_UQ4 AllDELTA';
-signals = load(fullfile(outputfolder, schemename, 'signals.mat')).signals;
-scheme = load(fullfile(outputfolder, schemename, 'scheme.mat')).scheme;
+samplename = 'ESMRMB';
+signals = load(fullfile(outputfolder, samplename, 'signals.mat')).signals;
+scheme = load(fullfile(outputfolder, samplename, 'scheme.mat')).scheme;
 nscheme = length(scheme);
 
 
@@ -39,7 +39,7 @@ errorbar(bvals+1*bshift, s(3,:,1), s(3,:,3), '-.*', color=[0 0.4470 0.7410], Dis
 
 xticks(bvals); 
 xticklabels(bvals)
-ylim([-0.05,0.7])
+ylim([-0.0,0.7])
 ylabel('Normalised signal estimate')
 xlim([800,2200])
 xlabel('b-value (s/mm^{2})')
@@ -52,5 +52,5 @@ ax.FontSize=12;
 f.Position = [488   242   700   480];
 
 % Save figure
-saveas(f, fullfile(projectfolder, "Scripts", "Figures", "Figure2.fig"))
-saveas(f, fullfile(projectfolder, "Scripts", "Figures", "Figure2.png"))
+saveas(f, fullfile(projectfolder, "Scripts", "ESMRMB", "Figures", "Figure2.fig"))
+saveas(f, fullfile(projectfolder, "Scripts", "ESMRMB", "Figures", "Figure2.png"))

@@ -7,10 +7,10 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-multisample = true;
-SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6'};
-% multisample = false;
-% SampleNames = {'20250414_UQ6'};
+% multisample = true;
+% SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6'};
+multisample = false;
+SampleNames = {'20250224_UQ4'};
 
 schemename = '20250224_UQ4 AllDELTA';
 schemesfolder = fullfile(projectfolder, 'Schemes');
@@ -315,10 +315,11 @@ for imgindx = 1:Nimg
     % Test linear model assumption
     R2 = mdl.Rsquared.Ordinary;
     residuals = mdl.Residuals.Raw;
+    [h, p] = lillietest(residuals)
 
-    % figure
-    % scatter(X(:,1), residuals);
-
+    figure
+    % scatter(fitted, residuals)
+    histogram(residuals)
 
     % y_pred = X(:,3)*Sl + sum( X(:,1:2).*repmat(beta_fit', size(X,1),1) ,2);
     % RCC=corr(y,y_pred);
@@ -418,7 +419,6 @@ switch multisample
         mkdir(savefolder);
     case true
         savefolder = fullfile(projectfolder, "Outputs", "Signal Measurement", 'Multi-sample');
-        mkdir(savefolder);
 end
 
 % Meta info

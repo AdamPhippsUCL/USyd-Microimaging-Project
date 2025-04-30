@@ -9,7 +9,7 @@ projectfolder = pwd;
 ImagingDataFolder = fullfile(projectfolder, 'Imaging Data');
 
 % Sample name
-SampleName = '20250224_UQ4';
+SampleName = '20250414_UQ6';
 
 % Series description
 SeriesDescriptions = {...
@@ -32,8 +32,7 @@ SeriesDescriptions = {...
 downsamplewindow = [3,3,4]; 
 overlap = false;
 
-% % Using imresize3
-% imsize = [10,10,20];
+% Using imresize
 
 for seriesindx = 1:length(SeriesDescriptions)
 
@@ -45,16 +44,13 @@ for seriesindx = 1:length(SeriesDescriptions)
     % Load dinfo
     dinfo = load(fullfile(ImagingDataFolder, 'MAT DN', SampleName, SeriesDescription, 'axialdinfo.mat')).dinfo;
 
-    % Downsample image
-    ImageArray = downsample(ImageArray, downsamplewindow, overlap=overlap);
-    
-    % % Using imresize3
-    % n = size(ImageArray,4);
-    % ImageArray_DS = zeros([imsize, n]);
-    % for t = 1:n
-    %     ImageArray_DS(:,:,:,t) = imresize3(ImageArray(:,:,:,t), [10,10,20], "AntiAliasing",true);
-    % end
-    % ImageArray = ImageArray_DS;
+    % % Downsample image
+    % ImageArray = downsample(ImageArray, downsamplewindow, overlap=overlap);
+
+    ImageArray = 
+    % Using imresize3
+    ImageArray = imresize3(ImageArray, [10,10,20], "AntiAliasing",true);
+
 
     % Update voxel size information in dinfo
     [dinfo(:).PixelSpacing] = deal([dinfo(1).PixelSpacing].*downsamplewindow(1:2));

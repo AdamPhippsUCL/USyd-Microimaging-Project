@@ -12,191 +12,226 @@ RESULTS = struct();
 
 outputfolder = fullfile(projectfolder, 'Outputs', 'Signal Measurement'); 
 
-schemename = '20250224_UQ4 AllDELTA';
-signals = load(fullfile(outputfolder, schemename, 'signals.mat')).signals;
-scheme = load(fullfile(outputfolder, schemename, 'scheme.mat')).scheme;
+% samplename = '20250224_UQ4';
+samplename = '20250407_UQ5';
+% samplename = '20250414_UQ6';
+% samplename = 'Multi-sample';
+% samplename = 'ESMRMB';
+
+signals = load(fullfile(outputfolder, samplename, 'signals.mat')).signals;
+scheme = load(fullfile(outputfolder, samplename, 'scheme.mat')).scheme;
 nscheme = length(scheme);
 
 %% Modelling details
 
-component = 'S';
+components = {'G', 'S'};
 
+modeltypes = {
+    'ADC',...
+    'DKI',...
+    'RDI - 1 compartment - 2 param (S0)',...
+    'RDI - 2 compartment - 3 param (S0)',...
+    'RDI - 2 compartment - 4 param (S0)'
+    };
+
+
+% modeltype = 'ADC';
 % modeltype = 'DKI';
-modeltype = 'RDI - 2 compartment - 4 param';
+% modeltype = 'RDI - 1 compartment - 2 param (S0)';
+% modeltype = 'RDI - 2 compartment - 3 param (S0)';
+% modeltype = 'RDI - 2 compartment - 4 param (S0)';
 
+% Fitting
+lambda = 0e-3;
 fittingtechnique = 'LSQ';
 
-% Initial guess and bounds
-switch modeltype
 
-    case 'ADC'
-    
-        Nparam = 2;
-        beta0 = [1, 1];
-        lb = [0,0];
-        ub=[2,3];
+for compindx = 1:length(components)
 
-    case 'DKI'
+    component = components{compindx};
 
-        Nparam = 3;
-        beta0 = [1, 1, 0.5];
-        lb = [0, 0, 0];
-        ub = [2, 3, 5];
+    for modindx = 1:length(modeltypes)
 
-    case 'RDI - 1 compartment - 2 param'
+        modeltype = modeltypes{modindx};
 
-        Nparam = 2;
-        beta0 = [20, 0.5];
-        lb = [1, 0];
-        ub = [100, 3];
+        % == Initial guess and bounds
+        switch modeltype     
+            case 'ADC'            
+                Nparam = 2;
+                beta0 = [1, 1];
+                lb = [0,0];
+                ub=[2,3];        
+            case 'DKI'        
+                Nparam = 3;
+                beta0 = [1, 1, 0.5];
+                lb = [0, 0, 0];
+                ub = [2, 3, 5];        
+            case 'RDI - 1 compartment - 2 param'        
+                Nparam = 2;
+                beta0 = [20, 0.5];
+                lb = [1, 0];
+                ub = [100, 3];        
+            case 'RDI - 2 compartment - 3 param'        
+                Nparam = 2;
+                beta0 = [0.1, 10, 1];
+                lb = [0, 1, 0];
+                ub = [1, 50, 3];        
+            case 'RDI - 2 compartment - 4 param'       
+                Nparam = 4;
+                beta0 = [0.1, 10, 1, 1];
+                lb = [0, 1, 0, 0];
+                ub = [1, 50, 3, 3];               
+            case 'RDI - 1 compartment - 2 param (S0)'
+                Nparam = 2;
+                beta0 = [20, 0.5, 1];
+                lb = [1, 0, 0.8];
+                ub = [100, 3, 1.2];
+            case 'RDI - 2 compartment - 3 param (S0)'
+                Nparam = 2;
+                beta0 = [0.1, 10, 1,1];
+                lb = [0, 1, 0,0.8];
+                ub = [1, 50, 3,1.2];
+            case 'RDI - 2 compartment - 4 param (S0)'
+                Nparam = 5;
+                beta0 = [0.1, 10, 1, 1, 1];
+                lb = [0, 1, 0, 0, 0.8];
+                ub = [1, 50, 3, 3, 1.2];
+        end
 
-    case 'RDI - 2 compartment - 3 param'
+        
+        % == Model fitting 
+        
+        switch component
+            case 'S'
+                indx=1;
+            case 'G'
+                indx=2;
+            case 'L'
+                indx=3;
+        end
+        
+        s = signals(indx, :, 1);
+        err = signals(indx, :, 2);
+        
+        % Modelling predictions
+        [params, resnorm] = fitting_func( ...
+            s, ...
+            scheme, ...
+            modeltype = modeltype, ...
+            fittingtechnique = fittingtechnique,...
+            beta0=beta0,...
+            lb=lb,...
+            ub=ub,...
+            lambda=lambda ...
+            );
+        
+        % AIC
+        AIC = nscheme*log(resnorm/nscheme) + 2*Nparam;
 
-        Nparam = 2;
-        beta0 = [0.1, 10, 1];
-        lb = [0, 1, 0];
-        ub = [1, 50, 3];
 
-    case 'RDI - 2 compartment - 4 param'
 
-        Nparam = 4;
-        beta0 = [0.1, 10, 1, 1];
-        lb = [0, 1, 0, 0];
-        ub = [1, 50, 3, 3];
+        % == Error estimation 
+        
+        func = @(x) fitting_func( ...
+            x,...
+            scheme, ...
+            modeltype=modeltype,...
+            fittingtechnique=fittingtechnique,...
+            lb=lb,...
+            ub=ub,...
+            beta0=beta0,...
+            lambda=lambda);
+        
+        % Define input step and bounds
+        step = 0.01*ones(size(s));
+        xlb = zeros(size(s));
+        xub = ones(size(s));
+        
+        % Estimate Jacobian at signals
+        J = JacobianEst(func, s, step=step, xlb=xlb, xub=xub);
+        
+        % % Covariance matrix
+        % CoV = inv(J'*J) * resnorm / (size(s,2) - Nparam);
+        
+        % Estimate parameter errors
+        signal_var = diag(err.^2);
+        params_var =  J*(signal_var*J');
+        params_err = sqrt(diag(params_var));
 
+
+
+        % == Format results
+        
+        n = length(RESULTS)+1;
+        if ~numel(fieldnames(RESULTS))
+            n = 1;
+        end
+        RESULTS(n).SampleName = samplename;
+        RESULTS(n).Component = component;
+        RESULTS(n).ModelType = modeltype;
+        RESULTS(n).ModelParams = params;
+        RESULTS(n).ParamError = transpose(params_err);
+        RESULTS(n).FitResidual = resnorm;
+        RESULTS(n).AIC=AIC;
+
+% disp(RESULTS);
+
+        % % == Profile likelihood
+        % 
+        % fixedindx = 3;
+        % 
+        % Nvals = 100;
+        % low = (40*lb(fixedindx)+ub(fixedindx))/40;
+        % high = (40*ub(fixedindx)+lb(fixedindx))/40;
+        % fixedvals = linspace(low,high,Nvals);%linspace(lb(fixedindx), ub(fixedindx),Nvals);
+        % valspacing = fixedvals(2)-fixedvals(1);
+        % resnorms = zeros(1,Nvals);
+        % 
+        % for findx = 1:Nvals
+        % 
+        %     fixedval = fixedvals(findx);
+        % 
+        %     thisbeta0 = beta0;
+        %     thisbeta0(fixedindx) = fixedval;
+        % 
+        %     thislb = lb;
+        %     thislb(fixedindx) = fixedval-0.5*valspacing;
+        % 
+        %     thisub = ub;
+        %     thisub(fixedindx) = fixedval+0.5*valspacing;
+        % 
+        %     % Modelling predictions
+        %     [params, resnorm] = fitting_func( ...
+        %         s, ...
+        %         scheme, ...
+        %         modeltype = modeltype, ...
+        %         fittingtechnique = fittingtechnique,...
+        %         beta0=thisbeta0,...
+        %         lb=thislb,...
+        %         ub=thisub,...
+        %         lambda=lambda ...
+        %         );
+        % 
+        %     resnorms(findx)=resnorm;
+        % 
+        % end
+        % 
+        % 
+        % figure
+        % scatter(fixedvals, resnorms)
+        % ylim([0, 0.005])
+        %   
+
+    end
 end
-
-% Regularisation
-lambda = 0e-3;
-
-%% Model fitting 
-
-switch component
-    case 'S'
-        indx=1;
-    case 'G'
-        indx=2;
-    case 'L'
-        indx=3;
-end
-
-s = signals(indx, :, 1);
-err = signals(indx, :, 2);
-
-% Modelling predictions
-[params, resnorm] = fitting_func( ...
-    s, ...
-    scheme, ...
-    modeltype = modeltype, ...
-    fittingtechnique = fittingtechnique,...
-    beta0=beta0,...
-    lb=lb,...
-    ub=ub,...
-    lambda=lambda ...
-    );
-
-% AIC
-AIC = nscheme*log(resnorm/nscheme) + 2*Nparam;
-
-
-
-%% Error estimation 
-
-func = @(x) fitting_func( ...
-    x,...
-    scheme, ...
-    modeltype=modeltype,...
-    fittingtechnique=fittingtechnique,...
-    lb=lb,...
-    ub=ub,...
-    beta0=beta0,...
-    lambda=lambda);
-
-% Define input step and bounds
-step = 0.01*ones(size(s));
-xlb = zeros(size(s));
-xub = ones(size(s));
-
-% Estimate Jacobian at signals
-J = JacobianEst(func, s, step=step, xlb=xlb, xub=xub);
-
-% % Covariance matrix
-% CoV = inv(J'*J) * resnorm / (size(s,2) - Nparam);
-
-% Estimate parameter errors
-signal_var = diag(err.^2);
-params_var =  J*(signal_var*J');
-params_err = sqrt(diag(params_var));
-
-
-
-%% Format results
-
-n = length(RESULTS)+1;
-if ~numel(fieldnames(RESULTS))
-    n = 1;
-end
-% RESULTS(n).SampleName = samplename;
-RESULTS(n).Component = component;
-RESULTS(n).ModelType = modeltype;
-RESULTS(n).ModelParams = params;
-RESULTS(n).ParamError = transpose(params_err);
-RESULTS(n).FitResidual = resnorm;
-RESULTS(n).AIC=AIC;
-
-disp(RESULTS);
-
 
 % Save RESULTS
-folder = fullfile(projectfolder, 'Outputs', 'Signal Measurement');
+folder = fullfile(projectfolder, 'Outputs', 'Signal Measurement', samplename, 'Modelling');
+mkdir(folder);
 save(fullfile(folder, 'RESULTS.mat'), 'RESULTS')
 
 
-%% Profile likelihood
-% 
-% fixedindx = 3;
-% 
-% Nvals = 100;
-% low = (40*lb(fixedindx)+ub(fixedindx))/40;
-% high = (40*ub(fixedindx)+lb(fixedindx))/40;
-% fixedvals = linspace(low,high,Nvals);%linspace(lb(fixedindx), ub(fixedindx),Nvals);
-% valspacing = fixedvals(2)-fixedvals(1);
-% resnorms = zeros(1,Nvals);
-% 
-% for findx = 1:Nvals
-% 
-%     fixedval = fixedvals(findx);
-% 
-%     thisbeta0 = beta0;
-%     thisbeta0(fixedindx) = fixedval;
-% 
-%     thislb = lb;
-%     thislb(fixedindx) = fixedval-0.5*valspacing;
-% 
-%     thisub = ub;
-%     thisub(fixedindx) = fixedval+0.5*valspacing;
-% 
-%     % Modelling predictions
-%     [params, resnorm] = fitting_func( ...
-%         s, ...
-%         scheme, ...
-%         modeltype = modeltype, ...
-%         fittingtechnique = fittingtechnique,...
-%         beta0=thisbeta0,...
-%         lb=thislb,...
-%         ub=thisub,...
-%         lambda=lambda ...
-%         );
-% 
-%     resnorms(findx)=resnorm;
-% 
-% end
-% 
-% 
-% figure
-% scatter(fixedvals, resnorms)
-% ylim([0, 0.005])
-% 
+
 
 %% Model fitting function (for Jacobian error estimation)
 
