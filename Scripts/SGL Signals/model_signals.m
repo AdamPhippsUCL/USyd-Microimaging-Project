@@ -12,11 +12,8 @@ RESULTS = struct();
 
 outputfolder = fullfile(projectfolder, 'Outputs', 'Signal Measurement'); 
 
-% samplename = '20250224_UQ4';
-samplename = '20250407_UQ5';
-% samplename = '20250414_UQ6';
-% samplename = 'Multi-sample';
-% samplename = 'ESMRMB';
+samplename = 'Multi-sample'; % 'ESMRMB', '20250224_UQ4', '20250407_UQ5', '20250414_UQ6';
+
 
 signals = load(fullfile(outputfolder, samplename, 'signals.mat')).signals;
 scheme = load(fullfile(outputfolder, samplename, 'scheme.mat')).scheme;
@@ -127,8 +124,6 @@ for compindx = 1:length(components)
         
         % AIC
         AIC = nscheme*log(resnorm/nscheme) + 2*Nparam;
-
-
 
         % == Error estimation 
         

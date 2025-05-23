@@ -7,10 +7,10 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-% multisample = true;
-% SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6'};
-multisample = false;
-SampleNames = {'20250224_UQ4'};
+multisample = true;
+SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6'};
+% multisample = false;
+% SampleNames = {'20250407_UQ5'};
 
 schemename = '20250224_UQ4 AllDELTA';
 schemesfolder = fullfile(projectfolder, 'Schemes');
@@ -193,7 +193,7 @@ for sindx = 1:length(SampleNames)
     
         case '20250414_UQ6'
     
-            % Cylinder centred at (122, 117), radius 70 (1.4mm)
+            % Cylinder centred at (122, 117), 
     
             samplemask = zeros(szbase);
             
@@ -203,7 +203,7 @@ for sindx = 1:length(SampleNames)
                 );
     
             samplemask(:,:,:) = repmat((Xs-122).^2 + (Ys-117).^2 <75^2, 1, 1, szbase(3));
-            % samplemask(:,:,1:10)=false;
+            samplemask(:,:,1:10)=false;
             % samplemask(:,:,end-20:end)=false;
     end
 
@@ -279,7 +279,7 @@ Dl = 2.0e-3;
 err = 0.001;
 
 % Initialise array for signal measurements
-signals = zeros(3, Nimg, 3);
+signals = zeros(3, Nimg, 4);
 
 % Initialise RESULTS structure
 RESULTS = struct();
@@ -306,8 +306,6 @@ for imgindx = 1:Nimg
     % Apply fitting
     % [beta_fit, resnorm, residual, exitflag, output, lambda, jacobian]=lsqcurvefit(func, beta0, X, y, lb, ub);
     % beta_fit = mdl.Coefficients.Estimate;
-
-
     y=y-X(:,3)*Sl;
     mdl = fitlm(X(:,1:2), y, 'Intercept', false);
     beta_fit = mdl.Coefficients.Estimate;
@@ -315,17 +313,19 @@ for imgindx = 1:Nimg
     % Test linear model assumption
     R2 = mdl.Rsquared.Ordinary;
     residuals = mdl.Residuals.Raw;
-    [h, p] = lillietest(residuals)
 
-    figure
-    % scatter(fitted, residuals)
-    histogram(residuals)
+    % figure
+    % scatter(X(:,1), residuals);
 
-    % y_pred = X(:,3)*Sl + sum( X(:,1:2).*repmat(beta_fit', size(X,1),1) ,2);
-    % RCC=corr(y,y_pred);
-    % f=figure;
-    % scatter(y,y_pred)
-    % close(f);
+
+    y_pred = X(:,3)*Sl + sum( X(:,1:2).*repmat(beta_fit', size(X,1),1) ,2);
+    RCC=corr(y,y_pred);
+
+    f=figure;
+    scatter(y,y-residuals)
+    hold on
+    plot(y,y)
+    close(f);
 
     signals(1:2,imgindx,1) = beta_fit;
     signals(3,imgindx,1) = Sl;
@@ -333,7 +333,7 @@ for imgindx = 1:Nimg
     
     % BOOTSTRAPPING TEST
     N=length(y);
-    B=100;%5001;
+    B=10000;
     bootstrap_indices = randi(N, N, B);
     BootFits = zeros(B,3);
     BootR2s = zeros(B,1);
@@ -354,21 +354,23 @@ for imgindx = 1:Nimg
     end
 
 
-    signals(:,imgindx,2) = std(BootFits);
-    signals(:,imgindx,3) = prctile(BootFits,95)-prctile(BootFits,5);
-
+    signals(:,imgindx,2) = std(BootFits); % Standard error
+    signals(:,imgindx,3) = prctile(BootFits,2.5); % 2.5th percentile
+    signals(:,imgindx,4) = prctile(BootFits,97.5); % 97.5th percentile
 
     % RESULTS
     RESULTS(imgindx).E = [num2str(signals(2, imgindx, 1)) ' (' num2str(signals(2, imgindx, 2)) ')'];
     RESULTS(imgindx).S = [num2str(signals(1, imgindx, 1)) ' (' num2str(signals(1, imgindx, 2)) ')'];
     RESULTS(imgindx).L = [num2str(signals(3, imgindx, 1)) ' (' num2str(signals(3, imgindx, 2)) ')'];
-    RESULTS(imgindx).R2 = [num2str(R2) ' (' num2str(std(BootR2s)) ')'];
-
+    RESULTS(imgindx).R2 = [R2, ][num2str(R2) ' (' num2str(std(BootR2s)) ')'];
+    RESULTS(imgindx).Residuals = residuals;
+    RESULTS(imgindx).y = y;
 
 
 
 end
 
+RESULTS(1).X = X;
 
 
 %% Display measured signals
@@ -382,18 +384,19 @@ indices = 2:6;
 s = signals(:,indices,:);
 bvals = [scheme(indices).bval];
 
-errorbar(bvals-1*bshift, s(1,:,1), s(1,:,3), '-*', color=[0.4660 0.6740 0.1880], DisplayName='S (Short \Delta)');
+% Display error bars with 95% confidence intervals from botstrapping
+errorbar(bvals-1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-*', color=[0.4660 0.6740 0.1880], DisplayName='S (Short \Delta)');
 hold on
-errorbar(bvals-1*bshift, s(2,:,1), s(2,:,3), '-*', color=[0.8500 0.3250 0.0980], DisplayName='G (Short \Delta)');
-errorbar(bvals-1*bshift, s(3,:,1), s(3,:,3), '-*', color=[0 0.4470 0.7410], DisplayName = 'L (Short \Delta)');
+errorbar(bvals-1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1), '-*', color=[0.8500 0.3250 0.0980], DisplayName='G (Short \Delta)');
+errorbar(bvals-1*bshift, s(3,:,1), s(3,:,1)-s(3,:,3), s(3,:,4)-s(3,:,1),'-*', color=[0 0.4470 0.7410], DisplayName = 'L (Short \Delta)');
 
 % Long Delta
 indices = 7:11;
 s = signals(:,indices,:);
 
-errorbar(bvals+1*bshift, s(1,:,1), s(1,:,3), '-.*', color=[0.4660 0.6740 0.1880], DisplayName='S (Long \Delta)');
-errorbar(bvals+1*bshift, s(2,:,1), s(2,:,3), '-.*', color=[0.8500 0.3250 0.0980], DisplayName='G (Long \Delta)');
-errorbar(bvals+1*bshift, s(3,:,1), s(3,:,3), '-.*', color=[0 0.4470 0.7410], DisplayName = 'L (Long \Delta)');
+errorbar(bvals+1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-.*', color=[0.4660 0.6740 0.1880], DisplayName='S (Long \Delta)');
+errorbar(bvals+1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1),  '-.*', color=[0.8500 0.3250 0.0980], DisplayName='G (Long \Delta)');
+errorbar(bvals+1*bshift, s(3,:,1), s(3,:,1)-s(3,:,3), s(3,:,4)-s(3,:,1), '-.*', color=[0 0.4470 0.7410], DisplayName = 'L (Long \Delta)');
 
 xticks(bvals); 
 xticklabels(bvals)
@@ -419,6 +422,7 @@ switch multisample
         mkdir(savefolder);
     case true
         savefolder = fullfile(projectfolder, "Outputs", "Signal Measurement", 'Multi-sample');
+        mkdir(savefolder);
 end
 
 % Meta info

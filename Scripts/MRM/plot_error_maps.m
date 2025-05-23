@@ -6,13 +6,11 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleName = '20250224_UQ4';
+SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6'
 
-% Scheme
-schemename = '20250224_UQ4 AllDELTA';
 
 % Image
-seriesindx = 7;
+seriesindx = 5;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -26,6 +24,7 @@ SeriesDescriptions = {
     'STEAM_LongDELTA_100 (DS)',...
     'STEAM_LongDELTA_120 (DS)'...
 };
+
 SeriesDescription = SeriesDescriptions{seriesindx};
 
 ImageFolder = fullfile(projectfolder, 'Imaging Data', 'MAT DN', SampleName, SeriesDescription);
@@ -37,9 +36,21 @@ ImageArray = load(fullfile(ImageFolder,'normalisedImageArray.mat')).ImageArray;
 
 %% Load signal measurements and composition fractions
 
-signals = load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', schemename, 'signals.mat')).signals;
-signals = squeeze(signals(:,seriesindx,1));
+multisample = true;
+
+switch multisample
+
+    case true
+        signals = load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', 'Multi-sample', 'signals.mat')).signals;
+        signals = squeeze(signals(:,seriesindx,1));
+
+    case false
+        signals = load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', SampleName, 'signals.mat')).signals;
+        signals = squeeze(signals(:,seriesindx,1));
+end
+
 COMPOSITION = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'COMPOSITION.mat')).COMPOSITION;
+        
 
 
 %% Calculate predicted normalised image and error
@@ -81,7 +92,7 @@ end
     linspace(1,szmap(2),size(MGE,2)) ...
     );
 
-sl = 128;
+sl = 120;
 
 figure
 ax1 = axes;
@@ -94,7 +105,8 @@ colormap(ax1,gray);
 hold on
 ax2 = axes;
 m=pcolor(ax2, Xs, Ys, squeeze(error_large(sl,:,:)) );
-caxis([-0.1 0.1]);
+caxis([-0.15, 0.15])
+% caxis([-max(abs(error(:))) max(abs(error(:)))]);
 shading flat; % Remove grid-like shading
 grid off;
 set(m, 'FaceAlpha', 0.3);
