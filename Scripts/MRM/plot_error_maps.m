@@ -6,11 +6,11 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6'
+SampleName = '20250414_UQ6'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6'
 
 
 % Image
-seriesindx = 5;
+seriesindx = 11;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -24,8 +24,11 @@ SeriesDescriptions = {
     'STEAM_LongDELTA_100 (DS)',...
     'STEAM_LongDELTA_120 (DS)'...
 };
-
 SeriesDescription = SeriesDescriptions{seriesindx};
+
+scheme = load(fullfile(projectfolder, "Schemes", "20250224_UQ4 AllDELTA.mat")).scheme;
+bval = scheme(seriesindx).bval;
+DELTA = scheme(seriesindx).DELTA;
 
 ImageFolder = fullfile(projectfolder, 'Imaging Data', 'MAT DN', SampleName, SeriesDescription);
 ImageArray = load(fullfile(ImageFolder,'normalisedImageArray.mat')).ImageArray;
@@ -94,18 +97,19 @@ end
 
 sl = 120;
 
-figure
+f=figure;
 ax1 = axes;
 pcolor(ax1, Xs, Ys, rescale(squeeze(MGE(sl,:,:)), 0,1))
 shading flat; % Remove grid-like shading
 grid off;
 colormap(ax1,gray);
-
+xticks([])
+yticks([])
 
 hold on
 ax2 = axes;
 m=pcolor(ax2, Xs, Ys, squeeze(error_large(sl,:,:)) );
-caxis([-0.15, 0.15])
+caxis([-0.16, 0.16])
 % caxis([-max(abs(error(:))) max(abs(error(:)))]);
 shading flat; % Remove grid-like shading
 grid off;
@@ -113,12 +117,17 @@ set(m, 'FaceAlpha', 0.3);
 linkaxes([ax1, ax2]);
 ax2.Visible = 'off'; % Hide second axes to avoid overlapping ticks
 colormap(ax2,redblue);
-colorbar;
+c=colorbar;
+c.Label.String = 'Signal error';
 ax2.Position = ax1.Position;
+
 % 
 
 set(ax1, 'YDir', 'reverse');
-set(ax2, 'YDir', 'reverse');
+set(ax2, 'YDir', 'reverse'); 
+f.Position = [0.0010    0.0490    1.5360    0.7408]*1e3;
+ax1.FontSize = 20;
+ax2.FontSize = ax1.FontSize;
 
 
 

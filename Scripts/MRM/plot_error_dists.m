@@ -10,7 +10,7 @@ SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6'};
 
 
 % Image
-seriesindx = 6;
+seriesindx = 11;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -26,6 +26,9 @@ SeriesDescriptions = {
 };
 SeriesDescription = SeriesDescriptions{seriesindx};
 
+scheme = load(fullfile(projectfolder, "Schemes", "20250224_UQ4 AllDELTA.mat")).scheme;
+bval = scheme(seriesindx).bval;
+DELTA = scheme(seriesindx).DELTA;
 
 
 %% Calculate errors for each sample
@@ -34,6 +37,7 @@ multisample = true;
 
 Errors = [];
 Samples = [];
+Xs = [];
 
 for sindx = 1:length(SampleNames)
 
@@ -48,8 +52,9 @@ for sindx = 1:length(SampleNames)
         case true
             signals = load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', 'Multi-sample', 'signals.mat')).signals;
             signals = squeeze(signals(:,seriesindx,1));
-    
+
         case false
+
             signals = load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', SampleName, 'signals.mat')).signals;
             signals = squeeze(signals(:,seriesindx,1));
     end
@@ -66,11 +71,22 @@ for sindx = 1:length(SampleNames)
     Samples = [Samples; sindx*ones(size(error))];
 
 
+    % Component fractions
+    X = COMPOSITION(repmat(pred, [1,1,1,3])>0);
+    X = reshape(X, [length(X)/3, 3]);
+    Xnew = X;
+    Xnew(:,1)=X(:,2);
+    Xnew(:,2)=X(:,1);
+    X=Xnew;
+    Xs = [Xs; X];
+
+
 end
             
 
+
 figure
-swarmchart(Samples, Errors, '*', MarkerFaceAlpha=0.15, MarkerEdgeAlpha=0.15, MarkerEdgeColor="#8cd56c")
+swarmchart(Samples, Errors, '*',MarkerEdgeAlpha=0.15,  CData=Xs)
 hold on
 bxplt=boxplot(Errors, Samples);
 set(bxplt, 'LineWidth', 1)
@@ -78,6 +94,7 @@ ylim([-0.32, 0.32])
 yline(0, 'LineStyle', '--')
 xlabel('Sample')
 ylabel('Predicted signal error')
+title(['b-value = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
 
 
 

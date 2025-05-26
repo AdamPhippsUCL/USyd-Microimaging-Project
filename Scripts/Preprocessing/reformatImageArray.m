@@ -9,7 +9,7 @@ projectfolder = pwd;
 ImagingDataFolder = fullfile(projectfolder, 'Imaging Data');
 
 % Sample name
-SampleName = '20250414_UQ6';
+SampleName = '20250524_UQ9';
 
 % Series description
 SeriesDescription =  'STEAM_DELTA_50';

@@ -20,10 +20,16 @@ DELTA = RESULTS(imgindx).DELTA;
 R2 = RESULTS(imgindx).R2;
 y = RESULTS(imgindx).y;
 residuals = RESULTS(imgindx).Residuals;
+X = RESULTS(1).X;
 
+% Reformat X columns for color coding
+Xnew = X;
+Xnew(:,1)=X(:,2);
+Xnew(:,2)=X(:,1);
+X=Xnew;
 
 figure
-scatter(y, y-residuals, '*', MarkerEdgeAlpha=0.4);
+scatter(y, y-residuals, '*', MarkerEdgeAlpha=0.4, CData=  X);
 hold on
 plot(y,y);
 ylim([0, 0.82])

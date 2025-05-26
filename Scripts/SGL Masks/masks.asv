@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Sample and Image details
 
 % Sample name
-SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250523_UQ8'; % '20250407_UQ5', '20250224_UQ4', '20250414_UQ6'
 
 % Use denoised data
 UseDenoisedData = true;
@@ -101,8 +101,8 @@ switch SampleName
 
     case '20250524_UQ9'
 
-        MGElow = 4e-8;
-        MGEhigh = 1.05e-7;
+        MGElow = 5e-8;
+        MGEhigh = 1.6e-7;
         dwFAlow = 14e-5;
 
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
@@ -118,7 +118,7 @@ displaymasks(:,:,:,1) = logical(GLANDULAR);
 displaymasks(:,:,:,2) = logical(STROMA);
 displaymasks(:,:,:,3) = logical(LUMEN);
 
-sl=120;
+sl=95;
 cols = 1:640;%400:630;
 rows = 1:240;%54:200;
 figure
@@ -130,7 +130,6 @@ imshow(squeeze(MGE(sl,rows,cols)),[0 prctile(squeeze(MGE(sl,rows,cols)), 99.9, '
 hold on
 mask = imshow(squeeze(displaymasks(sl,rows,cols,:)));
 set(mask, 'AlphaData', 0.2)
-
 
 
 %% Save masks

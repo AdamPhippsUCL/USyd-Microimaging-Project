@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Image details
 
 % Sample name
-SampleName = '20250524_UQ9';
+SampleName = '20250523_UQ8';
 
 % Series description
 SeriesDescription = '40u_DtiSE_2012_SPOIL10%';

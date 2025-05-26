@@ -3,14 +3,13 @@
 clear;
 projectfolder = pwd;
 
-
 %% Sample and image details
 
 % Sample
 multisample = true;
-SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6'};
+SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 % multisample = false;
-% SampleNames = {'20250407_UQ5'};
+% SampleNames = {'20250524_UQ9'};
 
 schemename = '20250224_UQ4 AllDELTA';
 schemesfolder = fullfile(projectfolder, 'Schemes');
@@ -43,7 +42,6 @@ switch UseDenoisedData
     case false
         ImagingDataFolder = fullfile(projectfolder, 'Imaging Data', 'MAT');   
 end
-    
 
 composition = [];
 imgs = [];
@@ -185,7 +183,7 @@ for sindx = 1:length(SampleNames)
                1:szbase(1) ...
                 );
     
-            samplemask(:,:,:) = repmat((Xs-122).^2 + (Ys-119).^2 <75^2, 1, 1, szbase(3));
+            samplemask(:,:,:) = repmat((Xs-123).^2 + (Ys-119).^2 <75^2, 1, 1, szbase(3));
             % samplemask(:,:,1:10)=false;
             samplemask(:,:,end-20:end)=false;
     
@@ -205,10 +203,64 @@ for sindx = 1:length(SampleNames)
             samplemask(:,:,:) = repmat((Xs-122).^2 + (Ys-117).^2 <75^2, 1, 1, szbase(3));
             samplemask(:,:,1:10)=false;
             % samplemask(:,:,end-20:end)=false;
+    
+    
+        case '20250522_UQ7'
+    
+            % Cylinder centred at (124, 117)
+    
+            samplemask = zeros(szbase);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szbase(2), ...
+               1:szbase(1) ...
+                );
+    
+            samplemask(:,:,:) = repmat((Xs-124).^2 + (Ys-117).^2 <75^2, 1, 1, szbase(3));
+            samplemask(:,:,1:10)=false;
+            samplemask(:,:,end-10:end)=false;
+
+
+            % EXCLUDE REGION DUE TO BUBBLES
+            rows = 1:90;
+            cols = 46:198;
+            slices = 225:510;
+            samplemask(rows, cols, slices)=false;
+
+
+        case '20250523_UQ8'
+    
+            % Cylinder centred at (123, 119)
+    
+            samplemask = zeros(szbase);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szbase(2), ...
+               1:szbase(1) ...
+                );
+    
+            samplemask(:,:,:) = repmat((Xs-123).^2 + (Ys-119).^2 <75^2, 1, 1, szbase(3));
+            samplemask(:,:,1:10)=false;
+            samplemask(:,:,end-10:end)=false;            
+
+
+        case '20250524_UQ9'
+    
+            % Cylinder centred at (127, 118)
+    
+            samplemask = zeros(szbase);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szbase(2), ...
+               1:szbase(1) ...
+                );
+    
+            samplemask(:,:,:) = repmat((Xs-127).^2 + (Ys-118).^2 <75^2, 1, 1, szbase(3));
+
+            % REMOVE TOP AND BOTTOM REGIONS OF MEDIUM
+            samplemask(:,:,1:40)=false;
+            samplemask(:,:,560:end)=false;   
     end
-
-
-
 
     % == Construct composition map
     
@@ -326,7 +378,7 @@ for imgindx = 1:Nimg
     
     % BOOTSTRAPPING TEST
     N=length(y);
-    B=10000;
+    B=100;
     bootstrap_indices = randi(N, N, B);
     BootFits = zeros(B,3);
     BootR2s = zeros(B,1);
