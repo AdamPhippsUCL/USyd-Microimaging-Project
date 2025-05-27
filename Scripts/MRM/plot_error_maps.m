@@ -6,11 +6,13 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleName = '20250414_UQ6'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6'
+SampleNum = 1;
+SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
+SampleName = SampleNames{SampleNum};
 
 
 % Image
-seriesindx = 11;
+seriesindx = 2;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -105,6 +107,7 @@ grid off;
 colormap(ax1,gray);
 xticks([])
 yticks([])
+title(['Sample = ' num2str(SampleNum) ', b-value = ' num2str(bval) ' s/mm^2, Delta = ' num2str(DELTA) ' ms'])
 
 hold on
 ax2 = axes;
@@ -126,8 +129,8 @@ ax2.Position = ax1.Position;
 set(ax1, 'YDir', 'reverse');
 set(ax2, 'YDir', 'reverse'); 
 f.Position = [0.0010    0.0490    1.5360    0.7408]*1e3;
-ax1.FontSize = 20;
-ax2.FontSize = ax1.FontSize;
+ax1.FontSize = 14;
+ax2.FontSize = 20;
 
 
 

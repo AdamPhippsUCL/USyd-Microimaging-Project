@@ -31,9 +31,9 @@ X=Xnew;
 figure
 scatter(y, y-residuals, '*', MarkerEdgeAlpha=0.4, CData=  X);
 hold on
-plot(y,y);
-ylim([0, 0.82])
-xlim([0, 0.82])
+plot(y,y, color = 'k');
+ylim([-0.02, 0.82])
+xlim([-0.02, 0.82])
 grid on
 title(['b-value = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
 xlabel('Normalized dMRI signal measurement')

@@ -41,7 +41,7 @@ errorbar(bvals+1*bshift, s(3,:,1), s(3,:,1)-s(3,:,3), s(3,:,4)-s(3,:,1), '-.*', 
 xticks(bvals); 
 xticklabels(bvals)
 ylim([-0.05,0.7])
-ylabel('Normalized signal estimate')
+ylabel('Normalized dMRI signal estimate')
 xlim([800,2200])
 xlabel('b-value (s/mm^{2})')
 xticks(bvals)
@@ -84,13 +84,13 @@ errorbar(bvals+1*bshift, long_contrast, long_CI, '--*', DisplayName = 'Long \Del
 % measurements
 
 
-ylim([0.1, 0.205])
-yticks(linspace(0.1, 0.2, 6))
+ylim([0.05, 0.255])
+yticks(linspace(0.05, 0.25, 5))
 xticks(bvals)
 legend(Location="northwest")
-ylabel('ES contrast')
+ylabel('E-S signal contrast')
 xlabel('b-value (s/mm^2)')
-
+grid on
 ax=gca();
 ax.FontSize=12;
 

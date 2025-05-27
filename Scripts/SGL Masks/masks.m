@@ -41,6 +41,7 @@ switch SampleName
         disp('');
 end
 
+
 %% Generate masks
 
 switch SampleName
@@ -48,7 +49,7 @@ switch SampleName
     case '20250224_UQ4'
 
         MGElow = 5e-8;
-        MGEhigh = 1.2e-7;
+        MGEhigh = 1.20e-7;
         dwFAlow = 14e-5;
 
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
@@ -58,8 +59,8 @@ switch SampleName
 
     case '20250407_UQ5'
 
-        MGElow = 1e-7;
-        MGEhigh = 3.4e-7;
+        MGElow = 0.5e-7;
+        MGEhigh = 3.5e-7;
         dwFAlow = 14e-5;
 
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
@@ -69,8 +70,8 @@ switch SampleName
 
     case '20250414_UQ6'
 
-        MGElow = 2e-8;
-        MGEhigh = 1.1e-7;
+        MGElow = 2.5e-8;
+        MGEhigh = 1.00e-7;
         dwFAlow = 14e-5;
 
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
@@ -79,8 +80,8 @@ switch SampleName
 
     case '20250522_UQ7'
 
-        MGElow = 1.2e-8;
-        MGEhigh = 4.6e-8;
+        MGElow = 1.0e-8;
+        MGEhigh = 4.5e-8;
         dwFAlow = 14e-5;
 
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
@@ -90,8 +91,8 @@ switch SampleName
 
     case '20250523_UQ8'
 
-        MGElow = 5e-8;
-        MGEhigh = 1.6e-7;
+        MGElow = 6e-8;
+        MGEhigh = 1.65e-7;
         dwFAlow = 14e-5;
 
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
@@ -101,7 +102,7 @@ switch SampleName
 
     case '20250524_UQ9'
 
-        MGElow = 4e-8;
+        MGElow = 3.0e-8;
         MGEhigh = 1.05e-7;
         dwFAlow = 14e-5;
 
@@ -119,8 +120,8 @@ displaymasks(:,:,:,2) = logical(STROMA);
 displaymasks(:,:,:,3) = logical(LUMEN);
 
 sl=120;
-cols = 1:640;%400:630;
-rows = 1:240;%54:200;
+cols = 20:620;
+rows = 35:210;
 figure
 imshow(squeeze(MGE(sl,rows,cols)),[0 prctile(squeeze(MGE(sl,rows,cols)), 99.9, 'all')]);
 figure

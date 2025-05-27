@@ -169,8 +169,10 @@ for sindx = 1:length(SampleNames)
                 );
     
             samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 <75^2, 1, 1, szbase(3));
-            % samplemask(:,:,1:10)=false;
-            % samplemask(:,:,end-10:end)=false;
+
+            % Remove ends
+            samplemask(:,:,1:10)=false;
+            samplemask(:,:,end-10:end)=false;
     
         case '20250407_UQ5'
     
@@ -184,8 +186,10 @@ for sindx = 1:length(SampleNames)
                 );
     
             samplemask(:,:,:) = repmat((Xs-123).^2 + (Ys-119).^2 <75^2, 1, 1, szbase(3));
-            % samplemask(:,:,1:10)=false;
-            samplemask(:,:,end-20:end)=false;
+
+            % Remove ends
+            samplemask(:,:,1:10)=false;
+            samplemask(:,:,600:end)=false;
     
     
     
@@ -201,8 +205,10 @@ for sindx = 1:length(SampleNames)
                 );
     
             samplemask(:,:,:) = repmat((Xs-122).^2 + (Ys-117).^2 <75^2, 1, 1, szbase(3));
-            samplemask(:,:,1:10)=false;
-            % samplemask(:,:,end-20:end)=false;
+
+            % Remove ends
+            samplemask(:,:,1:20)=false;
+            samplemask(:,:,end-10:end)=false;
     
     
         case '20250522_UQ7'
@@ -217,6 +223,8 @@ for sindx = 1:length(SampleNames)
                 );
     
             samplemask(:,:,:) = repmat((Xs-124).^2 + (Ys-117).^2 <75^2, 1, 1, szbase(3));
+
+            % Remove ends
             samplemask(:,:,1:10)=false;
             samplemask(:,:,end-10:end)=false;
 
@@ -240,6 +248,8 @@ for sindx = 1:length(SampleNames)
                 );
     
             samplemask(:,:,:) = repmat((Xs-123).^2 + (Ys-119).^2 <75^2, 1, 1, szbase(3));
+
+            % Remove ends
             samplemask(:,:,1:10)=false;
             samplemask(:,:,end-10:end)=false;            
 
@@ -260,6 +270,7 @@ for sindx = 1:length(SampleNames)
             % REMOVE TOP AND BOTTOM REGIONS OF MEDIUM
             samplemask(:,:,1:40)=false;
             samplemask(:,:,560:end)=false;   
+
     end
 
     % == Construct composition map
@@ -378,7 +389,7 @@ for imgindx = 1:Nimg
     
     % BOOTSTRAPPING TEST
     N=length(y);
-    B=100;
+    B=2000;
     bootstrap_indices = randi(N, N, B);
     BootFits = zeros(B,3);
     BootR2s = zeros(B,1);

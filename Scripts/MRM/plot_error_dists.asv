@@ -9,7 +9,7 @@ projectfolder = pwd;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 
 % Image
-seriesindx = 11;
+seriesindx = 2;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -84,8 +84,8 @@ end
             
 
 
-f=figure;
-swarmchart(Samples, Errors, 'x',MarkerEdgeAlpha=0.25,  CData=Xs)
+figure
+swarmchart(Samples, Errors, '+',MarkerEdgeAlpha=0.25,  CData=Xs)
 hold on
 bxplt=boxplot(Errors, Samples);
 set(bxplt, 'LineWidth', 1)
@@ -95,7 +95,7 @@ yline(0, 'LineStyle', '--')
 xlabel('Sample')
 ylabel('Predicted signal error')
 title(['b-value = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
-% f.Position = [488.0000  200  800  460];
+
 
 
 
