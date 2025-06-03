@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Sample and Image details
 
 % Sample name
-SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250522_UQ7'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Use denoised data
 UseDenoisedData = true;
@@ -91,8 +91,8 @@ switch SampleName
 
     case '20250523_UQ8'
 
-        MGElow = 6e-8;
-        MGEhigh = 1.65e-7;
+        MGElow = 4e-8;
+        MGEhigh = 1.6e-7;
         dwFAlow = 14e-5;
 
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);

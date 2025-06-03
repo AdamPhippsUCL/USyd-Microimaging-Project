@@ -6,10 +6,9 @@ projectfolder = pwd;
 
 %% Parameter map details
 
-SampleNames = {'20250224_UQ4', '20250407_UQ5'};
+SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'}; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
-modeltype = 'ADC';
-% modeltype = 'RDI - 1 compartment - 2 param';
+modeltype = 'RDI - 2 compartment - 4 param (S0)'; % 'ADC', 'DKI', 'RDI - 2 compartment - 4 param (S0)'
 
 schemename = '20250224_UQ4 AllDELTA';
 scheme = load(fullfile(projectfolder, 'Schemes', [schemename '.mat'])).scheme;
@@ -17,7 +16,7 @@ nscheme = length(scheme);
 
 fittingtechnique = 'LSQ';
 
-parameter = 'ADC';
+parameter = 'fIC';
     
 % Intercept in model
 switch parameter
@@ -42,8 +41,6 @@ for sindx = 1:length(SampleNames)
     szmap = size(parammap);
     parammap_flat = reshape(parammap, [prod(szmap), 1]);
     
-    
-
     % Load masks
     seriesdescription = '3DMGE_20u';
     maskfolder = fullfile(projectfolder, 'Outputs', 'Masks', samplename, seriesdescription);
@@ -53,40 +50,125 @@ for sindx = 1:length(SampleNames)
     szmask = size(GLANDULAR);
 
 
-    % Sample mask
+    % == Make sample mask (COPIED FROM measure_signals.m)
+    
+    szbase = szmask;
     switch samplename
     
         case '20250224_UQ4'
     
-            % Cylinder centred at (128, 114)      
-            samplemask = zeros(szmask);
+            % Cylinder centred at (128, 114), radius 70 (1.4mm)
+            
+            samplemask = zeros(szbase);
             
             [Xs, Ys] = meshgrid( ...
-               1:szmask(2), ...
-               1:szmask(1) ...
+               1:szbase(2), ...
+               1:szbase(1) ...
                 );
-            
-            samplemask(:,:,:) = repmat( ( (Xs-128).^2 + (Ys-114).^2 < 75^2 ), 1, 1, szmask(3));
     
-            samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 <75^2, 1, 1, szmask(3));
-            samplemask(:,:,1:20)=false;
-            samplemask(end-20:end)=false;
-    
+            samplemask(:,:,:) = repmat((Xs-128).^2 + (Ys-114).^2 <75^2, 1, 1, szbase(3));
+
+            % Remove ends
+            samplemask(:,:,1:10)=false;
+            samplemask(:,:,end-10:end)=false;
     
         case '20250407_UQ5'
     
-            % Cylinder centred at (122, 119), radius 70
+            % Cylinder centred at (123, 119), radius 70 (1.4mm)
     
-            samplemask = zeros(szmask);
+            samplemask = zeros(szbase);
             
             [Xs, Ys] = meshgrid( ...
-               1:szmask(2), ...
-               1:szmask(1) ...
+               1:szbase(2), ...
+               1:szbase(1) ...
                 );
     
-            samplemask(:,:,:) = repmat((Xs-122).^2 + (Ys-119).^2 <75^2, 1, 1, szmask(3));
+            samplemask(:,:,:) = repmat((Xs-123).^2 + (Ys-119).^2 <75^2, 1, 1, szbase(3));
+
+            % Remove ends
+            samplemask(:,:,1:10)=false;
+            samplemask(:,:,600:end)=false;
+    
+    
+    
+        case '20250414_UQ6'
+    
+            % Cylinder centred at (122, 117), 
+    
+            samplemask = zeros(szbase);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szbase(2), ...
+               1:szbase(1) ...
+                );
+    
+            samplemask(:,:,:) = repmat((Xs-122).^2 + (Ys-117).^2 <75^2, 1, 1, szbase(3));
+
+            % Remove ends
             samplemask(:,:,1:20)=false;
-            samplemask(end-20:end)=false;
+            samplemask(:,:,end-10:end)=false;
+    
+    
+        case '20250522_UQ7'
+    
+            % Cylinder centred at (124, 117)
+    
+            samplemask = zeros(szbase);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szbase(2), ...
+               1:szbase(1) ...
+                );
+    
+            samplemask(:,:,:) = repmat((Xs-124).^2 + (Ys-117).^2 <75^2, 1, 1, szbase(3));
+
+            % Remove ends
+            samplemask(:,:,1:10)=false;
+            samplemask(:,:,end-10:end)=false;
+
+
+            % EXCLUDE REGION DUE TO BUBBLES
+            rows = 1:90;
+            cols = 46:198;
+            slices = 225:510;
+            samplemask(rows, cols, slices)=false;
+
+
+        case '20250523_UQ8'
+    
+            % Cylinder centred at (123, 119)
+    
+            samplemask = zeros(szbase);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szbase(2), ...
+               1:szbase(1) ...
+                );
+    
+            samplemask(:,:,:) = repmat((Xs-123).^2 + (Ys-119).^2 <75^2, 1, 1, szbase(3));
+
+            % Remove ends
+            samplemask(:,:,1:10)=false;
+            samplemask(:,:,end-10:end)=false;            
+
+
+        case '20250524_UQ9'
+    
+            % Cylinder centred at (127, 118)
+    
+            samplemask = zeros(szbase);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szbase(2), ...
+               1:szbase(1) ...
+                );
+    
+            samplemask(:,:,:) = repmat((Xs-127).^2 + (Ys-118).^2 <75^2, 1, 1, szbase(3));
+
+            % REMOVE TOP AND BOTTOM REGIONS OF MEDIUM
+            samplemask(:,:,1:40)=false;
+            samplemask(:,:,560:end)=false;   
+
     end
 
 
@@ -132,27 +214,27 @@ end
 
 %% Scatter plots
 
-x=composition(:,2);
-y=paramvals;
-
-figure
-scatter(x, y)
-corr(x, y)
-
-hold on;
-
-% Linear regression line
-p = polyfit(x, y, 1);             % Fit line: y = p(1)*x + p(2)
-x_fit = linspace(min(x), max(x), 100);
-y_fit = polyval(p, x_fit);
-
-plot(x_fit, y_fit, 'r-', 'LineWidth', 2); % Add regression line
-hold off;
-
-xlabel('x');
-ylabel('y');
-title('Scatter Plot with Regression Line');
-grid on;
+% x=composition(:,2);
+% y=paramvals;
+% 
+% figure
+% scatter(x, y)
+% corr(x, y)
+% 
+% hold on;
+% 
+% % Linear regression line
+% p = polyfit(x, y, 1);             % Fit line: y = p(1)*x + p(2)
+% x_fit = linspace(min(x), max(x), 100);
+% y_fit = polyval(p, x_fit);
+% 
+% plot(x_fit, y_fit, 'r-', 'LineWidth', 2); % Add regression line
+% hold off;
+% 
+% xlabel('x');
+% ylabel('y');
+% title('Scatter Plot with Regression Line');
+% grid on;
 
 %% Linear model
 
@@ -164,12 +246,15 @@ y = paramvals;
 mdl = fitlm(X, y,'Intercept', intercept);
 
 y_pred = predict(mdl, X); % Get predicted values
-r = corr(y, y_pred);
+R2 = mdl.Rsquared.Ordinary;
 
+Xcol = X;
+Xcol(:,1)=X(:,2);
+Xcol(:,2)=X(:,1);
 figure;
-scatter(y, y_pred, 'filled'); % Plot actual vs predicted
-xlabel('Actual Values');
-ylabel('Predicted Values');
+scatter(y, y_pred,'*', MarkerEdgeAlpha=0.4, CData=Xcol); % Plot actual vs predicted
+xlabel(['Actual ' parameter ' Values']);
+ylabel(['Predicted ' parameter ' Values']);
 title('Actual vs. Predicted Values (LM)');
 hold on;
 plot(y, y, '--'); % 45-degree reference line
@@ -234,11 +319,13 @@ resnorm = load(fullfile(paramfolder, 'RESNORM.mat')).RESNORM;
 
 % Number of parameters
 switch modeltype
-    case {'RDI - 2 compartment - 4 param'}
+    case {'RDI - 2 compartment - 4 param (S0)'}
+        Nparam = 5;
+    case {'RDI - 2 compartment - 3 param (S0)'}
         Nparam = 4;
-    case {'RDI - 2 compartment - 3 param', 'DKI'}
+    case {'RDI - 1 compartment - 2 param', 'DKI'}
         Nparam = 3;
-    case {'RDI - 1 compartment - 2 param', 'ADC'}
+    case {'ADC'}
         Nparam = 2;
 end
 

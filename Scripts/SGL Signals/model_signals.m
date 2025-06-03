@@ -108,6 +108,8 @@ for compindx = 1:length(components)
         end
         
         s = signals(indx, :, 1);
+        s_LCI = signals(indx, :, 3);
+        s_UCI = signals(indx, :, 4);
         err = signals(indx, :, 2);
         
         % Modelling predictions
@@ -192,16 +194,19 @@ for compindx = 1:length(components)
                 T = 'Stroma';
         end
 
-        figure
-        plot([scheme(2:6).bval]-bshift, s(2:6), '-*', color=color, MarkerSize=10, DisplayName = 'Measured (Short \Delta)')
-        hold on
-        plot([scheme(7:end).bval]-bshift, s(7:end), '--*', color=color, MarkerSize=10, DisplayName = 'Measured (Long \Delta)')
 
+
+        figure
+        errorbar([scheme(2:6).bval]-bshift, s(2:6), s(2:6)-s_LCI(2:6), s_UCI(2:6)-s(2:6), '-*', color=color, MarkerSize=6, DisplayName = 'Measured (Short \Delta)')
+        hold on
+        errorbar([scheme(7:end).bval]-bshift, s(7:end), s(7:end)-s_LCI(7:end), s_UCI(7:end)-s(7:end), '--*', color=color, MarkerSize=6, DisplayName = 'Measured (Long \Delta)')
         scatter([scheme(2:end).bval]+bshift, pred(2:end), 50,'x', MarkerEdgeColor='black', LineWidth=1.5, DisplayName = 'Predicted')
         title(T)
         legend
+        xticks([1000, 1250, 1500, 1750, 2000])
         xlabel('b-value (s/mm^2)')
         ylabel('dMRI signal')
+        grid on
 
 % disp(RESULTS);
 
@@ -253,6 +258,7 @@ for compindx = 1:length(components)
 
     end
 end
+
 
 % Save RESULTS
 folder = fullfile(projectfolder, 'Outputs', 'Signal Measurement', samplename, 'Modelling');

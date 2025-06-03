@@ -6,11 +6,10 @@ projectfolder = pwd;
 %% Image details
 
 % Sample name
-SampleName = '20250224_UQ4';
+SampleName = '20250524_UQ9'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Series descriptions
 SeriesDescriptions = {...
-
     % All DELTA
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -46,8 +45,7 @@ Ndirec = 6;
 %% Processing details
 
 % Model type
-% modeltype = 'DKI';
-modeltype = 'RDI - 1 compartment - 2 param';
+modeltype = 'ADC'; % 'ADC', 'DKI', 'RDI - 2 compartment - 4 param (S0)'
 
 % Scheme name
 schemename = '20250224_UQ4 AllDELTA';
@@ -55,14 +53,14 @@ schemesfolder = fullfile(projectfolder, 'Schemes');
 load(fullfile(schemesfolder, schemename));
 nscheme = length(scheme);
 
-% Correct for non-zero b0 value
-effb0 = 10.3;
-for indx = 1:nscheme
-   if scheme(indx).bval==0
-       continue
-   end
-   scheme(indx).bval = scheme(indx).bval-effb0;
-end
+% % Correct for non-zero b0 value
+% effb0 = 10.3;
+% for indx = 1:nscheme
+%    if scheme(indx).bval==0
+%        continue
+%    end
+%    scheme(indx).bval = scheme(indx).bval-effb0;
+% end
 
 % Fitting technique
 fittingtechnique = 'LSQ';
@@ -74,29 +72,15 @@ modelsfolder = fullfile(projectfolder, 'Scripts', 'RDI', fittingtechnique, 'mode
 
 % === LSQ fitting
 
-% Regularisation
-
-R = 25; Rlb = 1; Rub = 100;
-
-d = 1; dlb = 0.1; dub = 3;
-
-dIC = 0.5; dIClb = 0.1; dICub = 3;
-
-dEES = 1; dEESlb = 0.1; dEESub = 3;
-
-fIC = 0.5; fIClb = 0; fICub = 1;
-
-S0 = 1; S0lb = 0.8; S0ub = 1.2;
-
-K = 0.5; Klb = 0; Kub = 3;
-
-lambda0=1e-2;
-
 switch modeltype
 
     case 'ADC'
         
         Nparam=2;
+
+        d=1; dlb = 0.2; dub = 2;
+        S0=1; S0lb = 0.8; S0ub = 1.2;
+
         beta0=[S0,d];
         lb=[S0lb,dlb];
         ub=[S0ub,dub];
@@ -122,28 +106,23 @@ switch modeltype
         lb = [fIClb,Rlb,dlb];
         ub = [fICub,Rub,dub];
 
-    case 'RDI - 2 compartment - 4 param'
-
-        Nparam = 4;
-        beta0 = [fIC,R,dIC,dEES];
-        lb = [fIClb,Rlb,dIClb, dEESlb];
-        ub = [fICub,Rub,dICub, dEESub];
-        
-    case 'RDKI - 2 compartment - 5 param'
+    case 'RDI - 2 compartment - 4 param (S0)'
 
         Nparam = 5;
-        beta0 = [fIC,R,dIC,dEES, K];
-        lb = [fIClb,Rlb,dIClb, dEESlb, Klb];
-        ub = [fICub,Rub,dICub, dEESub, Kub];
 
-    case 'RSI - 2 compartment - 4 param'
+        fIC = 0.5; fIClb = 0; fICub = 1;
+        R = 6.5; Rlb = 6; Rub = 7;
+        dIC = 0.5; dIClb = 0.1; dICub = 2;
+        dEES = 1; dEESlb = 0.1; dEESub = 2;
+        S0 = 1; S0lb = 0.8; S0ub = 1.2;
 
-        Nparam = 4;
-        beta0 = [0.4,d,0.6,d];
-        lb = [fIClb,dlb,fIClb, dlb];
-        ub = [fICub,dub,fICub, dub];
+        beta0 = [fIC,R,dIC,dEES,S0];
+        lb = [fIClb,Rlb,dIClb,dEESlb,S0lb];
+        ub = [fICub,Rub,dICub,dEESub,S0ub];
+        
 end
 
+lambda0=0e-2;
 lambda = lambda0*ones(1,Nparam);
 
 %% Data preprocessing
@@ -198,9 +177,6 @@ switch averagedirections
             prctile(b0img(:), 90),...
         ];
 
-        % Apply Gaussian smoothing
-        % b0img = imgaussfilt(b0img, 0.5);
-
 
         % seriesindx > 1 used for diffusion data
         for seriesindx = 2:length(SeriesDescriptions)
@@ -240,7 +216,7 @@ switch averagedirections
             bvec(seriesindx)=bval;
         
             % Normalize and append to Y array
-            Y(:,:,:,seriesindx) = (1/p(1))*((bimg./b0img)-p(2));
+            Y(:,:,:,seriesindx) = (1/p(1))*(bimg./(b0img));
         
         end
         
@@ -312,92 +288,6 @@ modelfolder = fullfile(modelsfolder, modeltype, schemename);
 
 switch modeltype
 
-    case 'RDI - 1 compartment - 2 param'
-
-        [R, dIC, RESNORM] = RDI_fit( ...
-            Y, ...
-            scheme, ...
-            modeltype = modeltype,...
-            fittingtechnique = fittingtechnique,...
-            modelfolder = modelfolder,...
-            beta0=beta0,...
-            lambda=lambda,...
-            lb=lb,...
-            ub=ub...
-            );
-
-
-    case 'RDI - 2 compartment - 3 param'
-
-        [fIC, R, d, RESNORM, fIC_stderr, R_stderr, d_stderr] = RDI_fit( ...
-            Y, ...
-            scheme, ...
-            modeltype = modeltype,...
-            fittingtechnique = fittingtechnique,...
-            modelfolder = modelfolder,...
-            beta0=beta0,...
-            lambda=lambda,...
-            lb=lb,...
-            ub=ub...
-            );
-        
-
-    case 'RDI - 2 compartment - 4 param'
-
-        [fIC, R, dIC, dEES, RESNORM, fIC_stderr, R_stderr, dIC_stderr, dEES_stderr] = RDI_fit( ...
-            Y, ...
-            scheme, ...
-            modeltype = modeltype,...
-            fittingtechnique = fittingtechnique,...
-            modelfolder = modelfolder,...
-            beta0=beta0,...
-            lambda=lambda,...
-            lb=lb,...
-            ub=ub...
-            );
-
-
-    case 'RDKI - 2 compartment - 5 param'
-
-        [fIC, R, dIC, dEES, K, RESNORM, fIC_stderr, R_stderr, dIC_stderr, dEES_stderr, K_stderr] = RDI_fit( ...
-            Y, ...
-            scheme, ...
-            modeltype = modeltype,...
-            fittingtechnique = fittingtechnique,...
-            modelfolder = modelfolder,...
-            beta0=beta0,...
-            lambda=lambda,...
-            lb=lb,...
-            ub=ub...
-            );
-
-
-    case 'RSI - 2 compartment - 4 param'
-
-        [f1, d1, f2, d2, RESNORM, f1_stderr, d1_stderr, f2_stderr, d2_stderr] = RDI_fit( ...
-            Y, ...
-            scheme, ...
-            modeltype = modeltype,...
-            fittingtechnique = fittingtechnique,...
-            modelfolder = modelfolder,...
-            beta0=beta0,...
-            lambda=lambda,...
-            lb=lb,...
-            ub=ub...
-            );
-
-
-    % case 'RDI - 3 compartment - fixed params'
-    % 
-    %     [fs, fg, fl] = RDI_fit( ...
-    %         Y, ...
-    %         scheme, ...
-    %         modeltype = modeltype,...
-    %         fittingtechnique = fittingtechnique,...
-    %         modelfolder = modelfolder...
-    %         );
-
-
     case 'ADC'
 
         [S0, ADC, RESNORM] = RDI_fit( ...
@@ -410,7 +300,7 @@ switch modeltype
             lambda=lambda,...
             lb=lb,...
             ub=ub...
-            );        
+            );     
 
 
     case 'DKI'
@@ -427,41 +317,52 @@ switch modeltype
             ub=ub...
             );  
 
-        % switch averagedirections
-        % 
-        %     case true
-        %         [ADC, S0] = calcADC(Y, [scheme(:).bval]);
-        % 
-        %     case false
-        % 
-        %         ADC = zeros([Ndirec, size(b0img)]);
-        %         for direcindx = 1:Ndirec
-        %             ADC(direcindx,:,:,:) = calcADC(squeeze(Y(direcindx,:,:,:,:)), [scheme(:).bval]);
-        %         end
-        % 
-        % end
+
+    case 'RDI - 1 compartment - 2 param (S0)'
+
+        [R, dIC, S0, RESNORM] = RDI_fit( ...
+            Y, ...
+            scheme, ...
+            modeltype = modeltype,...
+            fittingtechnique = fittingtechnique,...
+            modelfolder = modelfolder,...
+            beta0=beta0,...
+            lambda=lambda,...
+            lb=lb,...
+            ub=ub...
+            );
 
 
-    % case 'No VASC VERDICT (AMICO)'
-    % 
-    %     [fIC, fEES, fVASC, R] = verdict_fit( ...
-    %         Y, ...
-    %         scheme, ...
-    %         modeltype = modeltype,...
-    %         fittingtechnique = fittingtechnique,...
-    %         modelfolder = modelfolder...
-    %         );
-    % 
-    % 
-    % case {'MFP v1', 'MFP v2'}
-    % 
-    %     [R, D] = mfp_fit( ...
-    %         Y, ...
-    %         scheme,...
-    %         modeltype = modeltype,...
-    %         fittingtechnique=fittingtechnique,...
-    %         modelfolder = modelfolder...
-    %         );
+    case 'RDI - 2 compartment - 3 param (S0)'
+
+        [fIC, R, d, S0, RESNORM] = RDI_fit( ...
+            Y, ...
+            scheme, ...
+            modeltype = modeltype,...
+            fittingtechnique = fittingtechnique,...
+            modelfolder = modelfolder,...
+            beta0=beta0,...
+            lambda=lambda,...
+            lb=lb,...
+            ub=ub...
+            );
+        
+
+    case 'RDI - 2 compartment - 4 param (S0)'
+
+        [fIC, R, dIC, dEES, S0, RESNORM] = RDI_fit( ...
+            Y, ...
+            scheme, ...
+            modeltype = modeltype,...
+            fittingtechnique = fittingtechnique,...
+            modelfolder = modelfolder,...
+            beta0=beta0,...
+            lambda=lambda,...
+            lb=lb,...
+            ub=ub...
+            );
+
+   
 
 
 end
@@ -488,6 +389,12 @@ end
 
 switch modeltype
 
+    case 'ADC'
+
+        save(fullfile(outf, 'ADC.mat'), 'ADC');
+        save(fullfile(outf, 'S0.mat'), 'S0');
+        save(fullfile(outf, 'RESNORM.mat'), 'RESNORM'); 
+
     case 'RDI - 1 compartment - 2 param'
 
         save(fullfile(outf, 'R.mat'), 'R');
@@ -506,18 +413,18 @@ switch modeltype
 
         save(fullfile(outf, 'RESNORM.mat'), 'RESNORM');  
 
-        save(fullfile(outf, 'fIC_stderr.mat'), 'fIC_stderr');
-        save(fullfile(outf, 'R_stderr.mat'), 'R_stderr');
-        save(fullfile(outf, 'd_stderr.mat'), 'd_stderr');       
+        % save(fullfile(outf, 'fIC_stderr.mat'), 'fIC_stderr');
+        % save(fullfile(outf, 'R_stderr.mat'), 'R_stderr');
+        % save(fullfile(outf, 'd_stderr.mat'), 'd_stderr');       
  
         % Cellularity
         C = fIC./(R.^3);
-        C_stderr = C.*(fIC_stderr./fIC + 3*R_stderr./R);
         save(fullfile(outf, 'C.mat'), 'C');
-        save(fullfile(outf, 'C_stderr.mat'), 'C_stderr');
+        % C_stderr = C.*(fIC_stderr./fIC + 3*R_stderr./R);
+        % save(fullfile(outf, 'C_stderr.mat'), 'C_stderr');
 
     
-    case 'RDI - 2 compartment - 4 param'
+    case 'RDI - 2 compartment - 4 param (S0)'
 
         save(fullfile(outf, 'Meta.mat'), 'Meta');   
 
@@ -528,62 +435,17 @@ switch modeltype
 
         save(fullfile(outf, 'RESNORM.mat'), 'RESNORM');  
 
-        save(fullfile(outf, 'fIC_stderr.mat'), 'fIC_stderr');
-        save(fullfile(outf, 'R_stderr.mat'), 'R_stderr');
-        save(fullfile(outf, 'dIC_stderr.mat'), 'dIC_stderr');
-        save(fullfile(outf, 'dEES_stderr.mat'), 'dEES_stderr');
+        % save(fullfile(outf, 'fIC_stderr.mat'), 'fIC_stderr');
+        % save(fullfile(outf, 'R_stderr.mat'), 'R_stderr');
+        % save(fullfile(outf, 'dIC_stderr.mat'), 'dIC_stderr');
+        % save(fullfile(outf, 'dEES_stderr.mat'), 'dEES_stderr');
 
         % Cellularity
         C = fIC./(R.^3);
-        C_stderr = C.*(fIC_stderr./fIC + 3*R_stderr./R);
         save(fullfile(outf, 'C.mat'), 'C');
-        save(fullfile(outf, 'C_stderr.mat'), 'C_stderr');
+        % C_stderr = C.*(fIC_stderr./fIC + 3*R_stderr./R);
+        % save(fullfile(outf, 'C_stderr.mat'), 'C_stderr');
 
-
-    case 'RDKI - 2 compartment - 5 param'
-
-        save(fullfile(outf, 'Meta.mat'), 'Meta');   
-
-        save(fullfile(outf, 'fIC.mat'), 'fIC');
-        save(fullfile(outf, 'R.mat'), 'R');
-        save(fullfile(outf, 'dIC.mat'), 'dIC');
-        save(fullfile(outf, 'dEES.mat'), 'dEES');
-        save(fullfile(outf, 'K.mat'), 'K');
-
-        save(fullfile(outf, 'RESNORM.mat'), 'RESNORM');  
-
-        save(fullfile(outf, 'fIC_stderr.mat'), 'fIC_stderr');
-        save(fullfile(outf, 'R_stderr.mat'), 'R_stderr');
-        save(fullfile(outf, 'dIC_stderr.mat'), 'dIC_stderr');
-        save(fullfile(outf, 'dEES_stderr.mat'), 'dEES_stderr');
-        save(fullfile(outf, 'K_stderr.mat'), 'K_stderr');
-
-        % Cellularity
-        C = fIC./(R.^3);
-        C_stderr = C.*(fIC_stderr./fIC + 3*R_stderr./R);
-        save(fullfile(outf, 'C.mat'), 'C');
-        save(fullfile(outf, 'C_stderr.mat'), 'C_stderr');
-
-    case 'RDI - 3 compartment - fixed params'
-
-        save(fullfile(outf, 'fs.mat'), 'fs');
-        save(fullfile(outf, 'fg.mat'), 'fg');
-        save(fullfile(outf, 'fl.mat'), 'fl');
-        save(fullfile(outf, 'RESNORM.mat'), 'RESNORM');          
-        save(fullfile(outf, 'Meta.mat'), 'Meta');    
-
-    case 'ADC'
-
-        save(fullfile(outf, 'ADC.mat'), 'ADC');
-        save(fullfile(outf, 'S0.mat'), 'S0');
-        save(fullfile(outf, 'RESNORM.mat'), 'RESNORM');    
-
-    case 'DKI'
-
-        save(fullfile(outf, 'S0.mat'), 'S0');
-        save(fullfile(outf, 'D.mat'), 'D');
-        save(fullfile(outf, 'K.mat'), 'K');
-        save(fullfile(outf, 'RESNORM.mat'), 'RESNORM');            
 
 end
 
