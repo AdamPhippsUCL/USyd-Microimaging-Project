@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Image details
 
 % Sample name
-SampleName = '20250524_UQ9'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250523_UQ8'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Series descriptions
 SeriesDescriptions = {...
@@ -45,7 +45,7 @@ Ndirec = 6;
 %% Processing details
 
 % Model type
-modeltype = 'ADC'; % 'ADC', 'DKI', 'RDI - 2 compartment - 4 param (S0)'
+modeltype = 'RDI - 2 compartment - 4 param (S0)'; % 'ADC', 'DKI', 'RDI - 2 compartment - 4 param (S0)'
 
 % Scheme name
 schemename = '20250224_UQ4 AllDELTA';
@@ -61,6 +61,7 @@ nscheme = length(scheme);
 %    end
 %    scheme(indx).bval = scheme(indx).bval-effb0;
 % end
+
 
 % Fitting technique
 fittingtechnique = 'LSQ';

@@ -6,13 +6,13 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleNum = 1;
+SampleNum = 6;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
 
 % Image
-seriesindx = 2;
+seriesindx =9;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -91,11 +91,13 @@ for rindx = 1:szmap(1)
     end
 end
 
-
+disp(max(error_large(:)))
 [Xs, Ys] = meshgrid( ...
     linspace(1,szmap(3),size(MGE,3)), ...
     linspace(1,szmap(2),size(MGE,2)) ...
     );
+
+
 
 sl = 120;
 
@@ -107,7 +109,7 @@ grid off;
 colormap(ax1,gray);
 xticks([])
 yticks([])
-title(['Sample = ' num2str(SampleNum) ', b-value = ' num2str(bval) ' s/mm^2, Delta = ' num2str(DELTA) ' ms'])
+title(['Sample set ' num2str(SampleNum) ', b-value = ' num2str(bval) ' s/mm^2, Delta = ' num2str(DELTA) ' ms'])
 
 hold on
 ax2 = axes;
