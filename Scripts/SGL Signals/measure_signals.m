@@ -389,7 +389,7 @@ for imgindx = 1:Nimg
     
     % BOOTSTRAPPING TEST
     N=length(y);
-    B=2000;
+    B=10000;
     bootstrap_indices = randi(N, N, B);
     BootFits = zeros(B,3);
     BootR2s = zeros(B,1);

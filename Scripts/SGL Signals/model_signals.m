@@ -27,7 +27,7 @@ modeltypes = {
     'ADC',...
     'DKI',...
     'RDI - 1 compartment - 2 param (S0)',...
-    'RDI - 2 compartment - 3 param (S0)',...
+    ...% 'RDI - 2 compartment - 3 param (S0)',...
     'RDI - 2 compartment - 4 param (S0)'
     };
 
@@ -41,6 +41,8 @@ modeltypes = {
 % Fitting
 lambda = 0e-3;
 fittingtechnique = 'LSQ';
+
+DisplayPredictions = false;
 
 
 for compindx = 1:length(components)
@@ -172,41 +174,46 @@ for compindx = 1:length(components)
         RESULTS(n).AIC=AIC;
 
 
-        % Predicted vs measured signals
-        pred = zeros(size(signals(indx, :, 1)));
-        for ischeme = 2:nscheme
-            
-            bval = scheme(ischeme).bval;
-            delta = scheme(ischeme).delta;
-            DELTA = scheme(ischeme).DELTA;
+        if DisplayPredictions
 
-            pred(ischeme) = RDI_model(params, [bval, delta, DELTA], "modeltype", modeltype);
+            % Predicted vs measured signals
+            pred = zeros(size(signals(indx, :, 1)));
+            for ischeme = 2:nscheme
+                
+                bval = scheme(ischeme).bval;
+                delta = scheme(ischeme).delta;
+                DELTA = scheme(ischeme).DELTA;
+    
+                pred(ischeme) = RDI_model(params, [bval, delta, DELTA], "modeltype", modeltype);
+    
+            end
+    
+            bshift=15;
+            switch component
+                case 'G'
+                    color = [0.8500 0.3250 0.0980];
+                    T = 'Epithelium';
+                case 'S'
+                    color = [0.4660 0.6740 0.1880];
+                    T = 'Stroma';
+                case 'L'
+                    color = [0    0.4470    0.7410];
+                    T = 'Lumen';
+            end
+    
+            figure
+            errorbar([scheme(2:6).bval]-bshift, s(2:6), s(2:6)-s_LCI(2:6), s_UCI(2:6)-s(2:6), '-*', color=color, MarkerSize=6, DisplayName = 'Measured (Short \Delta)')
+            hold on
+            errorbar([scheme(7:end).bval]-bshift, s(7:end), s(7:end)-s_LCI(7:end), s_UCI(7:end)-s(7:end), '--*', color=color, MarkerSize=6, DisplayName = 'Measured (Long \Delta)')
+            scatter([scheme(2:end).bval]+bshift, pred(2:end), 50,'x', MarkerEdgeColor='black', LineWidth=1.5, DisplayName = 'Predicted')
+            title(T)
+            legend
+            xticks([1000, 1250, 1500, 1750, 2000])
+            xlabel('b-value (s/mm^2)')
+            ylabel('dMRI signal')
+            grid on
 
         end
-
-        bshift=15;
-        switch component
-            case 'G'
-                color = [0.8500 0.3250 0.0980];
-                T = 'Epithelium';
-            case 'S'
-                color = [0.4660 0.6740 0.1880];
-                T = 'Stroma';
-        end
-
-
-
-        figure
-        errorbar([scheme(2:6).bval]-bshift, s(2:6), s(2:6)-s_LCI(2:6), s_UCI(2:6)-s(2:6), '-*', color=color, MarkerSize=6, DisplayName = 'Measured (Short \Delta)')
-        hold on
-        errorbar([scheme(7:end).bval]-bshift, s(7:end), s(7:end)-s_LCI(7:end), s_UCI(7:end)-s(7:end), '--*', color=color, MarkerSize=6, DisplayName = 'Measured (Long \Delta)')
-        scatter([scheme(2:end).bval]+bshift, pred(2:end), 50,'x', MarkerEdgeColor='black', LineWidth=1.5, DisplayName = 'Predicted')
-        title(T)
-        legend
-        xticks([1000, 1250, 1500, 1750, 2000])
-        xlabel('b-value (s/mm^2)')
-        ylabel('dMRI signal')
-        grid on
 
 % disp(RESULTS);
 
@@ -264,8 +271,6 @@ end
 folder = fullfile(projectfolder, 'Outputs', 'Signal Measurement', samplename, 'Modelling');
 mkdir(folder);
 save(fullfile(folder, 'RESULTS.mat'), 'RESULTS')
-
-
 
 
 %% Model fitting function (for Jacobian error estimation)

@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Image details
 
 % Sample name
-SampleName = '20250523_UQ8'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250524_UQ9'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Series descriptions
 SeriesDescriptions = {...
@@ -112,10 +112,10 @@ switch modeltype
         Nparam = 5;
 
         fIC = 0.5; fIClb = 0; fICub = 1;
-        R = 6.5; Rlb = 6; Rub = 7;
-        dIC = 0.5; dIClb = 0.1; dICub = 2;
-        dEES = 1; dEESlb = 0.1; dEESub = 2;
-        S0 = 1; S0lb = 0.8; S0ub = 1.2;
+        R = 6.5; Rlb = 6.4; Rub = 6.6;
+        dIC = 0.5; dIClb = 0.5; dICub = 0.5;
+        dEES = 1; dEESlb = 0.1; dEESub = 3;
+        S0 = 1; S0lb = 0.9; S0ub = 1.1;
 
         beta0 = [fIC,R,dIC,dEES,S0];
         lb = [fIClb,Rlb,dIClb,dEESlb,S0lb];
@@ -374,7 +374,7 @@ end
 outputfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting');
 
 outf = fullfile(outputfolder, SampleName, modeltype, schemename, fittingtechnique);
-mkdir(outf)
+  mkdir(outf)
 
 % Meta data
 if strcmp(fittingtechnique, 'LSQ')
