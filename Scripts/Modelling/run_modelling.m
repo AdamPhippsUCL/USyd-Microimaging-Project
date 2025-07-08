@@ -9,7 +9,7 @@ projectfolder = pwd;
 SampleName = '20250524_UQ9'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Series descriptions
-SeriesDescriptions = {...
+SeriesDescriptions = {...20250523_UQ8
     % All DELTA
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -113,7 +113,7 @@ switch modeltype
 
         fIC = 0.5; fIClb = 0; fICub = 1;
         R = 6.5; Rlb = 6.4; Rub = 6.6;
-        dIC = 0.5; dIClb = 0.5; dICub = 0.5;
+        dIC = 0.55; dIClb = 0.54; dICub = 0.56;
         dEES = 1; dEESlb = 0.1; dEESub = 3;
         S0 = 1; S0lb = 0.9; S0ub = 1.1;
 

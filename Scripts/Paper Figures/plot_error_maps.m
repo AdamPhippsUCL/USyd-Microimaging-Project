@@ -55,8 +55,7 @@ switch multisample
 end
 
 COMPOSITION = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'COMPOSITION.mat')).COMPOSITION;
-        
-
+       
 
 %% Calculate predicted normalised image and error
 

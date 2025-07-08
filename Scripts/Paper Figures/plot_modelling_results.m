@@ -179,6 +179,18 @@ ylim([-0.05,0.6])
 xlabel('Predicted sphere fraction')
 ylabel('Estimated sphere fraction')
 
+% R2 value
+SSres = sum( (pred_params(1,:) - fit_params(1,:)).^2 );
+SStot = length(fit_params(1,:))*var(fit_params(1,:));
+R2 = 1-SSres/SStot;
+
+text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
+    'Units', 'normalized', ...
+    'VerticalAlignment', 'top', ...
+    'HorizontalAlignment', 'left', ...
+    'BackgroundColor', 'white', ...
+    'EdgeColor', 'black');  % Optional border
+
 
 % figure
 % scatter(pred_params(2,:), fit_params(2,:),  '*', MarkerEdgeAlpha=0.4, CData=new_composition)
@@ -202,6 +214,18 @@ xlim([0.35,2.05])
 ylim([0.35,2.05])
 xlabel('Predicted d_{out} (s/mm^2)')
 ylabel('Estimated d_{out} (s/mm^2)')
+
+% R2 value
+SSres = sum( (pred_params(4,:) - fit_params(4,:)).^2 );
+SStot = length(fit_params(4,:))*var(fit_params(4,:));
+R2 = 1-SSres/SStot;
+
+text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
+    'Units', 'normalized', ...
+    'VerticalAlignment', 'top', ...
+    'HorizontalAlignment', 'left', ...
+    'BackgroundColor', 'white', ...
+    'EdgeColor', 'black');  % Optional border
 
 
 
