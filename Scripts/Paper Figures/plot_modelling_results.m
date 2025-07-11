@@ -26,7 +26,7 @@ E_params = ESL_Model_RESULTS(and(strcmp({ESL_Model_RESULTS(:).Component}, 'G'), 
 L_params = [1, 2]; % ADC parameters...
 
 
-ShowErrorMap = true;
+ShowErrorMap = false;
 
 % Load model parameters from direct fitting, and composition array
 for sampleindx = 1:length(SampleNames)
@@ -45,6 +45,7 @@ for sampleindx = 1:length(SampleNames)
             fit_dIC = load(fullfile(outputfolder, 'dIC.mat')).dIC;
             fit_R = load(fullfile(outputfolder, 'R.mat')).R;
             fit_dEES = load(fullfile(outputfolder, 'dEES.mat')).dEES;
+            fit_AIC = load(fullfile(outputfolder, 'AIC.mat')).AIC;
 
             % Predicted model parameters
             pred_fIC = S_params(1).*sample_composition(:,:,:,1) + E_params(1).*sample_composition(:,:,:,2);
@@ -127,6 +128,9 @@ for sampleindx = 1:length(SampleNames)
     end
     
 
+    % AIC for non-zero composition voxels
+    this_fit_AIC = fit_AIC(bool);
+
     switch ModelName
 
         case 'RDI - 2 compartment - 4 param (S0)'
@@ -136,6 +140,8 @@ for sampleindx = 1:length(SampleNames)
         this_fit_R = fit_R(bool);
         this_fit_dIC = fit_dIC(bool);
         this_fit_dEES = fit_dEES(bool);
+
+        % disp(max(this_fit_fIC))
     
         this_pred_fIC = pred_fIC(bool);
         this_pred_R = pred_R(bool);
@@ -146,11 +152,11 @@ for sampleindx = 1:length(SampleNames)
         if sampleindx == 1       
             composition = this_composition;
             pred_params = [this_pred_fIC'; this_pred_R'; this_pred_dIC'; this_pred_dEES'];
-            fit_params = [this_fit_fIC'; this_fit_R'; this_fit_dIC'; this_fit_dEES'];
+            fit_params = [this_fit_fIC'; this_fit_R'; this_fit_dIC'; this_fit_dEES'; this_fit_AIC'];
         else
             composition = cat(1, composition, this_composition);
             pred_params = cat(2, pred_params, [this_pred_fIC'; this_pred_R'; this_pred_dIC'; this_pred_dEES']);
-            fit_params = cat(2, fit_params, [this_fit_fIC'; this_fit_R'; this_fit_dIC'; this_fit_dEES']);
+            fit_params = cat(2, fit_params, [this_fit_fIC'; this_fit_R'; this_fit_dIC'; this_fit_dEES'; this_fit_AIC']);
         end
         
     end
@@ -230,6 +236,14 @@ text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
 
 
 
+% AIC
+figure
+scatter(fit_params(1,:), fit_params(5,:),  '*', MarkerEdgeAlpha=0.4, CData=new_composition)
+grid on
+xlim([-0.02, 0.57])
+ylim([-175, -95])
+xlabel('Estimated sphere fraction')
+ylabel('AIC')
 
 %%
 

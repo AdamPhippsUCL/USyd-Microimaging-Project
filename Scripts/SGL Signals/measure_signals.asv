@@ -7,9 +7,9 @@ projectfolder = pwd;
 
 % Sample
 multisample = true;
-SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
+% SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 % multisample = false;
-% SampleNames = {'20250524_UQ9'};
+SampleNames = {'20250524_UQ9'};
 
 schemename = '20250224_UQ4 AllDELTA';
 schemesfolder = fullfile(projectfolder, 'Schemes');
@@ -260,19 +260,29 @@ for sindx = 1:length(SampleNames)
 
         case '20250524_UQ9'
     
-            % Cylinder centred at (118, 127), radius 75 (1.5mm)
+            % Cylinder centred at (118, 127)
     
+            samplemask = zeros(szbase);
+            
+            [Xs, Ys] = meshgrid( ...
+               1:szbase(2), ...
+               1:szbase(1) ...
+                );
+    
+            samplemask(:,:,:) = repmat((Xs-118).^2 + (Ys-127).^2 <75^2, 1, 1, szbase(3));
+
+            
+            [Ys, Xs, Zs] = ndgrid( ...
+                1:szbase(2),...
+                1:szbase(1),...
+                1:szbase(3)...
+                );    
+
             samplemask = (Xs-118).^2 + (Ys-127).^2 <75^2;
 
             % REMOVE TOP AND BOTTOM REGIONS OF MEDIUM
             samplemask(:,:,1:40)=false;
             samplemask(:,:,560:end)=false;   
-
-            % == Define masks for individual samples
-
-            Bmask = samplemask.*and(Zs>=48, Zs<330);
-            Mmask = samplemask.*and(Zs>=330, Zs<330);
-            Nmask = samplemask.*and(Zs>=330, Zs<562);   
 
     end
 
@@ -305,6 +315,7 @@ for sindx = 1:length(SampleNames)
                 COMPOSITION(rindx, cindx, slindx, 1) = sum(double(STROMA(baserows, basecols, baseslices)), "all")/Nvoxel;
                 COMPOSITION(rindx, cindx, slindx, 2) = sum(double(GLANDULAR(baserows, basecols, baseslices)), "all")/Nvoxel;
                 COMPOSITION(rindx, cindx, slindx, 3) = sum(double(LUMEN(baserows, basecols, baseslices)), "all")/Nvoxel; 
+
 
                 % MASKs for B, M, N samples
                 thisNmask = Nmask(baserows, basecols, baseslices);

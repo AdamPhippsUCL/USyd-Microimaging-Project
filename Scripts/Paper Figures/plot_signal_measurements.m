@@ -40,7 +40,7 @@ errorbar(bvals+1*bshift, s(3,:,1), s(3,:,1)-s(3,:,3), s(3,:,4)-s(3,:,1), '-.*', 
 
 xticks(bvals); 
 xticklabels(bvals)
-ylim([-0.05,0.7])
+ylim([-0.05,0.75])
 ylabel('Normalized dMRI signal measurement')
 xlim([800,2200])
 xlabel('b-value (s/mm^{2})')
