@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Image details
 
 % Sample name
-SampleName = '20250524_UQ9'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Series descriptions
 SeriesDescriptions = {...20250523_UQ8
@@ -111,15 +111,33 @@ switch modeltype
 
         Nparam = 5;
 
-        fIC = 0.5; fIClb = 0; fICub = 1;
-        R = 6.5; Rlb = 6.4; Rub = 6.6;
-        dIC = 0.55; dIClb = 0.54; dICub = 0.56;
-        dEES = 1; dEESlb = 0.1; dEESub = 3;
-        S0 = 1; S0lb = 0.9; S0ub = 1.1;
+        free_R_Din = false;
+
+        switch free_R_Din
+
+            case false
+
+                fIC = 0.5; fIClb = 0; fICub = 1;
+                R = 6.5; Rlb = 6.4; Rub = 6.6;
+                dIC = 0.55; dIClb = 0.54; dICub = 0.56;
+                dEES = 1; dEESlb = 0.1; dEESub = 3;
+                S0 = 1; S0lb = 0.9; S0ub = 1.1;
+
+            case true
+
+                fIC = 0.5; fIClb = 0; fICub = 1;
+                R = 6.5; Rlb = 1; Rub = 20;
+                dIC = 0.01; dIClb = 0.54; dICub = 3;
+                dEES = 1; dEESlb = 0.1; dEESub = 3;
+                S0 = 1; S0lb = 0.9; S0ub = 1.1;
+
+        end
 
         beta0 = [fIC,R,dIC,dEES,S0];
         lb = [fIClb,Rlb,dIClb,dEESlb,S0lb];
         ub = [fICub,Rub,dICub,dEESub,S0ub];
+
+
         
 end
 
@@ -374,7 +392,7 @@ end
 outputfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting');
 
 outf = fullfile(outputfolder, SampleName, modeltype, schemename, fittingtechnique);
-  mkdir(outf)
+mkdir(outf)
 
 % Meta data
 if strcmp(fittingtechnique, 'LSQ')
@@ -427,14 +445,33 @@ switch modeltype
     
     case 'RDI - 2 compartment - 4 param (S0)'
 
-        save(fullfile(outf, 'Meta.mat'), 'Meta');   
+        switch free_R_Din
 
-        save(fullfile(outf, 'fIC.mat'), 'fIC');
-        save(fullfile(outf, 'R.mat'), 'R');
-        save(fullfile(outf, 'dIC.mat'), 'dIC');
-        save(fullfile(outf, 'dEES.mat'), 'dEES');
+            case false
+                save(fullfile(outf, 'Meta.mat'), 'Meta');   
+        
+                save(fullfile(outf, 'fIC.mat'), 'fIC');
+                save(fullfile(outf, 'R.mat'), 'R');
+                save(fullfile(outf, 'dIC.mat'), 'dIC');
+                save(fullfile(outf, 'dEES.mat'), 'dEES');
+        
+                save(fullfile(outf, 'RESNORM.mat'), 'RESNORM');  
 
-        save(fullfile(outf, 'RESNORM.mat'), 'RESNORM');  
+            case true
+
+                modeltype = [modeltype ' (free_R_Din)'];
+                outf = fullfile(outputfolder, SampleName, modeltype, schemename, fittingtechnique);
+                mkdir(outf)
+
+                save(fullfile(outf, 'Meta.mat'), 'Meta');   
+        
+                save(fullfile(outf, 'fIC.mat'), 'fIC');
+                save(fullfile(outf, 'R.mat'), 'R');
+                save(fullfile(outf, 'dIC.mat'), 'dIC');
+                save(fullfile(outf, 'dEES.mat'), 'dEES');
+        
+                save(fullfile(outf, 'RESNORM.mat'), 'RESNORM');  
+        end
 
         % save(fullfile(outf, 'fIC_stderr.mat'), 'fIC_stderr');
         % save(fullfile(outf, 'R_stderr.mat'), 'R_stderr');
@@ -442,8 +479,8 @@ switch modeltype
         % save(fullfile(outf, 'dEES_stderr.mat'), 'dEES_stderr');
 
         % Cellularity
-        C = fIC./(R.^3);
-        save(fullfile(outf, 'C.mat'), 'C');
+        % C = fIC./(R.^3);
+        % save(fullfile(outf, 'C.mat'), 'C');
         % C_stderr = C.*(fIC_stderr./fIC + 3*R_stderr./R);
         % save(fullfile(outf, 'C_stderr.mat'), 'C_stderr');
 

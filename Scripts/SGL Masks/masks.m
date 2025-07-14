@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Sample and Image details
 
 % Sample name
-SampleName = '20250414_UQ6'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Use denoised data
 UseDenoisedData = true;
@@ -120,8 +120,8 @@ displaymasks(:,:,:,2) = logical(STROMA);
 displaymasks(:,:,:,3) = logical(LUMEN);
 
 sl=120;
-cols = 20:620;
-rows = 35:210;
+cols = 1:640;%20:620;
+rows = 1:240;%35:210;
 figure
 imshow(squeeze(MGE(sl,rows,cols)),[0 prctile(squeeze(MGE(sl,rows,cols)), 99.9, 'all')]);
 figure

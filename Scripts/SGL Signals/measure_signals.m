@@ -172,7 +172,7 @@ for sindx = 1:length(SampleNames)
             samplemask = (Xs-128).^2 + (Ys-114).^2 <75^2 ;
         
             % Remove ends
-            samplemask(:,:,1:10)=false;
+            % samplemask(:,:,1:10)=false;
             samplemask(:,:,end-10:end)=false;
 
             % === Define masks for individual samples
@@ -415,7 +415,7 @@ for imgindx = 1:Nimg
     
     % BOOTSTRAPPING TEST
     N=length(y);
-    B=10000;
+    B=10;
     bootstrap_indices = randi(N, N, B);
     BootFits = zeros(B,3);
     BootR2s = zeros(B,1);
