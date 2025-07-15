@@ -10,7 +10,7 @@ projectfolder = pwd;
 SampleName = '20250414_UQ6'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % ROI
-ROIname = 'UQ6N Lesion 4+3'; 
+ROIname = 'UQ6M Stroma'; 
 % 'UQ4B Lesion 3+4'
 % 'UQ4M Lesion 3+4'
 % 'UQ4N Benign Glandular'
@@ -73,9 +73,12 @@ img_ROI = ImageArray(logical(SampleMask.*ROI));
 MAX = max([pred_ROI; img_ROI]);
 MIN = min([pred_ROI; img_ROI]);
 
-figure
-tiledlayout(2,2)
+f=figure;
+f.Position = [423   113   939   729];
+tiledlayout(2,2,'Padding', 'compact', 'TileSpacing', 'compact');
 nexttile;
+axis off
+
 nexttile;
 scatter(pred_ROI, img_ROI, '*', CData=X)
 hold on
@@ -83,8 +86,8 @@ plot([MIN,MAX],[MIN,MAX], '--', color = 'k')
 xlim([MIN-0.02 MAX+0.02])
 ylim([MIN-0.02 MAX+0.02])
 grid on
-xticks(linspace(0,1,21))
-yticks(linspace(0,1,21))
+xticks(linspace(0,1,11))
+yticks(linspace(0,1,11))
 xlabel('Predicted signal')
 ylabel('Measured signal')
 title('b = 2000 s/mm^2 ; \Delta = 120 ms')
@@ -132,11 +135,12 @@ hold on
 plot([MIN,MAX],[MIN,MAX], '--', color = 'k')
 xlim([MIN-0.02 MAX+0.02])
 ylim([MIN-0.02 MAX+0.02])
-xlabel('Predicted fIC')
-ylabel('Estimated fIC')
+xlabel('Predicted f')
+ylabel('Estimated f')
 grid on
 xticks(linspace(0,1,11))
 yticks(linspace(0,1,11))
+title('Ball +')
 
 % dEES
 MAX = max([pred_dEES; fit_dEES]);
@@ -149,8 +153,8 @@ plot([MIN,MAX],[MIN,MAX], '--', color = 'k')
 xlim([MIN-0.05 MAX+0.05])
 ylim([MIN-0.05 MAX+0.05])
 grid on
-xlabel('Predicted dEES (x10^{-3} mm^2/s)')
-ylabel('Estimated dEES (x10^{-3} mm^2/s)')
+xlabel('Predicted D_{out} (x10^{-3} mm^2/s)')
+ylabel('Estimated D_{out} (x10^{-3} mm^2/s)')
 grid on
-xticks(linspace(0,3,31))
-yticks(linspace(0,3,31))
+xticks(linspace(0,3,16))
+yticks(linspace(0,3,16))

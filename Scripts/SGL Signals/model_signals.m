@@ -21,12 +21,12 @@ nscheme = length(scheme);
 
 %% Modelling details
 
-components = {'G', 'S', 'L'};
+components = {'G', 'S'};
 
 modeltypes = {
-    'ADC',...
-    'DKI',...
-    'RDI - 1 compartment - 2 param (S0)',...
+    ...'ADC',...
+    ...'DKI',...
+    ...'RDI - 1 compartment - 2 param (S0)',...
     ...'RDI - 2 compartment - 3 param (S0)',...
     'RDI - 2 compartment - 4 param (S0)'
     };
@@ -42,7 +42,7 @@ modeltypes = {
 lambda = 0e-3;
 fittingtechnique = 'LSQ';
 
-DisplayPredictions = false;
+DisplayPredictions = true;
 
 
 for compindx = 1:length(components)

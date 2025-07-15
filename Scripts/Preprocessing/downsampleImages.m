@@ -9,7 +9,7 @@ projectfolder = pwd;
 ImagingDataFolder = fullfile(projectfolder, 'Imaging Data');
 
 % Sample name
-SampleName = '20250524_UQ9';
+SampleName = '20250524_UQ9'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Series description
 SeriesDescriptions = {...
@@ -29,7 +29,7 @@ SeriesDescriptions = {...
 
 
 % Downsample settings (old function)
-downsamplewindow = [3,3,4]; 
+downsamplewindow = [3,3,2]; 
 overlap = false;
 
 % % Using imresize3

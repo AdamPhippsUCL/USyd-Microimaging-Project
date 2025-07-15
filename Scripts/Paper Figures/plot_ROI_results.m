@@ -7,10 +7,10 @@ projectfolder = pwd;
 %% Sample, Image, and ROI
 
 % Sample
-SampleName = '20250414_UQ6'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % ROI
-ROIname = 'UQ6M Stroma'; 
+ROIname = 'UQ4B Lesion 3+4'; 
 % 'UQ4B Lesion 3+4'
 % 'UQ4M Lesion 3+4'
 % 'UQ4N Benign Glandular'
@@ -74,7 +74,7 @@ MAX = max([pred_ROI; img_ROI]);
 MIN = min([pred_ROI; img_ROI]);
 
 f=figure;
-f.Position = [423   113   939   729];
+f.Position = [423   0   939   729];
 tiledlayout(2,2,'Padding', 'compact', 'TileSpacing', 'compact');
 nexttile;
 axis off
@@ -135,11 +135,12 @@ hold on
 plot([MIN,MAX],[MIN,MAX], '--', color = 'k')
 xlim([MIN-0.02 MAX+0.02])
 ylim([MIN-0.02 MAX+0.02])
-xlabel('Predicted fIC')
-ylabel('Estimated fIC')
+xlabel('Predicted f')
+ylabel('Estimated f')
 grid on
 xticks(linspace(0,1,11))
 yticks(linspace(0,1,11))
+title('Ball + Sphere Model')
 
 % dEES
 MAX = max([pred_dEES; fit_dEES]);
@@ -152,8 +153,9 @@ plot([MIN,MAX],[MIN,MAX], '--', color = 'k')
 xlim([MIN-0.05 MAX+0.05])
 ylim([MIN-0.05 MAX+0.05])
 grid on
-xlabel('Predicted dEES (x10^{-3} mm^2/s)')
-ylabel('Estimated dEES (x10^{-3} mm^2/s)')
+xlabel('Predicted D_{out} (x10^{-3} mm^2/s)')
+ylabel('Estimated D_{out} (x10^{-3} mm^2/s)')
 grid on
 xticks(linspace(0,3,16))
 yticks(linspace(0,3,16))
+title('Ball + Sphere Model')

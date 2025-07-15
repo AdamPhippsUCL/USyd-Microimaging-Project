@@ -176,7 +176,7 @@ new_composition(:,3) = composition(:,3);
 
 
 figure
-scatter(pred_params(1,:), fit_params(1,:),  '*', MarkerEdgeAlpha=0.4, CData=new_composition)
+scatter(pred_params(1,:), fit_params(1,:),  '.', MarkerEdgeAlpha=0.4, CData=new_composition)
 hold on
 plot([0, 0.3], [0, 0.3], 'k')
 grid on
@@ -212,7 +212,7 @@ text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
 
 
 figure
-scatter(pred_params(4,:), fit_params(4,:),  '*', MarkerEdgeAlpha=0.4, CData=new_composition)
+scatter(pred_params(4,:), fit_params(4,:),  '.', MarkerEdgeAlpha=0.4, CData=new_composition)
 hold on
 plot([0.5, 2], [0.5, 2], 'k')
 grid on
@@ -238,7 +238,7 @@ text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
 
 % AIC
 figure
-scatter(fit_params(1,:), fit_params(5,:),  '*', MarkerEdgeAlpha=0.4, CData=new_composition)
+scatter(fit_params(1,:), fit_params(5,:),  '.', MarkerEdgeAlpha=0.4, CData=new_composition)
 grid on
 xlim([-0.02, 0.57])
 ylim([-175, -95])

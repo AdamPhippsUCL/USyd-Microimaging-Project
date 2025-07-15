@@ -6,13 +6,13 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleNum = 6;
+SampleNum = 1;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
 
 % Image
-seriesindx =9;
+seriesindx =11;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -55,8 +55,7 @@ switch multisample
 end
 
 COMPOSITION = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'COMPOSITION.mat')).COMPOSITION;
-        
-
+       
 
 %% Calculate predicted normalised image and error
 
@@ -76,6 +75,7 @@ MGE = load(fullfile(projectfolder, 'Imaging Data', 'MAT DN', SampleName, MGE_ser
 ResFactor = size(MGE)./size(error);
 
 error_large = zeros(size(MGE));
+sample_large = zeros(size(MGE));
 
 for rindx = 1:szmap(1)
     for cindx = 1:szmap(2)
@@ -86,6 +86,8 @@ for rindx = 1:szmap(1)
             slices = ((slindx-1)*ResFactor(3)+1:slindx*ResFactor(3));
 
             error_large(rows,cols,slices)=error(rindx, cindx, slindx);
+
+            sample_large(rows,cols,slices) = sum(COMPOSITION(rindx, cindx, slindx,:))>0;
 
         end
     end
@@ -98,22 +100,63 @@ disp(max(error_large(:)))
     );
 
 
+% SAMPLE NUMBER
+snum = 'UQ4B';
+
+switch snum
+    
+    case 'UQ4B'
+
+        xs = 40:220;
+        ys = 30:210;
+
+
+    case 'UQ6M'
+
+        xs = 30:210;
+        ys = 300:480;
+
+    case 'UQ7M'
+
+        xs = 40:220;
+        ys = 270:450;
+
+    case 'UQ8M'
+
+        xs = 30:210;
+        ys = 200:380;
+
+    case 'UQ9'
+
+        xs = 1:240;
+        ys = 1:640;
+
+
+
+
+
+end
+
+
 
 sl = 120;
 
 f=figure;
+
 ax1 = axes;
-pcolor(ax1, Xs, Ys, rescale(squeeze(MGE(sl,:,:)), 0,1))
+pcolor(ax1, Xs(xs, ys), Ys(xs, ys), rescale(squeeze(MGE(sl,xs,ys)), 0,1))
 shading flat; % Remove grid-like shading
 grid off;
 colormap(ax1,gray);
 xticks([])
 yticks([])
-title(['Sample set ' num2str(SampleNum) ', b-value = ' num2str(bval) ' s/mm^2, Delta = ' num2str(DELTA) ' ms'])
-
+title(['b-value = ' num2str(bval) ' s/mm^2, Delta = ' num2str(DELTA) ' ms'])
+current_pos = ax1.Position;
+ax1.Position = current_pos - [0.1, 0, 0, 0];
 hold on
+
 ax2 = axes;
-m=pcolor(ax2, Xs, Ys, squeeze(error_large(sl,:,:)) );
+m=pcolor(ax2, Xs(xs, ys), Ys(xs, ys), squeeze(error_large(sl,xs,ys)) );
 caxis([-0.16, 0.16])
 % caxis([-max(abs(error(:))) max(abs(error(:)))]);
 shading flat; % Remove grid-like shading
@@ -130,17 +173,29 @@ ax2.Position = ax1.Position;
 
 set(ax1, 'YDir', 'reverse');
 set(ax2, 'YDir', 'reverse'); 
-f.Position = [0.0010    0.0490    1.5360    0.7408]*1e3;
-ax1.FontSize = 14;
-ax2.FontSize = 20;
+% f.Position = [0.0010    0.0490    1.5360    0.7408]*1e3;
+ax1.FontSize = 12;
+ax2.FontSize = 14;
 
 
 
+ax3 = axes;
+ax3.Position = ax1.Position;
 
+% TEST stripes
+stripeWidth = 10/ResFactor(1);
+stripes = mod(floor((Xs+Ys)/stripeWidth), 2) == 0;
+stripes = stripes.*(squeeze(~sample_large(sl,:,:)));
 
+% Overlay stripes as red transparent layer
+hOverlay = imagesc(ax3, xs, ys, double(stripes(x)));
+set(hOverlay, 'AlphaData', 0.3 * double(stripes));  % 30% opacity
 
+% Ensure overlay is on top
+uistack(hOverlay, 'top');
 
-
+hold off;
+axis(ax3, 'tight');
 
 
 

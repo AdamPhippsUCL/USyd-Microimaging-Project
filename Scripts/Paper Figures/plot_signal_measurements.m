@@ -40,8 +40,10 @@ errorbar(bvals+1*bshift, s(3,:,1), s(3,:,1)-s(3,:,3), s(3,:,4)-s(3,:,1), '-.*', 
 
 xticks(bvals); 
 xticklabels(bvals)
-ylim([-0.05,0.75])
+% ylim([0.18,0.68])
+ylim([-0.05, 0.75])
 ylabel('Normalized dMRI signal measurement')
+yticks(linspace(0.0, 1, 11))
 xlim([800,2200])
 xlabel('b-value (s/mm^{2})')
 xticks(bvals)
@@ -50,7 +52,7 @@ grid on
 legend('NumColumns', 2);
 ax=gca();
 ax.FontSize=12;
-f.Position = [488   242   720   480];
+f.Position = [488   242   720   600];
 
 
 %% ES contrast

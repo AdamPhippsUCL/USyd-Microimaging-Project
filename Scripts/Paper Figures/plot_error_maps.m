@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleNum = 1;
+SampleNum = 3;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
@@ -75,6 +75,7 @@ MGE = load(fullfile(projectfolder, 'Imaging Data', 'MAT DN', SampleName, MGE_ser
 ResFactor = size(MGE)./size(error);
 
 error_large = zeros(size(MGE));
+sample_large = zeros(size(MGE));
 
 for rindx = 1:szmap(1)
     for cindx = 1:szmap(2)
@@ -85,6 +86,8 @@ for rindx = 1:szmap(1)
             slices = ((slindx-1)*ResFactor(3)+1:slindx*ResFactor(3));
 
             error_large(rows,cols,slices)=error(rindx, cindx, slindx);
+
+            sample_large(rows,cols,slices) = sum(COMPOSITION(rindx, cindx, slindx,:))>0;
 
         end
     end
@@ -98,7 +101,7 @@ disp(max(error_large(:)))
 
 
 % SAMPLE NUMBER
-snum = 'UQ9';
+snum = 'UQ6M';
 
 switch snum
     
@@ -176,11 +179,25 @@ ax2.FontSize = 14;
 
 
 
+ax3 = axes;
+ax3.Position = ax1.Position;
 
+% TEST stripes
+stripeWidth = 5/ResFactor(1);
+stripes = mod(floor((Xs+Ys)/stripeWidth), 2) == 0;
+stripes = stripes.*(squeeze(~sample_large(sl,:,:)));
+stripes = imgaussfilt(double(stripes), 1);
 
+% Overlay stripes as red transparent layer
+hOverlay = imagesc(ax3, xs, ys, double(stripes(xs, ys)));
+set(hOverlay, 'AlphaData', 0.6 * double(stripes(xs, ys)));  % 30% opacity
+colormap(hOverlay.Parent, 'gray');
 
-
-
+% Ensure overlay is on top
+uistack(hOverlay, 'top');
+ax3.Visible = "off";
+hold off;
+axis(ax3, 'tight');
 
 
 
