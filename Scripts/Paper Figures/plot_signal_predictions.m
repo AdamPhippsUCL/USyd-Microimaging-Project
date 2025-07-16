@@ -14,7 +14,7 @@ RESULTS = load(fullfile(resultsfolder, 'RESULTS.mat')).RESULTS;
 
 %% Plot linear regression results
 
-imgindx = 11;
+imgindx = 2;
 bval = RESULTS(imgindx).bval;
 DELTA = RESULTS(imgindx).DELTA;
 R2 = RESULTS(imgindx).R2;
@@ -32,8 +32,8 @@ figure
 scatter( y-residuals, y, '.', MarkerFaceAlpha=0.25, CData=  X);
 hold on
 plot([0 0.8],[0, 0.8], color = 'k', LineStyle = '--', LineWidth = 1.2);
-ylim([-0.02, 0.9])
-xlim([-0.02, 0.9])
+ylim([-0.02, 0.94])
+xlim([-0.02, 0.94])
 grid on
 title(['b-value = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
 ylabel('Normalized dMRI signal measurement')

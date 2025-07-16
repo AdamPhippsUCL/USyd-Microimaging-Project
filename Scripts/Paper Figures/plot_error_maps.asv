@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleNum = 1;
+SampleNum = 6;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
@@ -101,36 +101,75 @@ disp(max(error_large(:)))
 
 
 % SAMPLE NUMBER
-snum = 'UQ4B';
+snum = 'UQ9B';
 
 switch snum
     
     case 'UQ4B'
 
         xs = 40:220;
-        ys = 30:210;
+        ys = 1:210;
 
+    case 'UQ4M'
+
+        xs = 48:228;
+        ys = 200:420;        
+
+    case 'UQ4N'
+        xs = 48:228;
+        ys = 420:640;
+
+
+    case 'UQ6B'
+
+        xs = 40:220;
+        ys = 40:260;
 
     case 'UQ6M'
 
         xs = 30:210;
-        ys = 300:480;
+        ys = 284:504;
+
+
+    case 'UQ7B'
+
+        xs = 40:220;
+        ys = 17:227;
 
     case 'UQ7M'
 
         xs = 40:220;
         ys = 270:450;
 
+    case 'UQ7N'
+
+        xs = 40:220;
+        ys = 380:620;
+
+    case 'UQ8B'
+
+        xs = 30:210;
+        ys = 17:220;
+
     case 'UQ8M'
 
         xs = 30:210;
-        ys = 200:380;
+        ys = 190:430;
 
-    case 'UQ9'
+    case 'UQ8N'
 
-        xs = 1:240;
-        ys = 1:640;
+        xs = 30:210;
+        ys = 440:620;
 
+    case 'UQ9B'
+
+        xs = 30:210;
+        ys = 80:320;
+
+    case 'UQ9N'
+
+        xs = 30:210;
+        ys = 80:320;
 
 
 
@@ -183,17 +222,19 @@ ax3 = axes;
 ax3.Position = ax1.Position;
 
 % TEST stripes
-stripeWidth = 10/ResFactor(1);
-stripes = mod(floor((Xs+Ys)/stripeWidth), 2) == 0;
-stripes = stripes.*(squeeze(~sample_large(sl,:,:)));
+stripeWidth = 5/ResFactor(1);
+stripes = mod(floor((Xs(xs, ys)+Ys(xs, ys))/stripeWidth), 2) == 0;
+stripes = stripes.*(squeeze(~sample_large(sl,xs,ys)));
+stripes = imgaussfilt(double(stripes), 1);
 
 % Overlay stripes as red transparent layer
-hOverlay = imagesc(ax3, xs, ys, double(stripes(x)));
-set(hOverlay, 'AlphaData', 0.3 * double(stripes));  % 30% opacity
+hOverlay = imagesc(ax3, xs, ys, double(stripes));
+set(hOverlay, 'AlphaData', 0.6 * double(stripes));  % 30% opacity
+colormap(hOverlay.Parent, 'gray');
 
 % Ensure overlay is on top
 uistack(hOverlay, 'top');
-
+ax3.Visible = "off";
 hold off;
 axis(ax3, 'tight');
 

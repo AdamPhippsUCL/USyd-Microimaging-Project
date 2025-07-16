@@ -9,7 +9,7 @@ projectfolder = pwd;
 multisample = true;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 % multisample = false;
-% SampleNames = {'20250414_UQ6'};
+% SampleNames = {'20250524_UQ9'};
 
 schemename = '20250224_UQ4 AllDELTA';
 schemesfolder = fullfile(projectfolder, 'Schemes');
@@ -264,11 +264,11 @@ for sindx = 1:length(SampleNames)
     
             % Cylinder centred at (118, 127), radius 75 (1.5mm)
     
-            samplemask = (Xs-118).^2 + (Ys-127).^2 <75^2;
+            samplemask = (Xs-118).^2 + (Ys-127).^2 <80^2;
 
             % REMOVE TOP AND BOTTOM REGIONS OF MEDIUM
             samplemask(:,:,1:40)=false;
-            samplemask(:,:,560:end)=false;   
+            samplemask(:,:,570:end)=false;   
 
             % == Define masks for individual samples
 
