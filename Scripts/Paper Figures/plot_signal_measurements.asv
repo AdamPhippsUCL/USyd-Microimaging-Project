@@ -82,7 +82,7 @@ long_contrast = s(2,:,1)-s(1,:,1);
 long_SE = sqrt(s(2,:,2).^2 + s(1,:,2).^2);
 long_CI = 1.96*long_SE/2;
 
-errorbar(bvals+1*bshift, long_contrast, long_CI, '--*', LineWidth = lw, color = 'k' ,DisplayName = 'Long \Delta')
+errorbar(bvals+1*bshift, long_contrast, long_CI, '--*', color = 'k' ,DisplayName = 'Long \Delta')
 % 95% confidence intervals calculated unsing standard error of signal
 % measurements
 

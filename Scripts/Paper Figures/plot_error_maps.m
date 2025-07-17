@@ -6,13 +6,13 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleNum = 6;
+SampleNum = 5;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
 
 % Image
-seriesindx =11;
+seriesindx =2;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -65,10 +65,26 @@ error = (pred - ImageArray).*double(pred>0);
 szmap = size(pred);
 
 
-%% Load high-res MGE image
+%% Load high-res MGE image and masks
 
 MGE_seriesdescription = '3DMGE_20u';
 MGE = load(fullfile(projectfolder, 'Imaging Data', 'MAT DN', SampleName, MGE_seriesdescription, 'avgImageArray.mat')).avgImageArray;
+
+% Mask folder
+maskfolder = fullfile(projectfolder, 'Outputs', 'Masks', SampleName, MGE_seriesdescription);
+
+% LOAD SGL MASKs
+STROMA = load(fullfile(maskfolder, 'STROMA.mat')).STROMA;
+GLANDULAR = load(fullfile(maskfolder, 'GLANDULAR.mat')).GLANDULAR;
+LUMEN = load(fullfile(maskfolder, 'LUMEN.mat')).LUMEN;
+
+% Create 4D mask (color coded)
+displaymasks = zeros([size(GLANDULAR), 3]);
+displaymasks(:,:,:,1) = logical(GLANDULAR);
+displaymasks(:,:,:,2) = logical(STROMA);
+displaymasks(:,:,:,3) = logical(LUMEN);
+
+
 
 %% Display error on top of MGE
 
@@ -101,86 +117,58 @@ disp(max(error_large(:)))
 
 
 % SAMPLE NUMBER
-snum = 'UQ9B';
+snum = 'All';
 
 switch snum
-    
     case 'UQ4B'
-
         xs = 40:220;
         ys = 1:210;
-
     case 'UQ4M'
-
         xs = 48:228;
-        ys = 200:420;        
-
+        ys = 210:420;        
     case 'UQ4N'
         xs = 48:228;
-        ys = 420:640;
-
-
+        ys = 390:610;
     case 'UQ6B'
-
         xs = 40:220;
         ys = 40:260;
-
     case 'UQ6M'
-
         xs = 30:210;
         ys = 284:504;
-
-
     case 'UQ7B'
-
         xs = 40:220;
         ys = 17:227;
-
     case 'UQ7M'
-
         xs = 40:220;
         ys = 270:450;
-
     case 'UQ7N'
-
         xs = 40:220;
         ys = 380:620;
-
     case 'UQ8B'
-
         xs = 30:210;
         ys = 17:220;
-
     case 'UQ8M'
-
         xs = 30:210;
         ys = 190:430;
-
     case 'UQ8N'
-
         xs = 30:210;
         ys = 440:620;
-
     case 'UQ9B'
-
         xs = 30:210;
         ys = 80:320;
-
     case 'UQ9N'
-
         xs = 30:210;
         ys = 320:560;
-
-
-
-
+    case 'All'
+        xs = 1:240;
+        ys = 1:640; 
 end
 
 
 
 sl = 120;
 
-f=figure;
+f1=figure;
 
 ax1 = axes;
 pcolor(ax1, Xs(xs, ys), Ys(xs, ys), rescale(squeeze(MGE(sl,xs,ys)), 0,1))
@@ -238,6 +226,24 @@ ax3.Visible = "off";
 hold off;
 axis(ax3, 'tight');
 
+saveas(f1, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', ['ErrorMap_bval_' num2str(bval) '_Delta_' num2str(DELTA) '_' snum '.png']))
+
+% 
+% 
+% f2 = figure;
+% ax4 = axes;
+% imshow(squeeze(MGE(sl,xs,ys)),[0 prctile(squeeze(MGE(sl,xs,ys)), 99.9, 'all')]);
+% hold on
+% mask = imshow(squeeze(displaymasks(sl,xs,ys,:)));
+% set(mask, 'AlphaData', 0.2)
+% xticks([])
+% yticks([])
+% set(ax4, 'YDir', 'reverse');
+% % ax4.Position = ax2.Position;
+% title('ESL Masks')
+% ax4.FontSize = 14;
+% 
+% saveas(f2, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', ['ErrorMap_ESL_' snum '.png']))
 
 
  %%

@@ -14,7 +14,7 @@ RESULTS = load(fullfile(resultsfolder, 'RESULTS.mat')).RESULTS;
 
 %% Plot linear regression results
 
-imgindx = 2;
+imgindx = 11;
 bval = RESULTS(imgindx).bval;
 DELTA = RESULTS(imgindx).DELTA;
 R2 = RESULTS(imgindx).R2;
@@ -28,10 +28,11 @@ Xnew(:,1)=X(:,2);
 Xnew(:,2)=X(:,1);
 X=Xnew;
 
-figure
-scatter( y-residuals, y, '.', MarkerFaceAlpha=0.25, CData=  X);
+f=figure;
+% scatter( y-residuals, y, '.', MarkerFaceAlpha=0.25, CData=  X);
+scatter( y-residuals, y,  4, 'filled', 'MarkerFaceAlpha', 0.7, CData=  X);
 hold on
-plot([0 0.8],[0, 0.8], color = 'k', LineStyle = '--', LineWidth = 1.2);
+plot([0 0.8],[0, 0.8], color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
 ylim([-0.02, 0.94])
 xlim([-0.02, 0.94])
 grid on
@@ -45,3 +46,4 @@ text(0.025, 0.974, ['R^2 = ' sprintf( '%0.3f', R2(1)) ' (' sprintf('%0.3f', R2(2
     'BackgroundColor', 'white', ...
     'EdgeColor', 'black');  % Optional border
 
+saveas(f, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', ['LinMod_b' num2str(bval) '_Delta' num2str(DELTA) '.png']))

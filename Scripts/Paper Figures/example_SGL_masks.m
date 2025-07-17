@@ -4,7 +4,7 @@ clear;
 projectfolder = pwd;
 
 % Sample
-SampleNum = 5;
+SampleNum = 6;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
@@ -32,19 +32,64 @@ displaymasks(:,:,:,3) = logical(LUMEN);
 
 %% Define slice and region to present
 
-xs = 1:240;
-ys = 120;
-zs = 1:640;
+% SAMPLE NUMBER
+snum = 'UQ9N';
 
-figure
-imshow(squeeze(MGE(ys,xs,zs)),[0 prctile(squeeze(MGE(ys,xs,zs)), 99.9, 'all')]);
-colorbar;
+sl=120;
+switch snum
+    case 'UQ4B'
+        xs = 40:220;
+        ys = 1:210;
+    case 'UQ4M'
+        xs = 48:228;
+        ys = 200:420;        
+    case 'UQ4N'
+        xs = 48:228;
+        ys = 420:640;
+    case 'UQ6B'
+        xs = 40:220;
+        ys = 40:260;
+    case 'UQ6M'
+        xs = 30:210;
+        ys = 284:504;
+    case 'UQ7B'
+        xs = 40:220;
+        ys = 17:227;
+    case 'UQ7M'
+        xs = 40:220;
+        ys = 270:450;
+    case 'UQ7N'
+        xs = 40:220;
+        ys = 380:620;
+    case 'UQ8B'
+        xs = 30:210;
+        ys = 17:220;
+    case 'UQ8M'
+        xs = 30:210;
+        ys = 190:430;
+    case 'UQ8N'
+        xs = 30:210;
+        ys = 440:620;
+    case 'UQ9B'
+        xs = 30:210;
+        ys = 80:320;
+    case 'UQ9N'
+        xs = 30:210;
+        ys = 325:565;
+end
 
-figure
-imshow(squeeze(dwFA(ys,xs,zs)),[0 prctile(squeeze(dwFA(ys,xs,zs)), 99.9, 'all')]);
+f1=figure;
+imshow(squeeze(MGE(sl,xs,ys)),[0 prctile(squeeze(MGE(sl,xs,ys)), 99.9, 'all')]);
+saveas(f1, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', 'Example_Mask_MGE.png'));
 
-figure
-imshow(squeeze(MGE(ys,xs,zs)),[0 prctile(squeeze(MGE(ys,xs,zs)), 99.9, 'all')]);
+f2=figure;
+% imshow(squeeze(dwFA(sl,xs,ys)),[0 prctile(squeeze(dwFA(sl,xs,ys)), 99.9, 'all')]);
+imshow(squeeze(dwFA(sl,xs,ys)),[0 5e-4]);
+saveas(f2, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', 'Example_Mask_dwFA.png'));
+
+f3=figure;
+imshow(squeeze(MGE(sl,xs,ys)),[0 prctile(squeeze(MGE(sl,xs,ys)), 99.9, 'all')]);
 hold on
-mask = imshow(squeeze(displaymasks(ys,xs,zs,:)));
+mask = imshow(squeeze(displaymasks(sl,xs,ys,:)));
 set(mask, 'AlphaData', 0.2)
+saveas(f3, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', 'Example_Mask_ESL.png'));

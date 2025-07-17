@@ -20,26 +20,6 @@ ROIname = 'UQ4B Lesion 3+4';
 % Load ROI mask
 ROI = load(fullfile(projectfolder, 'Scripts', 'ROIs', [ROIname '.mat'])).mask;
 
-% Image
-seriesindx =11;
-SeriesDescriptions = {
-    'SE_b0_SPOIL5% (DS)',...
-    'STEAM_ShortDELTA_15 (DS)',...
-    'STEAM_ShortDELTA_20 (DS)',...
-    'STEAM_ShortDELTA_30 (DS)',...
-    'STEAM_ShortDELTA_40 (DS)',...
-    'STEAM_ShortDELTA_50 (DS)',...
-    'STEAM_LongDELTA_40 (DS)',...
-    'STEAM_LongDELTA_60 (DS)',...
-    'STEAM_LongDELTA_80 (DS)',...
-    'STEAM_LongDELTA_100 (DS)',...
-    'STEAM_LongDELTA_120 (DS)'...
-};
-SeriesDescription = SeriesDescriptions{seriesindx};
-
-% Load normalized image
-ImageArray = load(fullfile(projectfolder, 'Imaging Data', 'MAT DN', SampleName, SeriesDescription, 'normalisedImageArray.mat')).ImageArray;
-
 % Load composition and get ROI composition
 COMPOSITION = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'COMPOSITION.mat')).COMPOSITION;
 SampleMask = sum(COMPOSITION,4)>0;
@@ -55,6 +35,36 @@ X(:, [1,2]) = X(:, [2,1]);
 
 %% Signal error
 
+% Scheme
+scheme = load(fullfile(projectfolder, "Schemes", "20250224_UQ4 AllDELTA.mat")).scheme;
+
+SeriesDescriptions = {
+    'SE_b0_SPOIL5% (DS)',...
+    'STEAM_ShortDELTA_15 (DS)',...
+    'STEAM_ShortDELTA_20 (DS)',...
+    'STEAM_ShortDELTA_30 (DS)',...
+    'STEAM_ShortDELTA_40 (DS)',...
+    'STEAM_ShortDELTA_50 (DS)',...
+    'STEAM_LongDELTA_40 (DS)',...
+    'STEAM_LongDELTA_60 (DS)',...
+    'STEAM_LongDELTA_80 (DS)',...
+    'STEAM_LongDELTA_100 (DS)',...
+    'STEAM_LongDELTA_120 (DS)'...
+};
+
+
+% figure;
+% bshift = 25;
+% % Image
+% for seriesindx = 2:length(SeriesDescriptions)
+
+seriesindx = 11;
+    
+SeriesDescription = SeriesDescriptions{seriesindx};
+bval = scheme(seriesindx).bval;
+
+% Load normalized image
+ImageArray = load(fullfile(projectfolder, 'Imaging Data', 'MAT DN', SampleName, SeriesDescription, 'normalisedImageArray.mat')).ImageArray;
 
 % Load signal measurements
 signals = load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', 'Multi-sample', 'signals.mat')).signals;
@@ -64,10 +74,22 @@ signals = squeeze(signals(:,seriesindx,1));
 signals = reshape(signals, [1,1,1,3]);
 pred = sum(COMPOSITION.*repmat(signals, [size(COMPOSITION, 1:3)]), 4);
 
-
 pred_ROI = pred(logical(SampleMask.*ROI));
 img_ROI = ImageArray(logical(SampleMask.*ROI));
 
+
+
+%     if seriesindx <=6
+%         thisbshift = -bshift;
+%     else
+%         thisbshift = bshift;
+%     end
+%     scatter(bval*ones(1,numel(pred_ROI))+thisbshift, pred_ROI-img_ROI, '*', 'k')
+%     hold on
+% end
+
+
+    
 % m = max([pred_ROI; img_ROI; 0.6]);
 
 MAX = max([pred_ROI; img_ROI]);
@@ -90,7 +112,7 @@ xticks(linspace(0,1,11))
 yticks(linspace(0,1,11))
 xlabel('Predicted signal')
 ylabel('Measured signal')
-title('b = 2000 s/mm^2 ; \Delta = 120 ms')
+title('b = 2000 s/mm^2 , \Delta = 120 ms')
 
 %% Modelling results
 
@@ -135,8 +157,8 @@ hold on
 plot([MIN,MAX],[MIN,MAX], '--', color = 'k')
 xlim([MIN-0.02 MAX+0.02])
 ylim([MIN-0.02 MAX+0.02])
-xlabel('Predicted f')
-ylabel('Estimated f')
+xlabel('Predicted sphere fraction')
+ylabel('Estimated sphere fraction')
 grid on
 xticks(linspace(0,1,11))
 yticks(linspace(0,1,11))
@@ -159,3 +181,6 @@ grid on
 xticks(linspace(0,3,16))
 yticks(linspace(0,3,16))
 title('Ball + Sphere Model')
+
+
+saveas(f, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', ['ROI Results ' ROIname '.png']))

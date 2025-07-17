@@ -7,6 +7,7 @@ projectfolder = pwd;
 
 RESULTS = struct();
 
+SaveRESULTS = false;
 
 %% Sample and scheme details
 
@@ -14,21 +15,20 @@ outputfolder = fullfile(projectfolder, 'Outputs', 'Signal Measurement');
 
 samplename = 'Multi-sample'; % 'ESMRMB', '20250224_UQ4', '20250407_UQ5', '20250414_UQ6';
 
-
 signals = load(fullfile(outputfolder, samplename, 'signals.mat')).signals;
 scheme = load(fullfile(outputfolder, samplename, 'scheme.mat')).scheme;
 nscheme = length(scheme);
 
 %% Modelling details
 
-components = {'G'};
+components = {'G', 'S'};
 
 modeltypes = {
-    % 'ADC',...
+   'ADC',...
     ...'DKI',...
     ...'RDI - 1 compartment - 2 param (S0)',...
     ...'RDI - 2 compartment - 3 param (S0)',...
-    'RDI - 2 compartment - 4 param (S0)'
+    ...'RDI - 2 compartment - 4 param (S0)'
     };
 
 
@@ -48,6 +48,61 @@ DisplayPredictions = true;
 for compindx = 1:length(components)
 
     component = components{compindx};
+
+    switch component
+        case 'S'
+            indx=1;
+        case 'G'
+            indx=2;
+        case 'L'
+            indx=3;
+    end
+    
+    s = signals(indx, :, 1);
+    s_LCI = signals(indx, :, 3);
+    s_UCI = signals(indx, :, 4);
+    err = signals(indx, :, 2);
+
+    if DisplayPredictions
+        f=figure;
+        bshift=15;
+        switch component
+            case 'G'
+                color = [0.8500 0.3250 0.0980];
+                T = 'Epithelium';
+            case 'S'
+                color = [0.4660 0.6740 0.1880];
+                T = 'Stroma';
+            case 'L'
+                color = [0    0.4470    0.7410];
+                T = 'Lumen';
+        end
+    
+        
+        errorbar( ...
+            [scheme(2:6).bval]-bshift, ...
+            ...log(s(2:6)), ...
+            ...log(s(2:6))-log(s_LCI(2:6)), ...
+            ...log(s_UCI(2:6))-log(s(2:6)), ...
+            (s(2:6)), ...
+            (s(2:6))-(s_LCI(2:6)), ...
+            (s_UCI(2:6))-(s(2:6)), ...
+            '-*', ...
+            color=color, MarkerSize=6, ...
+            DisplayName = 'Measured (Short \Delta)')
+        hold on
+        errorbar( ...
+            [scheme(7:end).bval]-bshift, ...
+            ...log(s(7:end)),...
+            ...log(s(7:end))-log(s_LCI(7:end)), ...
+            ...log(s_UCI(7:end))-log(s(7:end)), ...
+            (s(7:end)),...
+            (s(7:end))-(s_LCI(7:end)), ...
+            (s_UCI(7:end))-(s(7:end)), ...
+            '--*', color=color, MarkerSize=6, ...
+            DisplayName = 'Measured (Long \Delta)')
+    end
+
 
     for modindx = 1:length(modeltypes)
 
@@ -100,19 +155,6 @@ for compindx = 1:length(components)
         
         % == Model fitting 
         
-        switch component
-            case 'S'
-                indx=1;
-            case 'G'
-                indx=2;
-            case 'L'
-                indx=3;
-        end
-        
-        s = signals(indx, :, 1);
-        s_LCI = signals(indx, :, 3);
-        s_UCI = signals(indx, :, 4);
-        err = signals(indx, :, 2);
         
         % Modelling predictions
         [params, resnorm] = fitting_func( ...
@@ -188,56 +230,25 @@ for compindx = 1:length(components)
     
             end
     
-            bshift=15;
-            switch component
-                case 'G'
-                    color = [0.8500 0.3250 0.0980];
-                    T = 'Epithelium';
-                case 'S'
-                    color = [0.4660 0.6740 0.1880];
-                    T = 'Stroma';
-                case 'L'
-                    color = [0    0.4470    0.7410];
-                    T = 'Lumen';
-            end
-    
-            figure
-            errorbar( ...
-                [scheme(2:6).bval]-bshift, ...
-                ...log(s(2:6)), ...
-                ...log(s(2:6))-log(s_LCI(2:6)), ...
-                ...log(s_UCI(2:6))-log(s(2:6)), ...
-                (s(2:6)), ...
-                (s(2:6))-(s_LCI(2:6)), ...
-                (s_UCI(2:6))-(s(2:6)), ...
-                '-*', ...
-                color=color, MarkerSize=6, ...
-                DisplayName = 'Measured (Short \Delta)')
-            hold on
-            errorbar( ...
-                [scheme(7:end).bval]-bshift, ...
-                ...log(s(7:end)),...
-                ...log(s(7:end))-log(s_LCI(7:end)), ...
-                ...log(s_UCI(7:end))-log(s(7:end)), ...
-                (s(7:end)),...
-                (s(7:end))-(s_LCI(7:end)), ...
-                (s_UCI(7:end))-(s(7:end)), ...
-                '--*', color=color, MarkerSize=6, ...
-                DisplayName = 'Measured (Long \Delta)')
+
             switch modeltype
-                case {'ADC', 'DKI'}
+                case 'ADC' 
+                    modelname = modeltype;
+                    markercolor = 'k'	;
+                case 'DKI'
                     modelname = modeltype;
                 case 'RDI - 1 compartment - 2 param (S0)'
                     modelname = 'Sphere';
                 case 'RDI - 2 compartment - 4 param (S0)'
                     modelname = 'Ball + Sphere';
+                    markercolor = 'k';%[0.3010, 0.7450, 0.9330];
 
             end
             scatter( ...
                 [scheme(2:end).bval]+bshift, ...
                 ...log(pred(2:end)), 50,'x', ...
                 (pred(2:end)), 50,'x', ...
-                MarkerEdgeColor='black', ...
+                MarkerEdgeColor=markercolor, ...
                 LineWidth=1.5, ...
                 DisplayName = ['Predicted (' modelname ')'])
             title(T)
@@ -247,11 +258,12 @@ for compindx = 1:length(components)
             ylabel('dMRI signal')
             switch component
                 case 'G'
-                    ylim([0.35, 0.65])
+                    ylim([0.39, 0.66])
                 case 'S'
                     ylim([0.2, 0.5])
             end
             grid on
+            saveas(f, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', ['Model_Predictions_' T '_' modelname '.png']))
 
         end
 
@@ -308,9 +320,11 @@ end
 
 
 % Save RESULTS
-folder = fullfile(projectfolder, 'Outputs', 'Signal Measurement', samplename, 'Modelling');
-mkdir(folder);
-save(fullfile(folder, 'RESULTS.mat'), 'RESULTS')
+if SaveRESULTS
+    folder = fullfile(projectfolder, 'Outputs', 'Signal Measurement', samplename, 'Modelling');
+    mkdir(folder);
+    save(fullfile(folder, 'RESULTS.mat'), 'RESULTS')
+end
 
 
 %% Model fitting function (for Jacobian error estimation)

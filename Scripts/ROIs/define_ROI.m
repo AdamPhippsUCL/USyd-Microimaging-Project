@@ -37,7 +37,7 @@ imshow(squeeze(ImageArray(5,:,:)), [])
 
 %% Define slice range
 
-slices = 38:40;
+slices = 39:40;
 
 
 %% Define ROI
