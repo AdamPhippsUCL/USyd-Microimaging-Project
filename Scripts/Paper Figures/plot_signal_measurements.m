@@ -67,7 +67,7 @@ bvals = [scheme(indices).bval];
 % errorbar(bvals-1*bshift, s(2,:,1)-s(1,:,1), s(2,:,1)-s(2,:,3) + s(1,:,1)-s(1,:,3), s(2,:,4)-s(2,:,1) + s(1,:,4)-s(1,:,1), '--*', DisplayName = 'Short \Delta')
 short_contrast = s(2,:,1)-s(1,:,1);
 short_SE = sqrt(s(2,:,2).^2 + s(1,:,2).^2);
-short_CI = 1.96*short_SE/2;
+short_CI = 1.96*short_SE;
 
 errorbar(bvals-1*bshift, short_contrast, short_CI, '-*', LineWidth = lw, color = 'k' , DisplayName = 'Short \Delta')
 hold on
@@ -80,7 +80,7 @@ s = signals(:,indices,:);
 
 long_contrast = s(2,:,1)-s(1,:,1);
 long_SE = sqrt(s(2,:,2).^2 + s(1,:,2).^2);
-long_CI = 1.96*long_SE/2;
+long_CI = 1.96*long_SE;
 
 errorbar(bvals+1*bshift, long_contrast, long_CI, '--*', LineWidth = lw, color = 'k' ,DisplayName = 'Long \Delta')
 % 95% confidence intervals calculated unsing standard error of signal
@@ -101,3 +101,14 @@ saveas(f2, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', 'ES_Co
 
 % % Calculate effect sizes
 % EffectSizes = (long_contrast-short_contrast)./sqrt(long_SE.^2+short_SE.^2);
+
+%% Long/Short contrast
+
+indx = 1;
+S_long = signals(indx, 7:11, 1);
+SE_long = signals(indx, 7:11, 2);
+S_short = signals(indx, 2:6, 1);
+SE_short = signals(indx, 2:6, 2);
+
+diff = S_long-S_short;
+diff_CI = 1.96*sqrt(SE_long.^2 + SE_short.^2);

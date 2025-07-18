@@ -6,13 +6,13 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleNum = 5;
+SampleNum = 6;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
 
 % Image
-seriesindx =2;
+seriesindx =11;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
@@ -117,7 +117,7 @@ disp(max(error_large(:)))
 
 
 % SAMPLE NUMBER
-snum = 'All';
+snum = 'UQ9B';
 
 switch snum
     case 'UQ4B'
@@ -125,7 +125,7 @@ switch snum
         ys = 1:210;
     case 'UQ4M'
         xs = 48:228;
-        ys = 210:420;        
+        ys = 200:410;        
     case 'UQ4N'
         xs = 48:228;
         ys = 390:610;
@@ -166,7 +166,7 @@ end
 
 
 
-sl = 120;
+sl = 140;
 
 f1=figure;
 

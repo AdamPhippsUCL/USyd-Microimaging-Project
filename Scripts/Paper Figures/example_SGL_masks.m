@@ -4,7 +4,7 @@ clear;
 projectfolder = pwd;
 
 % Sample
-SampleNum = 6;
+SampleNum = 1;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
@@ -33,13 +33,13 @@ displaymasks(:,:,:,3) = logical(LUMEN);
 %% Define slice and region to present
 
 % SAMPLE NUMBER
-snum = 'UQ9N';
+snum = 'UQ4B';
 
 sl=120;
 switch snum
     case 'UQ4B'
         xs = 40:220;
-        ys = 1:210;
+        ys = 1:240;
     case 'UQ4M'
         xs = 48:228;
         ys = 200:420;        
@@ -54,10 +54,10 @@ switch snum
         ys = 284:504;
     case 'UQ7B'
         xs = 40:220;
-        ys = 17:227;
+        ys = 10:240;
     case 'UQ7M'
         xs = 40:220;
-        ys = 270:450;
+        ys = 240:480;
     case 'UQ7N'
         xs = 40:220;
         ys = 380:620;
