@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Sample and image details
 
 % Sample
-SampleNum = 6;
+SampleNum = 1;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
@@ -117,7 +117,7 @@ disp(max(error_large(:)))
 
 
 % SAMPLE NUMBER
-snum = 'UQ9B';
+snum = 'UQ4M';
 
 switch snum
     case 'UQ4B'
@@ -211,14 +211,25 @@ ax3.Position = ax1.Position;
 
 % TEST stripes
 stripeWidth = 5/ResFactor(1);
-stripes = mod(floor((Xs(xs, ys)+Ys(xs, ys))/stripeWidth), 2) == 0;
+stripes = mod(floor((Xs(xs, ys)+Ys(xs, ys))/stripeWidth), 4) == 0;
 stripes = stripes.*(squeeze(~sample_large(sl,xs,ys)));
 stripes = imgaussfilt(double(stripes), 1);
+maskout = stripes;
+
+% TEST checkerboard
+[rowIdx, colIdx] = meshgrid(1:640, 1:240);
+maskout = mod(floor(rowIdx/4) + floor(colIdx/4), 2);
+maskout = maskout(xs, ys).*double(squeeze(~sample_large(sl,xs,ys)));
+
+% Test 
+% maskout = double(squeeze(~sample_large(sl,xs,ys)));
+
+
 
 % Overlay stripes as red transparent layer
-hOverlay = imagesc(ax3, xs, ys, double(stripes));
-set(hOverlay, 'AlphaData', 0.6 * double(stripes));  % 30% opacity
-colormap(hOverlay.Parent, 'gray');
+hOverlay = imagesc(ax3, xs, ys, double(maskout));
+set(hOverlay, 'AlphaData', 0.3 * double(maskout));  % 30% opacity
+% colormap(hOverlay.Parent, 'gray');
 
 % Ensure overlay is on top
 uistack(hOverlay, 'top');

@@ -14,7 +14,7 @@ RESULTS = load(fullfile(resultsfolder, 'RESULTS.mat')).RESULTS;
 
 %% Plot linear regression results
 
-imgindx = 11;
+imgindx = 2;
 bval = RESULTS(imgindx).bval;
 DELTA = RESULTS(imgindx).DELTA;
 R2 = RESULTS(imgindx).R2;

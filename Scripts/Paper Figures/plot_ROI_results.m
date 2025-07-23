@@ -10,15 +10,16 @@ projectfolder = pwd;
 SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % ROI
-ROIname = 'UQ4B Lesion 3+4'; 
-% 'UQ4B Lesion 3+4'
+ROIname = 'UQ4B Lesion 3+3'; 
+% 'UQ4B Lesion 3+3'
 % 'UQ4M Lesion 3+4'
 % 'UQ4N Benign Glandular'
-% 'UQ6N Lesion 4+3'
+% 'UQ6N Lesion 4+4'
 % 'UQ6M Stroma'
 
 % Load ROI mask
 ROI = load(fullfile(projectfolder, 'Scripts', 'ROIs', [ROIname '.mat'])).mask;
+% ROI = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'BMASK.mat')).BMASK;
 
 % Load composition and get ROI composition
 COMPOSITION = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'COMPOSITION.mat')).COMPOSITION;
@@ -70,14 +71,16 @@ ImageArray = load(fullfile(projectfolder, 'Imaging Data', 'MAT DN', SampleName, 
 signals = load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', 'Multi-sample', 'signals.mat')).signals;
 signals = squeeze(signals(:,seriesindx,1));
 
+% Load RESULTS
+RESULTS = load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', 'Multi-sample', 'RESULTS.mat')).RESULTS;
+LOA = RESULTS(seriesindx).LOA;
+
 % Predicted signals
 signals = reshape(signals, [1,1,1,3]);
 pred = sum(COMPOSITION.*repmat(signals, [size(COMPOSITION, 1:3)]), 4);
 
 pred_ROI = pred(logical(SampleMask.*ROI));
 img_ROI = ImageArray(logical(SampleMask.*ROI));
-
-
 
 %     if seriesindx <=6
 %         thisbshift = -bshift;
@@ -87,32 +90,40 @@ img_ROI = ImageArray(logical(SampleMask.*ROI));
 %     scatter(bval*ones(1,numel(pred_ROI))+thisbshift, pred_ROI-img_ROI, '*', 'k')
 %     hold on
 % end
-
-
     
 % m = max([pred_ROI; img_ROI; 0.6]);
 
-MAX = max([pred_ROI; img_ROI]);
-MIN = min([pred_ROI; img_ROI]);
 
-f=figure;
-f.Position = [423   0   939   729];
-tiledlayout(2,2,'Padding', 'compact', 'TileSpacing', 'compact');
-nexttile;
-axis off
+% MAX = max([pred_ROI; img_ROI]);
+% MIN = min([pred_ROI; img_ROI]);
+% 
+% f=figure;
+% f.Position = [423   0   939   729];
+% tiledlayout(2,2,'Padding', 'compact', 'TileSpacing', 'compact');
+% nexttile;
+% axis off
+% 
+% nexttile;
+% scatter(pred_ROI, img_ROI, '*', CData=X)
+% hold on
+% plot([MIN,MAX],[MIN,MAX], '--', color = 'k')
+% xlim([MIN-0.02 MAX+0.02])
+% ylim([MIN-0.02 MAX+0.02])
+% grid on
+% xticks(linspace(0,1,11))
+% yticks(linspace(0,1,11))
+% xlabel('Predicted signal')
+% ylabel('Measured signal')
+% title('b = 2000 s/mm^2 , \Delta = 120 ms')
 
-nexttile;
-scatter(pred_ROI, img_ROI, '*', CData=X)
+
+figure
+scatter( (pred_ROI+img_ROI)/2 , img_ROI-pred_ROI , 6, 'filled', 'MarkerFaceAlpha', 0.7, CData=X)
 hold on
-plot([MIN,MAX],[MIN,MAX], '--', color = 'k')
-xlim([MIN-0.02 MAX+0.02])
-ylim([MIN-0.02 MAX+0.02])
-grid on
-xticks(linspace(0,1,11))
-yticks(linspace(0,1,11))
-xlabel('Predicted signal')
-ylabel('Measured signal')
-title('b = 2000 s/mm^2 , \Delta = 120 ms')
+yline(LOA(1), '--')
+yline(LOA(2))
+yline(LOA(3))
+
 
 %% Modelling results
 
@@ -120,7 +131,7 @@ ModelName = 'RDI - 2 compartment - 4 param (S0)';
 schemename = '20250224_UQ4 AllDELTA';
 fittingtechnique = 'LSQ';
 
-outputfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting', SampleName, ModelName, schemename, fittingtechnique);
+outputfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting', SampleName, [ModelName ''], schemename, fittingtechnique);
 
 fit_fIC = load(fullfile(outputfolder, 'fIC.mat')).fIC;
 fit_fIC = fit_fIC(logical(ROI));
@@ -150,6 +161,7 @@ pred_dEES = S_params(4).*ROI_COMP(:,1) + E_params(4).*ROI_COMP(:,2) + L_params(2
 % m = max([pred_fIC; fit_fIC; 0.4]);
 MAX = max([pred_fIC; fit_fIC]);
 MIN = min([pred_fIC; fit_fIC]);
+
 % figure
 nexttile;
 scatter(pred_fIC, fit_fIC, '*', CData=X)
@@ -182,5 +194,7 @@ xticks(linspace(0,3,16))
 yticks(linspace(0,3,16))
 title('Ball + Sphere Model')
 
-
 saveas(f, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', ['ROI Results ' ROIname '.png']))
+
+figure
+scatter(pred_R, fit_R)

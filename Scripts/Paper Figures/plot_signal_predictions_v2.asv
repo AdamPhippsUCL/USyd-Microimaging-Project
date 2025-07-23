@@ -161,77 +161,65 @@ text(0.025, 0.97, ['R^2 = ' sprintf( '%0.3f', R2(1)) ' (' sprintf('%0.3f', R2(2)
     'EdgeColor', 'black');  % Optional border
 
 
-%% Bland Altman
+%%
 
 avg = (BenignPred+BenignMeasure)/2;
-diff = (BenignMeasure-BenignPred);
-
-% Limits of agreement
-upperLOA = mean(diff)+1.96*std(diff);
-lowerLOA = mean(diff)-1.96*std(diff);
-
+diff = (BenignPred-BenignMeasure);
 figure
-yline(mean(diff), '--')
+scatter(avg, diff ,  '.', MarkerEdgeAlpha=0.4, CData=BenignCOMP)
 hold on
+yline(0, '--')
 yline(mean(diff)+1.96*std(diff))
 yline(mean(diff)-1.96*std(diff))
-xlim([0, 0.8])
-ylim([-0.4, 0.4])
-
-cancer_avg = (CancerPred+CancerMeasure)/2;
-cancer_diff = (CancerMeasure-CancerPred);
-scatter(cancer_avg, cancer_diff ,  '.', MarkerEdgeAlpha=0.4, CData=CancerCOMP)
 
 
+% Variable LOA
+windowSize = 40;
+[sorted_avg, idx] = sort(avg);
+sorted_diff = diff(idx);
+
+Nwindow = length(avg)/windowSize;
+
+movAVGs = [mean(sorted_avg(1: windowSize/2))];
+movDIFFs = [mean(sorted_diff(1: windowSize/2))];
+movLOAs = [1.96*std(sorted_diff(1: windowSize/2))];
+
+for windx = 1:Nwindow
+    movAVGs = [movAVGs mean(sorted_avg((windx-1/2)*windowSize+1: windx*windowSize))];
+    movDIFFs = [movDIFFs mean(sorted_diff((windx-1)*windowSize+1: windx*windowSize))];
+    movLOAs = [movLOAs 1.96*std(sorted_diff((windx-1)*windowSize+1: windx*windowSize))];
+end
 
 
-% 
-% % Variable LOA
-% windowSize = 40;
-% [sorted_avg, idx] = sort(avg);
-% sorted_diff = diff(idx);
-% 
-% Nwindow = length(avg)/windowSize;
-% 
-% movAVGs = [mean(sorted_avg(1: windowSize/2))];
-% movDIFFs = [mean(sorted_diff(1: windowSize/2))];
-% movLOAs = [1.96*std(sorted_diff(1: windowSize/2))];
-% 
-% for windx = 1:Nwindow
-%     movAVGs = [movAVGs mean(sorted_avg((windx-1/2)*windowSize+1: windx*windowSize))];
-%     movDIFFs = [movDIFFs mean(sorted_diff((windx-1)*windowSize+1: windx*windowSize))];
-%     movLOAs = [movLOAs 1.96*std(sorted_diff((windx-1)*windowSize+1: windx*windowSize))];
-% end
-% 
-% 
-% movAVGs = [movAVGs mean(sorted_avg(end-windowSize/2: end))];
-% movDIFFs = [movDIFFs mean(sorted_diff(end-windowSize/2: end))];
-% movLOAs = [movLOAs 1.96*std(sorted_diff(end-windowSize/2: end))];
-% 
-% % 
-% % plot(movAVGs, movDIFFs, 'k')
-% % plot(movAVGs, movDIFFs-movLOAs, 'k')
-% % plot(movAVGs, movDIFFs+movLOAs, 'k')
-% 
-% % p = polyfit(movAVGs, movDIFFs,3);
-% % movDIFFs = polyval(p, sorted_avg);
-% % 
-% % p = polyfit(movAVGs, movLOAs,3);
-% % movLOAs = polyval(p, sorted_avg);
-% % 
-% % plot(sorted_avg, movDIFFs, 'k')
-% % plot(sorted_avg, movDIFFs-movLOAs, 'k')
-% % plot(sorted_avg, movDIFFs+movLOAs, 'k')
-% 
-% 
-% % Savgol smoothing
-% movDIFFs = sgolayfilt(movDIFFs,1,25);
-% movLOAs = sgolayfilt(movLOAs,1,25);
-% 
-% movDIFFs = movmean(movDIFFs, 20);
-% movLOAs = movmean(movLOAs, 20);
+movAVGs = [movAVGs mean(sorted_avg(end-windowSize/2: end))];
+movDIFFs = [movDIFFs mean(sorted_diff(end-windowSize/2: end))];
+movLOAs = [movLOAs 1.96*std(sorted_diff(end-windowSize/2: end))];
+
 % 
 % plot(movAVGs, movDIFFs, 'k')
 % plot(movAVGs, movDIFFs-movLOAs, 'k')
 % plot(movAVGs, movDIFFs+movLOAs, 'k')
+
+% p = polyfit(movAVGs, movDIFFs,3);
+% movDIFFs = polyval(p, sorted_avg);
 % 
+% p = polyfit(movAVGs, movLOAs,3);
+% movLOAs = polyval(p, sorted_avg);
+% 
+% plot(sorted_avg, movDIFFs, 'k')
+% plot(sorted_avg, movDIFFs-movLOAs, 'k')
+% plot(sorted_avg, movDIFFs+movLOAs, 'k')
+
+
+% Savgol smoothing
+movDIFFs = sgolayfilt(movDIFFs,1,25);
+movLOAs = sgolayfilt(movLOAs,1,25);
+
+movDIFFs = movmean(movDIFFs, 20);
+movLOAs = movmean(movLOAs, 20);
+
+plot(movAVGs, movDIFFs, 'k')
+plot(movAVGs, movDIFFs-movLOAs, 'k')
+plot(movAVGs, movDIFFs+movLOAs, 'k')
+
+ylim([-0.5, 0.5])

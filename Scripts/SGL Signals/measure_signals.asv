@@ -433,9 +433,11 @@ for imgindx = 1:Nimg
     % BLAND ALTMAN
     measured = y+X(:,3)*Sl;
     predicted = y-residuals+X(:,3)*Sl;
+
     avg = (measured+predicted)/2;
     diff = (measured-predicted);
-    LOA = [mean(diff), mean(diff)-1.96*std(diff), mean(diff)+1.96*std(diff)];
+
+    LOA = [mean(diff)-1.96*std(diff), mean(diff)+1.96*std(diff)];
 
     f=figure;
     scatter(predicted, measured)

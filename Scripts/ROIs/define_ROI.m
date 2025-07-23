@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Sample and image
 
 % Sample
-SampleName = '20250414_UQ6'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Image
 SeriesDescription = 'STEAM_LongDELTA_120 (DS)';
@@ -37,7 +37,7 @@ imshow(squeeze(ImageArray(5,:,:)), [])
 
 %% Define slice range
 
-slices = 39:40;
+slices = 21:24;
 
 
 %% Define ROI
@@ -73,7 +73,7 @@ end
 %% Name and save ROI
 
 % Name 
-ROIname = 'UQ6N Lesion 4+3';
+ROIname = 'UQ4M Lesion 3+3';
 
 % Save
 save(fullfile(projectfolder, 'Scripts', 'ROIs', [ROIname '.mat'] ), "mask");

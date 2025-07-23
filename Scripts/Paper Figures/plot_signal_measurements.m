@@ -25,23 +25,23 @@ s = signals(:,indices,:);
 bvals = [scheme(indices).bval];
 lw = 0.8;
 % Display error bars with 95% confidence intervals from botstrapping
-errorbar(bvals-1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1), '-*', LineWidth = lw, color=[0.8500 0.3250 0.0980], DisplayName='E (Short \Delta)');
+h1=errorbar(bvals-1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1), '-*', LineWidth = lw, color=[0.8500 0.3250 0.0980], DisplayName='E (Short \Delta)');
 hold on
-errorbar(bvals-1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-*', LineWidth = lw, color=[0.4660 0.6740 0.1880], DisplayName='S (Short \Delta)');
-errorbar(bvals-1*bshift, s(3,:,1), s(3,:,1)-s(3,:,3), s(3,:,4)-s(3,:,1),'-*', LineWidth = lw, color=[0 0.4470 0.7410], DisplayName = 'L (Short \Delta)');
+h2=errorbar(bvals-1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-*', LineWidth = lw, color=[0.4660 0.6740 0.1880], DisplayName='S (Short \Delta)');
+% errorbar(bvals-1*bshift, s(3,:,1), s(3,:,1)-s(3,:,3), s(3,:,4)-s(3,:,1),'-*', LineWidth = lw, color=[0 0.4470 0.7410], DisplayName = 'L (Short \Delta)');
 
 % Long Delta
 indices = 7:11;
 s = signals(:,indices,:);
 
-errorbar(bvals+1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1),  '-.*', LineWidth = lw, color=[0.8500 0.3250 0.0980], DisplayName='E (Long \Delta)');
-errorbar(bvals+1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-.*', LineWidth = lw, color=[0.4660 0.6740 0.1880], DisplayName='S (Long \Delta)');
-errorbar(bvals+1*bshift, s(3,:,1), s(3,:,1)-s(3,:,3), s(3,:,4)-s(3,:,1), '-.*', LineWidth = lw, color=[0 0.4470 0.7410], DisplayName = 'L (Long \Delta)');
+h3=errorbar(bvals+1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1),  '-.*', LineWidth = lw, color=[0.8500 0.3250 0.0980], DisplayName='E (Long \Delta)');
+h4=errorbar(bvals+1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-.*', LineWidth = lw, color=[0.4660 0.6740 0.1880], DisplayName='S (Long \Delta)');
+h5=plot(bvals+1*bshift, s(3,:,1), '-*', LineWidth = lw, color=[0 0.4470 0.7410], DisplayName = 'L');
 
 xticks(bvals); 
 xticklabels(bvals)
 % ylim([0.18,0.68])
-ylim([-0.05, 0.75])
+ylim([-0.02, 0.7])
 ylabel('Normalized dMRI signal measurement')
 yticks(linspace(0.0, 1, 11))
 xlim([800,2200])
@@ -49,10 +49,12 @@ xlabel('b-value (s/mm^{2})')
 xticks(bvals)
 xticklabels(["1000", "1250", "1500", "1750", "2000"])
 grid on
-legend('NumColumns', 2);
+legend([h1, h3, h2, h4, h5], 'NumColumns', 3);
 ax=gca();
 ax.FontSize=12;
 f1.Position = [488   242   720   600];
+
+
 saveas(f1, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', 'Signal_Measurements.png'))
 
 %% ES contrast

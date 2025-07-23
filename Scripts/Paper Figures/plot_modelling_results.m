@@ -36,6 +36,22 @@ for sampleindx = 1:length(SampleNames)
     % Load composition array
     sample_composition = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'COMPOSITION.mat')).COMPOSITION;
   
+    % Cancer samples = UQ4B, UQ4M, UQ6N
+    switch SampleName(end-2:end)
+        case 'UQ4'
+            % Only include sample N
+            NMASK = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'NMASK.mat')).NMASK;
+            sample_composition = sample_composition.*double(NMASK);
+            clear NMASK
+        case 'UQ6'
+            % Only include samples B and M
+            BMASK = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'BMASK.mat')).BMASK;
+            MMASK = load(fullfile(projectfolder, 'Outputs', 'Masks', SampleName, 'SE_b0_SPOIL5% (DS)', 'MMASK.mat')).MMASK;
+            sample_composition = sample_composition.*(double(BMASK)+double(MMASK));
+    end
+
+
+
     switch ModelName
         
         case 'RDI - 2 compartment - 4 param (S0)'
@@ -165,18 +181,13 @@ for sampleindx = 1:length(SampleNames)
 end
 
 
+%% Reorganise composition array
+composition(:, [1,2]) = composition(:, [2,1]);
 
 %% Display results
 
-% Reorganise composition array
-new_composition = zeros(size(composition));
-new_composition(:,1) = composition(:,2);
-new_composition(:,2) = composition(:,1);
-new_composition(:,3) = composition(:,3);
-
-
 figure
-scatter(pred_params(1,:), fit_params(1,:),  '.', MarkerEdgeAlpha=0.4, CData=new_composition)
+scatter(pred_params(1,:), fit_params(1,:),  '.', MarkerEdgeAlpha=0.4, CData=composition)
 hold on
 plot([0, 0.3], [0, 0.3], 'k')
 grid on
@@ -198,21 +209,8 @@ text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
     'EdgeColor', 'black');  % Optional border
 
 
-% figure
-% scatter(pred_params(2,:), fit_params(2,:),  '*', MarkerEdgeAlpha=0.4, CData=new_composition)
-% grid on
-% xlim([0,10])
-% ylim([0,10])
-% 
-% figure
-% scatter(pred_params(3,:), fit_params(3,:),  '*', MarkerEdgeAlpha=0.4, CData=new_composition)
-% grid on
-% xlim([0,2])
-% ylim([0,2])
-
-
 figure
-scatter(pred_params(4,:), fit_params(4,:),  '.', MarkerEdgeAlpha=0.4, CData=new_composition)
+scatter(pred_params(4,:), fit_params(4,:),  '.', MarkerEdgeAlpha=0.4, CData=composition)
 hold on
 plot([0.5, 2], [0.5, 2], 'k')
 grid on
@@ -234,17 +232,54 @@ text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
     'EdgeColor', 'black');  % Optional border
 
 
-
-
 % AIC
 figure
-scatter(fit_params(1,:), fit_params(5,:),  '.', MarkerEdgeAlpha=0.4, CData=new_composition)
+scatter(fit_params(1,:), fit_params(5,:),  '.', MarkerEdgeAlpha=0.4, CData=composition)
 grid on
 xlim([-0.02, 0.57])
 ylim([-175, -95])
 xlabel('Estimated sphere fraction')
 ylabel('AIC')
 
+
+% BLAND ALTMAN
+avg = (pred_params(1,:)+fit_params(1,:))/2;
+diff = fit_params(1,:)-pred_params(1,:);
+
+figure
+scatter(avg, diff ,  '.', MarkerEdgeAlpha=0.4, CData=composition)
+hold on
+yline(mean(diff), '--')
+yline(mean(diff)+1.96*std(diff))
+yline(mean(diff)-1.96*std(diff))
+
+
+
+% Compute means and differences
+mean_vals = (pred_params(1,:)+fit_params(1,:))/2;
+diff_vals = fit_params(1,:)-pred_params(1,:);
+
+% Fit linear model for difference vs mean
+mdl = fitlm(mean_vals, diff_vals);
+fitted_bias = predict(mdl, mean_vals');
+
+% Estimate SD in moving window
+windowSize = 1000;
+[sorted_mean, idx] = sort(mean_vals);
+sorted_diff = diff_vals(idx);
+
+rolling_sd = movstd(sorted_diff, windowSize);
+
+% Plot
+figure
+scatter(mean_vals, diff_vals, 'filled')
+hold on
+plot(mean_vals, fitted_bias, 'k-', 'LineWidth', 2)  % mean bias line
+plot(mean_vals, fitted_bias + 1.96 * rolling_sd, 'r--')  % upper LoA
+plot(mean_vals, fitted_bias - 1.96 * rolling_sd, 'r--')  % lower LoA
+xlabel('Mean of measurements')
+ylabel('Difference')
+title('Bland–Altman with variable LoA')
 %%
 
 

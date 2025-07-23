@@ -6,7 +6,7 @@ projectfolder = pwd;
 %% Image details
 
 % Sample name
-SampleName = '20250524_UQ9'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250414_UQ6'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % Series descriptions
 SeriesDescriptions = {...20250523_UQ8
@@ -111,7 +111,8 @@ switch modeltype
 
         Nparam = 5;
 
-        free_R_Din = false;
+        % R and Din free parameters??
+        free_R_Din = true;
 
         switch free_R_Din
 

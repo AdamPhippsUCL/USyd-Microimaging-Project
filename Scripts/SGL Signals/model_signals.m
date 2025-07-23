@@ -7,7 +7,7 @@ projectfolder = pwd;
 
 RESULTS = struct();
 
-SaveRESULTS = false;
+SaveRESULTS = true;
 
 %% Sample and scheme details
 
@@ -24,11 +24,11 @@ nscheme = length(scheme);
 components = {'G', 'S'};
 
 modeltypes = {
-   'ADC',...
-    ...'DKI',...
-    ...'RDI - 1 compartment - 2 param (S0)',...
+    'ADC',...
+    'DKI',...
+    'RDI - 1 compartment - 2 param (S0)',...
     ...'RDI - 2 compartment - 3 param (S0)',...
-    ...'RDI - 2 compartment - 4 param (S0)'
+    'RDI - 2 compartment - 4 param (S0)'
     };
 
 
@@ -42,7 +42,7 @@ modeltypes = {
 lambda = 0e-3;
 fittingtechnique = 'LSQ';
 
-DisplayPredictions = true;
+DisplayPredictions = false;
 
 
 for compindx = 1:length(components)
@@ -65,7 +65,7 @@ for compindx = 1:length(components)
 
     if DisplayPredictions
         f=figure;
-        bshift=15;
+        bshift=40;
         switch component
             case 'G'
                 color = [0.8500 0.3250 0.0980];
@@ -80,7 +80,7 @@ for compindx = 1:length(components)
     
         
         errorbar( ...
-            [scheme(2:6).bval]-bshift, ...
+            [scheme(2:6).bval]-0*bshift, ...
             ...log(s(2:6)), ...
             ...log(s(2:6))-log(s_LCI(2:6)), ...
             ...log(s_UCI(2:6))-log(s(2:6)), ...
@@ -92,7 +92,7 @@ for compindx = 1:length(components)
             DisplayName = 'Measured (Short \Delta)')
         hold on
         errorbar( ...
-            [scheme(7:end).bval]-bshift, ...
+            [scheme(7:end).bval]-0*bshift, ...
             ...log(s(7:end)),...
             ...log(s(7:end))-log(s_LCI(7:end)), ...
             ...log(s_UCI(7:end))-log(s(7:end)), ...
@@ -234,7 +234,10 @@ for compindx = 1:length(components)
             switch modeltype
                 case 'ADC' 
                     modelname = modeltype;
-                    markercolor = 'k'	;
+                    markercolor =  [0.2, 0.2, 0.2]	;
+                    marker = 'o';
+                    markersize = 20;
+                    thisbshift = -1*bshift;
                 case 'DKI'
                     modelname = modeltype;
                 case 'RDI - 1 compartment - 2 param (S0)'
@@ -242,12 +245,15 @@ for compindx = 1:length(components)
                 case 'RDI - 2 compartment - 4 param (S0)'
                     modelname = 'Ball + Sphere';
                     markercolor = 'k';%[0.3010, 0.7450, 0.9330];
+                    marker = 'x';
+                    markersize = 50;
+                    thisbshift = 1*bshift;
 
             end
             scatter( ...
-                [scheme(2:end).bval]+bshift, ...
+                [scheme(2:end).bval]+thisbshift, ...
                 ...log(pred(2:end)), 50,'x', ...
-                (pred(2:end)), 50,'x', ...
+                (pred(2:end)), markersize,marker, ...
                 MarkerEdgeColor=markercolor, ...
                 LineWidth=1.5, ...
                 DisplayName = ['Predicted (' modelname ')'])
