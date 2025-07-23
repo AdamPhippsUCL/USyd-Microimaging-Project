@@ -117,7 +117,7 @@ disp(max(error_large(:)))
 
 
 % SAMPLE NUMBER
-snum = 'UQ4M';
+snum = 'UQ4N';
 
 switch snum
     case 'UQ4B'
@@ -166,7 +166,7 @@ end
 
 
 
-sl = 140;
+sl = 120;
 
 f1=figure;
 

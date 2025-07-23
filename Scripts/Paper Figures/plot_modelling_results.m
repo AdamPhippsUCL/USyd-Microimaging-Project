@@ -186,8 +186,8 @@ composition(:, [1,2]) = composition(:, [2,1]);
 
 %% Display results
 
-figure
-scatter(pred_params(1,:), fit_params(1,:),  '.', MarkerEdgeAlpha=0.4, CData=composition)
+f1=figure;
+scatter(pred_params(1,:), fit_params(1,:),  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= composition);
 hold on
 plot([0, 0.3], [0, 0.3], 'k')
 grid on
@@ -208,9 +208,13 @@ text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
     'BackgroundColor', 'white', ...
     'EdgeColor', 'black');  % Optional border
 
+saveas(f1, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', 'Predicted vs Estimated sphere fraction.png'))
 
-figure
-scatter(pred_params(4,:), fit_params(4,:),  '.', MarkerEdgeAlpha=0.4, CData=composition)
+
+
+
+f2=figure;
+scatter(pred_params(4,:), fit_params(4,:), 6, 'filled', 'MarkerFaceAlpha', 0.7, CData= composition);
 hold on
 plot([0.5, 2], [0.5, 2], 'k')
 grid on
@@ -232,9 +236,11 @@ text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
     'EdgeColor', 'black');  % Optional border
 
 
+saveas(f2, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', 'Predicted vs Estimated d_out.png'))
+
 % AIC
 figure
-scatter(fit_params(1,:), fit_params(5,:),  '.', MarkerEdgeAlpha=0.4, CData=composition)
+scatter(fit_params(1,:), fit_params(5,:), 6, 'filled', 'MarkerFaceAlpha', 0.7, CData= composition);
 grid on
 xlim([-0.02, 0.57])
 ylim([-175, -95])
@@ -243,43 +249,54 @@ ylabel('AIC')
 
 
 % BLAND ALTMAN
-avg = (pred_params(1,:)+fit_params(1,:))/2;
-diff = fit_params(1,:)-pred_params(1,:);
 
-figure
-scatter(avg, diff ,  '.', MarkerEdgeAlpha=0.4, CData=composition)
-hold on
-yline(mean(diff), '--')
-yline(mean(diff)+1.96*std(diff))
-yline(mean(diff)-1.96*std(diff))
+f_avg = (pred_params(1,:)+fit_params(1,:))/2;
+f_diff = fit_params(1,:)-pred_params(1,:);
+f_LOA = [mean(f_diff), mean(f_diff)-1.96*std(f_diff), mean(f_diff)+1.96*std(f_diff)];
+save(fullfile(projectfolder, 'Outputs', 'Signal Measurement', 'Multi-sample', 'Modelling', 'f_LOA.mat'), 'f_LOA')
+
+dout_avg = (pred_params(4,:)+fit_params(4,:))/2;
+dout_diff = fit_params(4,:)-pred_params(4,:);
+dout_LOA = [mean(dout_diff), mean(dout_diff)-1.96*std(dout_diff), mean(dout_diff)+1.96*std(dout_diff)];
+save(fullfile(projectfolder, 'Outputs', 'Signal Measurement', 'Multi-sample', 'Modelling', 'dout_LOA.mat'), 'dout_LOA')
+
+% figure
+% scatter(avg, diff ,  '.', MarkerEdgeAlpha=0.4, CData=composition)
+% hold on
+% yline(mean(diff), '--')
+% yline(mean(diff)+1.96*std(diff))
+% yline(mean(diff)-1.96*std(diff))
+% 
+% 
+% 
+% % Compute means and differences
+% mean_vals = (pred_params(1,:)+fit_params(1,:))/2;
+% diff_vals = fit_params(1,:)-pred_params(1,:);
+% 
+% % Fit linear model for difference vs mean
+% mdl = fitlm(mean_vals, diff_vals);
+% fitted_bias = predict(mdl, mean_vals');
+% 
+% % Estimate SD in moving window
+% windowSize = 1000;
+% [sorted_mean, idx] = sort(mean_vals);
+% sorted_diff = diff_vals(idx);
+% 
+% rolling_sd = movstd(sorted_diff, windowSize);
+% 
+% % Plot
+% figure
+% scatter(mean_vals, diff_vals, 'filled')
+% hold on
+% plot(mean_vals, fitted_bias, 'k-', 'LineWidth', 2)  % mean bias line
+% plot(mean_vals, fitted_bias + 1.96 * rolling_sd, 'r--')  % upper LoA
+% plot(mean_vals, fitted_bias - 1.96 * rolling_sd, 'r--')  % lower LoA
+% xlabel('Mean of measurements')
+% ylabel('Difference')
+% title('Bland–Altman with variable LoA')
 
 
 
-% Compute means and differences
-mean_vals = (pred_params(1,:)+fit_params(1,:))/2;
-diff_vals = fit_params(1,:)-pred_params(1,:);
-
-% Fit linear model for difference vs mean
-mdl = fitlm(mean_vals, diff_vals);
-fitted_bias = predict(mdl, mean_vals');
-
-% Estimate SD in moving window
-windowSize = 1000;
-[sorted_mean, idx] = sort(mean_vals);
-sorted_diff = diff_vals(idx);
-
-rolling_sd = movstd(sorted_diff, windowSize);
-
-% Plot
-figure
-scatter(mean_vals, diff_vals, 'filled')
-hold on
-plot(mean_vals, fitted_bias, 'k-', 'LineWidth', 2)  % mean bias line
-plot(mean_vals, fitted_bias + 1.96 * rolling_sd, 'r--')  % upper LoA
-plot(mean_vals, fitted_bias - 1.96 * rolling_sd, 'r--')  % lower LoA
-xlabel('Mean of measurements')
-ylabel('Difference')
-title('Bland–Altman with variable LoA')
 %%
 
 

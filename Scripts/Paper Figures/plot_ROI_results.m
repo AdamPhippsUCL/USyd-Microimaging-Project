@@ -7,10 +7,10 @@ projectfolder = pwd;
 %% Sample, Image, and ROI
 
 % Sample
-SampleName = '20250224_UQ4'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
+SampleName = '20250414_UQ6'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'
 
 % ROI
-ROIname = 'UQ4B Lesion 3+3'; 
+ROIname = 'UQ6N Lesion 4+4'; 
 % 'UQ4B Lesion 3+3'
 % 'UQ4M Lesion 3+4'
 % 'UQ4N Benign Glandular'
@@ -117,13 +117,21 @@ img_ROI = ImageArray(logical(SampleMask.*ROI));
 % title('b = 2000 s/mm^2 , \Delta = 120 ms')
 
 
-figure
-scatter( (pred_ROI+img_ROI)/2 , img_ROI-pred_ROI , 6, 'filled', 'MarkerFaceAlpha', 0.7, CData=X)
-hold on
-yline(LOA(1), '--')
-yline(LOA(2))
-yline(LOA(3))
 
+avg = (pred_ROI+img_ROI)/2;
+diff = img_ROI-pred_ROI;
+
+f=figure;
+scatter(avg, diff, 10, 'filled', 'MarkerFaceAlpha', 0.7, CData=X, HandleVisibility='off')
+hold on
+% yline(0, '--', HandleVisibility='off')
+yline(LOA(2), '--', HandleVisibility='off')
+yline(LOA(3), '--', DisplayName = 'LOA')
+grid on
+xlim([0.05*floor(min(avg)/0.05)-0.1 0.05*ceil(max(avg)/0.05)+0.1])
+ylim([-0.45 0.45])
+% ylim([-0.05*ceil(max(abs(diff))/0.05)-0.1 0.05*ceil(max(abs(diff))/0.05)+0.1])
+legend
 
 %% Modelling results
 
@@ -150,12 +158,34 @@ S_params = ESL_Model_RESULTS(and(strcmp({ESL_Model_RESULTS(:).Component}, 'S'), 
 E_params = ESL_Model_RESULTS(and(strcmp({ESL_Model_RESULTS(:).Component}, 'G'), strcmp({ESL_Model_RESULTS(:).ModelType}, ModelName))).ModelParams;
 L_params = [1, 2]; % ADC parameters...
 
-
 % Predicted model parameters
 pred_fIC = S_params(1).*ROI_COMP(:,1) + E_params(1).*ROI_COMP(:,2);
 pred_R = S_params(2).*ROI_COMP(:,1) + E_params(2).*ROI_COMP(:,2) + 6.5.*ROI_COMP(:,3);
 pred_dIC = S_params(3).*ROI_COMP(:,1) + E_params(3).*ROI_COMP(:,2) + L_params(2).*ROI_COMP(:,3);
 pred_dEES = S_params(4).*ROI_COMP(:,1) + E_params(4).*ROI_COMP(:,2) + L_params(2).*ROI_COMP(:,3);
+
+% Limits of agreement
+load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', 'Multi-sample', 'Modelling', 'f_LOA.mat'))
+load(fullfile(projectfolder, 'Outputs', 'Signal Measurement', 'Multi-sample', 'Modelling', 'dout_LOA.mat'))
+
+
+% BLAND ALTMAN
+f_avg = (pred_fIC+fit_fIC)/2;
+f_diff = fit_fIC-pred_fIC;
+figure
+scatter(f_avg, f_diff, 12, 'filled', 'MarkerFaceAlpha', 0.7, CData= X);
+hold on
+yline(f_LOA(2), '--', DisplayName)
+yline(f_LOA(3), '--')
+
+
+
+
+
+
+
+
+
 
 % fIC
 % m = max([pred_fIC; fit_fIC; 0.4]);
@@ -195,6 +225,3 @@ yticks(linspace(0,3,16))
 title('Ball + Sphere Model')
 
 saveas(f, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', ['ROI Results ' ROIname '.png']))
-
-figure
-scatter(pred_R, fit_R)

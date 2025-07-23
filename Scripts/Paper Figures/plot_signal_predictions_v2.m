@@ -143,7 +143,7 @@ BenignCOMP(:, [1 2]) = BenignCOMP(:, [2 1]);
 
 % Benign
 
-figure
+f=figure;
 scatter(BenignPred, BenignMeasure,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData=  BenignCOMP);
 hold on
 plot([0 0.8],[0, 0.8], color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
@@ -159,6 +159,8 @@ text(0.025, 0.97, ['R^2 = ' sprintf( '%0.3f', R2(1)) ' (' sprintf('%0.3f', R2(2)
     'HorizontalAlignment', 'left', ...
     'BackgroundColor', 'white', ...
     'EdgeColor', 'black');  % Optional border
+
+saveas(f, fullfile(projectfolder, 'Scripts', 'Paper Figures', 'Figures', ['LinMod_b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
 
 
 %% Bland Altman
