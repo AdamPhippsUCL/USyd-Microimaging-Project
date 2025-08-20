@@ -118,7 +118,7 @@ switch modelname
         
 end
 
-% Rehularisation
+% Regularisation
 lambda0=0e-2;
 lambda = lambda0*ones(1,Nparam);
 

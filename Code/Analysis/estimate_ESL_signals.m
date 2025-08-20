@@ -165,13 +165,13 @@ for sindx = 1:length(SampleNames)
         );
 
     switch samplename
-    
+
         case '20250224_UQ4'
-    
+
             % Cylinder centred at (128, 114), radius 75 (1.5mm)
 
             samplemask = (Xs-128).^2 + (Ys-114).^2 <75^2 ;
-        
+
             % Remove ends
             % samplemask(:,:,1:10)=false;
             samplemask(:,:,end-10:end)=false;
@@ -182,9 +182,9 @@ for sindx = 1:length(SampleNames)
             Mmask = samplemask.*and(Zs>=208, Zs<398);
             Nmask = samplemask.*and(Zs>=398, Zs<640);
 
-    
+
         case '20250407_UQ5'
-    
+
             % Cylinder centred at (123, 119), radius 75 (1.5mm)
 
             samplemask = (Xs-123).^2 + (Ys-119).^2 <75^2 ; 
@@ -198,10 +198,10 @@ for sindx = 1:length(SampleNames)
             Bmask = samplemask.*and(Zs>=1, Zs<136);
             Mmask = samplemask.*and(Zs>=136, Zs<344);
             Nmask = samplemask.*and(Zs>=344, Zs<641);
-    
+
 
         case '20250414_UQ6'
-    
+
             % Cylinder centred at (122, 117), radius 76 (1.52mm)
 
             samplemask = (Xs-122).^2 + (Ys-117).^2 <76^2;
@@ -215,10 +215,10 @@ for sindx = 1:length(SampleNames)
             Bmask = samplemask.*and(Zs>=15, Zs<285);
             Mmask = samplemask.*and(Zs>=285, Zs<552);
             Nmask = samplemask.*and(Zs>=552, Zs<641);
-    
-    
+
+
         case '20250522_UQ7'
-    
+
             % Cylinder centred at (124, 117)
 
             samplemask = (Xs-124).^2 + (Ys-117).^2 <75^2;
@@ -241,7 +241,7 @@ for sindx = 1:length(SampleNames)
 
 
         case '20250523_UQ8'
-    
+
             % Cylinder centred at (123, 119)
 
             samplemask = (Xs-123).^2 + (Ys-119).^2 <75^2;
@@ -257,9 +257,9 @@ for sindx = 1:length(SampleNames)
             Nmask = samplemask.*and(Zs>=458, Zs<641);   
 
         case '20250524_UQ9'
-    
+
             % Cylinder centred at (118, 127), radius 75 (1.5mm)
-    
+
             samplemask = (Xs-118).^2 + (Ys-127).^2 <80^2;
 
             % REMOVE TOP AND BOTTOM REGIONS OF MEDIUM
@@ -426,18 +426,18 @@ for imgindx = 1:Nimg
     R2 = mdl.Rsquared.Ordinary;
     residuals = mdl.Residuals.Raw;
 
-    % BLAND ALTMAN
-    measured = y+X(:,3)*Sl;
-    predicted = y-residuals+X(:,3)*Sl;
-    avg = (measured+predicted)/2;
-    diff = (measured-predicted);
-    LOA = [mean(diff), mean(diff)-1.96*std(diff), mean(diff)+1.96*std(diff)];
-
-    f=figure;
-    scatter(predicted, measured)
-    hold on
-    plot(y,y)
-    close(f);
+    % % BLAND ALTMAN
+    % measured = y+X(:,3)*Sl;
+    % predicted = y-residuals+X(:,3)*Sl;
+    % avg = (measured+predicted)/2;
+    % diff = (measured-predicted);
+    % LOA = [mean(diff), mean(diff)-1.96*std(diff), mean(diff)+1.96*std(diff)];
+    % 
+    % f=figure;
+    % scatter(predicted, measured)
+    % hold on
+    % plot(y,y)
+    % close(f);
 
     signals(1:2,imgindx,1) = beta_fit;
     signals(3,imgindx,1) = Sl;
@@ -451,11 +451,10 @@ for imgindx = 1:Nimg
     % % Samples
     % N = max(samplenums);
 
-    B=20;
+    B=10000;
     bootstrap_indices = randi(N, N, B);
     BootFits = zeros(B,3);
     BootR2s = zeros(B,1);
-
 
     for bindx = 1:B
 
@@ -496,8 +495,8 @@ for imgindx = 1:Nimg
     RESULTS(imgindx).Residuals = residuals;
     RESULTS(imgindx).y = y;
 
-    % LOA
-    RESULTS(imgindx).LOA = LOA;
+    % % LOA
+    % RESULTS(imgindx).LOA = LOA;
 
 end
 
@@ -580,6 +579,7 @@ save(fullfile(savefolder, 'signals.mat'), 'signals')
 save(fullfile(savefolder, 'scheme.mat'), 'scheme')
 save(fullfile(savefolder, 'Meta.mat'), 'Meta')
 save(fullfile(savefolder, 'RESULTS.mat'), 'RESULTS')
+
 
 
 %% Function (Linear ESL model)
