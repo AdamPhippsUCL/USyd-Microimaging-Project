@@ -47,12 +47,12 @@ pred_Db = pred_Db(Bools);
 f1=figure;
 scatter(pred_fs, measured_fs,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP);
 hold on
-plot([0, 0.3], [0, 0.3], 'k')
-grid on
+plot([0, 0.3], [0, 0.3], color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
 xlim([-0.025,0.325])
 ylim([-0.05,0.48])
 xlabel('Predicted Sphere Fraction')
-ylabel('Estimated Sphere Fraction')
+ylabel('Measured Sphere Fraction')
+grid on
 
 % R2 value
 SSres = sum( (pred_fs - measured_fs).^2 );
@@ -69,7 +69,7 @@ text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
 ax = gca();
 ax.FontSize = 12;
 
-% saveas(f1, fullfile(projectfolder, 'Figures', 'Predicted vs Estimated Sphere Fraction.png'))
+saveas(f1, fullfile(projectfolder, 'Figures', 'Predicted vs Measured Sphere Fraction.png'))
 
 
 % BALL-COMPARTMENT DIFFUSIVITY
@@ -77,12 +77,15 @@ ax.FontSize = 12;
 f2=figure;
 scatter(pred_Db, measured_Db, 6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP);
 hold on
-plot([0.5, 2], [0.5, 2], 'k')
+plot([0.5, 2], [0.5, 2],  color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
 grid on
 xlim([0.35,2.2])
+xticks(0.25:0.25:2)
 ylim([0.35,2.2])
+yticks(0.25:0.25:2)
 xlabel('Predicted D_{b} (x10^{-3} mm^2/s)')
-ylabel('Estimated D_{b} (x10^{-3} mm^2/s)')
+ylabel('Measured D_{b} (x10^{-3} mm^2/s)')
+grid on
 
 % R2 value
 SSres = sum( (pred_Db - measured_Db).^2 );
@@ -99,7 +102,7 @@ text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
 ax = gca();
 ax.FontSize = 12;
 
-% saveas(f2, fullfile(projectfolder, 'Figures', 'Predicted vs Estimated Db.png'))
+saveas(f2, fullfile(projectfolder, 'Figures', 'Predicted vs Measured Db.png'))
 
 
 %% Plot results: Bland-Altman
@@ -116,22 +119,24 @@ save( fullfile(LOA_folder,  'fs_LOA.mat'), 'fs_LOA')
 
 f3 = figure;
 scatter(fs_avg, fs_diff ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP, HandleVisibility='off');
-yline(mean(fs_diff), '-', DisplayName='Bias', LineWidth=1)
+yline(mean(fs_diff), '-', color = [.1 .1 .1], DisplayName='Bias', LineWidth=1)
 hold on
-yline(mean(fs_diff)+1.96*std(fs_diff), '-.', DisplayName='95% LOA', LineWidth=1)
-yline(mean(fs_diff)-1.96*std(fs_diff), '-.', HandleVisibility="off", LineWidth=1)
-xlim([-0.02 0.37])
-ylim([-0.35, 0.37])
-xlabel('CHANGE AXES LABELS')
-ylabel('CHANGE AXES LABELS')
-legend
+yline(mean(fs_diff)+1.96*std(fs_diff), '--', color = [.1 .1 .1], DisplayName='95% LOA', LineWidth=1.2)
+yline(mean(fs_diff)-1.96*std(fs_diff), '--', color = [.1 .1 .1], HandleVisibility="off", LineWidth=1.2)
+xlim([-0.05 0.45])
+xticks(0:0.1:0.4)
+ylim([-0.24, 0.24])
+yticks(-0.4:0.1:0.4)
+xlabel('Mean of Measured and Predicted Sphere Fraction')
+ylabel('Measured - Predicted Sphere Fraction')
+legend(Location="northwest")
 grid on
 ax = gca();
 ax.FontSize = 12;
-% saveas(f3, fullfile(projectfolder, 'Figures', ['Bland Altman Benign Sphere Fraction.png']))
+saveas(f3, fullfile(projectfolder, 'Figures', ['Benign Bland-Altman Sphere Fraction.png']))
 
 
-% BALL-COMPARTMENT DIFFUSIVITY
+%% BALL-COMPARTMENT DIFFUSIVITY
 
 Db_avg = (pred_Db+measured_Db)/2;
 Db_diff = measured_Db-pred_Db;
@@ -143,15 +148,18 @@ save( fullfile(LOA_folder,  'Db_LOA.mat'), 'Db_LOA')
 
 f4 = figure;
 scatter(Db_avg, Db_diff ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP, HandleVisibility='off');
-yline(mean(Db_diff), '-', DisplayName='Bias', LineWidth=1)
+yline(mean(Db_diff), '-', DisplayName='Bias', LineWidth=1.2)
 hold on
-yline(mean(Db_diff)+1.96*std(Db_diff), '-.', DisplayName='95% LOA', LineWidth=1)
-yline(mean(Db_diff)-1.96*std(Db_diff), '-.', HandleVisibility="off", LineWidth=1)
-xlim([0.4 2.12])
-ylim([-1.1, 1.1])
-xlabel('CHANGE AXES LABELS')
-ylabel('CHANGE AXES LABELS')
-legend
+yline(mean(Db_diff)+1.96*std(Db_diff), '--', color = [.1 .1 .1], DisplayName='95% LOA', LineWidth=1.2)
+yline(mean(Db_diff)-1.96*std(Db_diff), '--', color = [.1 .1 .1], HandleVisibility="off", LineWidth=1.2)
+xlim([0.34 2.06])
+xticks(linspace(0.2,2.2,11))
+ylim([-.72, .72])
+yticks(-0.8:0.2:0.8)
+xlabel('Mean of Measured and Predicted D_b (x10^{-3} mm^2/s)')
+ylabel('Measured - Predicted D_b (x10^{-3} mm^2/s)')
+legend(Location="northwest")
 grid on
 ax = gca();
 ax.FontSize = 12;
+saveas(f4, fullfile(projectfolder, 'Figures', ['Benign Bland-Altman Db.png']))

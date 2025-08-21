@@ -419,25 +419,9 @@ for imgindx = 1:Nimg
     mdl = fitlm(X(:,1:2), y, 'Intercept', false);
     beta_fit = mdl.Coefficients.Estimate;
 
-    % [beta_fit, resnorm, residual, exitflag, output, lambda, jacobian]=lsqcurvefit(func, beta0, X, y, lb, ub);
-    % beta_fit = mdl.Coefficients.Estimate;
-
     % Test linear model assumption
     R2 = mdl.Rsquared.Ordinary;
     residuals = mdl.Residuals.Raw;
-
-    % % BLAND ALTMAN
-    % measured = y+X(:,3)*Sl;
-    % predicted = y-residuals+X(:,3)*Sl;
-    % avg = (measured+predicted)/2;
-    % diff = (measured-predicted);
-    % LOA = [mean(diff), mean(diff)-1.96*std(diff), mean(diff)+1.96*std(diff)];
-    % 
-    % f=figure;
-    % scatter(predicted, measured)
-    % hold on
-    % plot(y,y)
-    % close(f);
 
     signals(1:2,imgindx,1) = beta_fit;
     signals(3,imgindx,1) = Sl;
@@ -448,9 +432,6 @@ for imgindx = 1:Nimg
     % All data
     N=length(y);
 
-    % % Samples
-    % N = max(samplenums);
-
     B=10000;
     bootstrap_indices = randi(N, N, B);
     BootFits = zeros(B,3);
@@ -458,30 +439,15 @@ for imgindx = 1:Nimg
 
     for bindx = 1:B
 
-        % [thisbeta_fit]=lsqcurvefit(func, beta0, X(bootstrap_indices(:,bindx), :), y(bootstrap_indices(:,bindx)), lb, ub);
-        % BootFits(bindx, :) = thisbeta_fit;
-
         thismdl = fitlm(X(bootstrap_indices(:,bindx), 1:2), y(bootstrap_indices(:,bindx)), 'Intercept', false);
-
-        % this_indices = bootstrap_indices(:,bindx);
-        % ids = [];
-        % for i = 1:length(this_indices)
-        %     indx = this_indices(i);
-        %     ids = [ids; find(samplenums == indx)];
-        % 
-        % end
-        % thismdl = fitlm(X(ids, 1:2), y(ids), 'Intercept', false);
-
 
         thisbeta_fit = thismdl.Coefficients.Estimate;
         BootFits(bindx, 1:2) = thisbeta_fit;
         BootFits(bindx, 3) = Sl;
 
-        % thisy_pred = X(:,3)*Sl + sum( X(:,1:2).*repmat(thisbeta_fit', size(X,1),1) ,2);
         BootR2s(bindx)= thismdl.Rsquared.Ordinary;
 
     end
-
 
     signals(:,imgindx,2) = std(BootFits); % Standard error
     signals(:,imgindx,3) = prctile(BootFits,0.5); % 2.5th percentile
@@ -494,9 +460,6 @@ for imgindx = 1:Nimg
     RESULTS(imgindx).R2 = [R2, prctile(BootR2s, 2.5), prctile(BootR2s, 97.5)];%[num2str(R2) ' (' num2str(std(BootR2s)) ')'];
     RESULTS(imgindx).Residuals = residuals;
     RESULTS(imgindx).y = y;
-
-    % % LOA
-    % RESULTS(imgindx).LOA = LOA;
 
 end
 

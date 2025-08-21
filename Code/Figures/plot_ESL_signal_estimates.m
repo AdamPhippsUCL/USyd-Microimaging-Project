@@ -22,7 +22,7 @@ bshift=5;
 indices = 2:6;
 s = signals(:,indices,:);
 bvals = [scheme(indices).bval];
-lw = 0.8;
+lw = 1;
 % Display error bars with 95% confidence intervals from botstrapping
 h1=errorbar(bvals-1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1), '-*', LineWidth = lw, color=[0.4660 0.6740 0.1880], DisplayName='E (Short \Delta)');
 hold on
@@ -32,8 +32,8 @@ h2=errorbar(bvals-1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-*'
 % Long Delta
 indices = 7:11;
 s = signals(:,indices,:);
-h3=errorbar(bvals+1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1),  '-.*', LineWidth = lw, color=[0.4660 0.6740 0.1880], DisplayName='E (Long \Delta)');
-h4=errorbar(bvals+1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-.*', LineWidth = lw, color=[0.8500 0.3250 0.0980], DisplayName='S (Long \Delta)');
+h3=errorbar(bvals+1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1),  '--*', LineWidth = lw, color=[0.4660 0.6740 0.1880], DisplayName='E (Long \Delta)');
+h4=errorbar(bvals+1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '--*', LineWidth = lw, color=[0.8500 0.3250 0.0980], DisplayName='S (Long \Delta)');
 
 h5=plot(bvals+1*bshift, s(3,:,1), '-*', LineWidth = lw, color=[0 0.4470 0.7410], DisplayName = 'L');
 
@@ -49,7 +49,7 @@ xticklabels(["1000", "1250", "1500", "1750", "2000"])
 grid on
 legend([h1, h3, h2, h4, h5], 'NumColumns', 3);
 ax=gca();
-ax.FontSize=12;
+ax.FontSize=14;
 f1.Position = [488   180   720   600];
 
 
@@ -92,7 +92,7 @@ ylabel('E-S signal contrast')
 xlabel('b-value (s/mm^2)')
 grid on
 ax=gca();
-ax.FontSize=12;
+ax.FontSize=14;
 
 saveas(f2, fullfile(projectfolder,'Figures', 'ES_Contrast.png'))
 

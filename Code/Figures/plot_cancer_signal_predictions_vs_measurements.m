@@ -11,7 +11,7 @@ Cancer_3 = {'4B', '4M'};
 Cancer_4 = {'6N' };
 Benign = {'4N', '5B', '5M', '5N', '6B',  '6M', '7M', '7N', '8B', '8M', '8N', '7B', '9B', '9N' };
 
-group = 'Benign';
+group = 'Cancer_G3';
 
 % Image
 seriesindx =11;
@@ -46,14 +46,13 @@ RESULTS = load(fullfile(projectfolder, 'Outputs', 'ESL signal estimation', 'Mult
 R2 = RESULTS(seriesindx).R2;
 clear RESULTS
 
-
 % For samples in group only
 switch group
     case 'Benign'
         Bools = ismember(SampleNums, Benign);
-    case 'Cancer_3'
+    case 'Cancer_G3'
         Bools = ismember(SampleNums, Cancer_3);
-    case 'Cancer_4'
+    case 'Cancer_G4'
         Bools = ismember(SampleNums, Cancer_4);
 end
 
@@ -61,33 +60,39 @@ Pred = Predicted(Bools);
 Measure = Measured(Bools);
 COMP = COMP(Bools, :);
 
+% Remove voxels with low epithelium (stroma and lumen not of interest here)
+bool = (COMP(:,1)>0.4);
+Pred = Pred(bool);
+Measure = Measure(bool);
+COMP = COMP(bool, :);
 
-%% MAKE FIGURES
-
-f=figure;
-scatter(Pred, Measure,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP);
-hold on
-plot([0 0.8],[0, 0.8], color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
-
-ylim([-0.02, 0.8])
-xlim([-0.02, 0.8])
-grid on
-xlabel('Predicted Signal')
-ylabel('Measured Signal')
-title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
-
-text(0.025, 0.97, ['R^2 = ' sprintf( '%0.3f', R2(1)) ' (' sprintf('%0.3f', R2(2)) ', ' sprintf('%0.3f', R2(3)) ')'], ...
-    'Units', 'normalized', ...
-    'VerticalAlignment', 'top', ...
-    'HorizontalAlignment', 'left', ...
-    'BackgroundColor', 'white', ...
-    'EdgeColor', 'black');  % Optional border
-
-f.Position = [488   242   660   400];
-ax = gca();
-ax.FontSize = 12;
-
-saveas(f, fullfile(projectfolder, 'Figures', ['Predicted vs Measured signal b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
+% %% MAKE FIGURES
+% 
+% f=figure;
+% 
+% scatter(Pred, Measure,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP);
+% hold on
+% plot([0 0.8],[0, 0.8], color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
+% 
+% ylim([-0.02, 0.8])
+% xlim([-0.02, 0.8])
+% grid on
+% xlabel('Predicted Signal')
+% ylabel('Measured Signal')
+% title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
+% 
+% text(0.025, 0.97, ['R^2 = ' sprintf( '%0.3f', R2(1)) ' (' sprintf('%0.3f', R2(2)) ', ' sprintf('%0.3f', R2(3)) ')'], ...
+%     'Units', 'normalized', ...
+%     'VerticalAlignment', 'top', ...
+%     'HorizontalAlignment', 'left', ...
+%     'BackgroundColor', 'white', ...
+%     'EdgeColor', 'black');  % Optional border
+% 
+% f.Position = [488   242   660   400];
+% ax = gca();
+% ax.FontSize = 12;
+% 
+% % saveas(f, fullfile(projectfolder, 'Figures', ['Predicted vs Measured signal b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
 
 
 %% Bland Altman
@@ -95,27 +100,19 @@ saveas(f, fullfile(projectfolder, 'Figures', ['Predicted vs Measured signal b' n
 avg = (Pred+Measure)/2;
 diff = (Measure-Pred);
 
-% Bias
-bias = mean(diff);
-
-% Limits of agreement
-upperLOA = mean(diff)+1.96*std(diff);
-lowerLOA = mean(diff)-1.96*std(diff);
-
-% Save LOA
-LOA = [bias, lowerLOA, upperLOA];
+% Load Benign LOA
 LOAfolder = fullfile(projectfolder, 'Outputs', 'Signals', SeriesDescription);
-save(fullfile(LOAfolder, 'BenignLOA.mat'), 'LOA');
+BenignLOA = load(fullfile(LOAfolder, 'BenignLOA.mat')).LOA;
 
 f=figure;
-scatter(avg, diff ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP, HandleVisibility='off');
-yline(mean(diff), '-', DisplayName='Bias', LineWidth=1.2)
+scatter(avg, diff ,  14, 'filled', 'MarkerFaceAlpha', 1, CData=COMP, HandleVisibility='off')
+yline(BenignLOA(1), '-', DisplayName='Bias (Benign)', LineWidth=1.2)
 hold on
-yline(mean(diff)+1.96*std(diff), '--', DisplayName='95% LOA',  color = [.1 .1 .1], LineWidth=1.2)
-yline(mean(diff)-1.96*std(diff), '--', HandleVisibility="off",  color = [.1 .1 .1], LineWidth=1.2)
+yline(BenignLOA(2), '--', DisplayName='95% LOA (Benign)', LineWidth=1.2)
+yline(BenignLOA(3), '--', HandleVisibility="off", LineWidth=1.2)
 xlim([0, 0.8])
 ylim([-0.435, 0.435])
-legend
+legend(Location="northwest")
 grid on
 xlabel('Mean of Predicted and Measured Signal')
 ylabel('Measured Signal - Predicted Signal ')
@@ -123,5 +120,4 @@ title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
 ax = gca();
 ax.FontSize = 12;
 f.Position = [488   242   660   400];
-
-saveas(f, fullfile(projectfolder, 'Figures', ['Signal Bland-Altman b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
+saveas(f, fullfile(projectfolder, 'Figures', [group ' Signal Bland-Altman b' num2str(bval) '_Delta' num2str(DELTA) '.png']))

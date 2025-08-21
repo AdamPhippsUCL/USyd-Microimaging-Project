@@ -7,15 +7,16 @@ projectfolder = pwd;
 
 % Sample groups
 Benign = {'4N', '5B', '5M', '5N', '6B',  '6M', '7M', '7N', '8B', '8M', '8N', '7B', '9B', '9N' };
-Cancer_3 = {'4B', '4M'};
-Cancer_4 = {'6N'};
+Cancer_G3 = {'4B', '4M'};
+Cancer_G4 = {'6N'};
 
 folder =  fullfile(projectfolder, 'Outputs', 'Signals');
 COMP = load(fullfile(folder, "COMP.mat")).COMP;
 SampleNums = load(fullfile(folder, "SampleNums.mat")).SampleNums;
 
 % Cancer samples
-Bools = ismember(SampleNums, Cancer_4);
+group = 'Cancer_G3';
+Bools = ismember(SampleNums, eval(group));
 COMP = COMP(Bools, :);
 
 ModelName = 'Ball+Sphere';
@@ -40,68 +41,6 @@ pred_fs = pred_fs(Bools);
 pred_Db = pred_Db(Bools);
 
 
-%% Plot results: direct comparison plot
-% 
-% % SPHERE FRACTION
-% 
-% f1=figure;
-% scatter(pred_fs, measured_fs,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP);
-% hold on
-% plot([0, 0.3], [0, 0.3], 'k')
-% grid on
-% xlim([-0.025,0.325])
-% ylim([-0.05,0.48])
-% xlabel('Predicted Sphere Fraction')
-% ylabel('Estimated Sphere Fraction')
-% 
-% % R2 value
-% SSres = sum( (pred_fs - measured_fs).^2 );
-% SStot = length(measured_fs)*var(measured_fs);
-% R2 = 1-SSres/SStot;
-% 
-% text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
-%     'Units', 'normalized', ...
-%     'VerticalAlignment', 'top', ...
-%     'HorizontalAlignment', 'left', ...
-%     'BackgroundColor', 'white', ...
-%     'EdgeColor', 'black');  % Optional border
-% 
-% ax = gca();
-% ax.FontSize = 12;
-% 
-% % saveas(f1, fullfile(projectfolder, 'Figures', 'Predicted vs Estimated Sphere Fraction.png'))
-% 
-% 
-% % BALL-COMPARTMENT DIFFUSIVITY
-% 
-% f2=figure;
-% scatter(pred_Db, measured_Db, 6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP);
-% hold on
-% plot([0.5, 2], [0.5, 2], 'k')
-% grid on
-% xlim([0.35,2.2])
-% ylim([0.35,2.2])
-% xlabel('Predicted D_{b} (x10^{-3} mm^2/s)')
-% ylabel('Estimated D_{b} (x10^{-3} mm^2/s)')
-% 
-% % R2 value
-% SSres = sum( (pred_Db - measured_Db).^2 );
-% SStot = length(measured_Db)*var(measured_Db);
-% R2 = 1-SSres/SStot;
-% 
-% text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
-%     'Units', 'normalized', ...
-%     'VerticalAlignment', 'top', ...
-%     'HorizontalAlignment', 'left', ...
-%     'BackgroundColor', 'white', ...
-%     'EdgeColor', 'black');  % Optional border
-% 
-% ax = gca();
-% ax.FontSize = 12;
-% 
-% % saveas(f2, fullfile(projectfolder, 'Figures', 'Predicted vs Estimated Db.png'))
-
-
 %% Plot results: Bland-Altman
 
 % Remove voxels with low epithelium (stroma and lumen not of interest here)
@@ -121,26 +60,28 @@ COMP = COMP(bool, :);
 fs_avg = (pred_fs+measured_fs)/2;
 fs_diff = measured_fs-pred_fs;
 
-
 % Load benign LOA
 LOA_folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign LOA', ModelName);
 load(fullfile(LOA_folder, 'fs_LOA.mat'));
 
 f1 = figure;
-scatter(fs_avg, fs_diff ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP, HandleVisibility='off');
-yline(fs_LOA(1), '-', DisplayName='Bias', LineWidth=1)
+scatter(fs_avg, fs_diff, 14, 'filled', 'MarkerFaceAlpha', 1, CData=COMP, HandleVisibility='off')
+yline(fs_LOA(1), '-', DisplayName='Bias (Benign)', LineWidth=1.2)
 hold on
-yline(fs_LOA(2), '-.', DisplayName='95% LOA', LineWidth=1)
-yline(fs_LOA(3), '-.', HandleVisibility="off", LineWidth=1)
-% xlim([-0.02 0.37])
-% ylim([-0.35, 0.37])
-xlabel('CHANGE AXES LABELS')
-ylabel('CHANGE AXES LABELS')
-legend
+yline(fs_LOA(2), '--', DisplayName='95% LOA (Benign)', LineWidth=1.2)
+yline(fs_LOA(3), '--', HandleVisibility="off", LineWidth=1.2)
+xlim([-0.05 0.45])
+xticks(0:0.1:0.4)
+ylim([-0.24, 0.24])
+yticks(-0.4:0.1:0.4)
+xlabel('Mean of Measured and Predicted Sphere Fraction')
+ylabel('Measured - Predicted Sphere Fraction')
+legend(Location='northwest')
 grid on
 ax = gca();
 ax.FontSize = 12;
-% saveas(f3, fullfile(projectfolder, 'Figures', ['Bland Altman Benign Sphere Fraction.png']))
+f1.Position = [488   242   660   400];
+saveas(f1, fullfile(projectfolder, 'Figures', [group ' Bland-Altman Sphere Fraction.png']))
 
 
 
@@ -148,23 +89,27 @@ ax.FontSize = 12;
 
 Db_avg = (pred_Db+measured_Db)/2;
 Db_diff = measured_Db-pred_Db;
-Db_LOA = [mean(Db_diff), mean(Db_diff)-1.96*std(Db_diff), mean(Db_diff)+1.96*std(Db_diff)];
 
+% Load Benign LOA
 LOA_folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign LOA', ModelName);
-mkdir(LOA_folder);
-save( fullfile(LOA_folder,  'Db_LOA.mat'), 'Db_LOA')
+load( fullfile(LOA_folder,  'Db_LOA.mat'))
 
-f4 = figure;
-scatter(Db_avg, Db_diff ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP, HandleVisibility='off');
-yline(mean(Db_diff), '-', DisplayName='Bias', LineWidth=1)
+f2 = figure;
+scatter(Db_avg, Db_diff ,  14, 'filled', 'MarkerFaceAlpha', 1, CData=COMP, HandleVisibility='off')
+yline(Db_LOA(1), '-', DisplayName='Bias (Benign)', LineWidth=1.2)
 hold on
-yline(mean(Db_diff)+1.96*std(Db_diff), '-.', DisplayName='95% LOA', LineWidth=1)
-yline(mean(Db_diff)-1.96*std(Db_diff), '-.', HandleVisibility="off", LineWidth=1)
-xlim([0.4 2.12])
-ylim([-1.1, 1.1])
-xlabel('CHANGE AXES LABELS')
-ylabel('CHANGE AXES LABELS')
-legend
+yline(Db_LOA(2), '--', DisplayName='95% LOA (Benign)', LineWidth=1.2)
+yline(Db_LOA(3), '--', HandleVisibility="off", LineWidth=1.2)
+xlim([0.32 2.08])
+xticks(linspace(0.2,2.2,11))
+ylim([-.72, .72])
+yticks(-0.8:0.2:0.8)
+xlabel('Mean of Measured and Predicted D_b (x10^{-3} mm^2/s)')
+ylabel('Measured - Predicted D_b (x10^{-3} mm^2/s)')
+legend(Location='northeast')
 grid on
 ax = gca();
 ax.FontSize = 12;
+
+f2.Position = [488   242   660   400];
+saveas(f2, fullfile(projectfolder, 'Figures', [group ' Bland-Altman Db.png']))

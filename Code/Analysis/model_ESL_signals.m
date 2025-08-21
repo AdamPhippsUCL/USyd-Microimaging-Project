@@ -239,6 +239,8 @@ for compindx = 1:length(components)
                     ylim([0.22, 0.52])
             end
             grid on
+            ax = gca();
+            ax.FontSize = 12;
             saveas(f, fullfile(projectfolder, 'Figures', ['Model_Predictions_' T '_.png']))
 
         end
@@ -295,7 +297,7 @@ end
 
 % Save RESULTS
 if SaveRESULTS
-    folder = fullfile(outputfolder, samplename, 'Modelling');
+    folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'ESL signal profiles', samplename);
     mkdir(folder);
     save(fullfile(folder, 'RESULTS.mat'), 'RESULTS')
 end
