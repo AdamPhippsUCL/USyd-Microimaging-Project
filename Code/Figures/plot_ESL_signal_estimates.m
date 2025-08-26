@@ -24,18 +24,18 @@ s = signals(:,indices,:);
 bvals = [scheme(indices).bval];
 lw = 1;
 % Display error bars with 95% confidence intervals from botstrapping
-h1=errorbar(bvals-1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1), '-*', LineWidth = lw, color=[0.4660 0.6740 0.1880], DisplayName='E (Short \Delta)');
+h1=errorbar(bvals-1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-*', LineWidth = lw, color='#EB0000', DisplayName='E (Short \Delta)');
 hold on
-h2=errorbar(bvals-1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '-*', LineWidth = lw, color=[0.8500 0.3250 0.0980], DisplayName='S (Short \Delta)');
+h2=errorbar(bvals-1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1), '-*', LineWidth = lw, color='#10DE00', DisplayName='S (Short \Delta)');
 % errorbar(bvals-1*bshift, s(3,:,1), s(3,:,1)-s(3,:,3), s(3,:,4)-s(3,:,1),'-*', LineWidth = lw, color=[0 0.4470 0.7410], DisplayName = 'L (Short \Delta)');
 
 % Long Delta
 indices = 7:11;
 s = signals(:,indices,:);
-h3=errorbar(bvals+1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1),  '--*', LineWidth = lw, color=[0.4660 0.6740 0.1880], DisplayName='E (Long \Delta)');
-h4=errorbar(bvals+1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '--*', LineWidth = lw, color=[0.8500 0.3250 0.0980], DisplayName='S (Long \Delta)');
+h3=errorbar(bvals+1*bshift, s(1,:,1), s(1,:,1)-s(1,:,3), s(1,:,4)-s(1,:,1), '--*', LineWidth = lw, color='#EB0000', DisplayName='E (Long \Delta)');
+h4=errorbar(bvals+1*bshift, s(2,:,1), s(2,:,1)-s(2,:,3), s(2,:,4)-s(2,:,1),  '--*', LineWidth = lw, color='#10DE00', DisplayName='S (Long \Delta)');
 
-h5=plot(bvals+1*bshift, s(3,:,1), '-*', LineWidth = lw, color=[0 0.4470 0.7410], DisplayName = 'L');
+h5=plot(bvals+1*bshift, s(3,:,1), '-*', LineWidth = lw, color=[0 0 1], DisplayName = 'L');
 
 xticks(bvals); 
 xticklabels(bvals)

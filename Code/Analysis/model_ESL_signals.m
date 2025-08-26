@@ -7,7 +7,7 @@ projectfolder = pwd;
 
 RESULTS = struct();
 
-SaveRESULTS = true;
+SaveRESULTS = false;
 
 %% Sample and scheme details
 
@@ -25,8 +25,8 @@ components = {'E', 'S'};
 
 modelnames = {
   'ADC',...
-  'DKI',...
-  'Sphere',...
+  ...'DKI',...
+  ...'Sphere',...
   'Ball+Sphere'...
     };
 
@@ -34,7 +34,7 @@ modelnames = {
 lambda = 0e-3; % Regularisation
 fittingtechnique = 'LSQ';
 
-DisplayPredictions = false;
+DisplayPredictions = true;
 
 for compindx = 1:length(components)
 
@@ -58,12 +58,13 @@ for compindx = 1:length(components)
 
         f=figure;
         bshift=25;
+        lw = 1;
         switch component
             case 'E'
-                color = [0.8500 0.3250 0.0980];
+                color = '#EB0000';
                 T = 'Epithelium';
             case 'S'
-                color = [0.4660 0.6740 0.1880];
+                color = '#10DE00';
                 T = 'Stroma';
             case 'L'
                 color = [0    0.4470    0.7410];
@@ -79,7 +80,7 @@ for compindx = 1:length(components)
             (s(2:6))-(s_LCI(2:6)), ...
             (s_UCI(2:6))-(s(2:6)), ...
             '-*', ...
-            color=color, MarkerSize=6, ...
+            color=color, MarkerSize=6, LineWidth = lw,...
             DisplayName = 'Estimated (Short \Delta)')
 
         hold on
@@ -92,7 +93,7 @@ for compindx = 1:length(components)
             (s(7:end)),...
             (s(7:end))-(s_LCI(7:end)), ...
             (s_UCI(7:end))-(s(7:end)), ...
-            '--*', color=color, MarkerSize=6, ...
+            '--*', color=color, MarkerSize=6, LineWidth = lw,...
             DisplayName = 'Estimated (Long \Delta)')
         
     end
