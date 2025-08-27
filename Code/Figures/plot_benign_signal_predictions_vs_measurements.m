@@ -125,3 +125,43 @@ ax.FontSize = 12;
 f.Position = [488   242   660   400];
 
 saveas(f, fullfile(projectfolder, 'Figures', ['Signal Bland-Altman b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
+
+
+%% Residuals plot
+
+diff = (Measure-Pred);
+
+% Bias
+bias = mean(diff);
+
+% 95% residual limits
+upperRL = mean(diff)+1.96*std(diff);
+lowerRL = mean(diff)-1.96*std(diff);
+
+% Save residual limits
+RL = [bias, lowerRL, upperRL];
+RLfolder = fullfile(projectfolder, 'Outputs', 'Signals', SeriesDescription);
+mkdir(RLfolder);
+save(fullfile(RLfolder, 'BenignRL.mat'), 'RL');
+
+f=figure;
+scatter(Pred, diff ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP, HandleVisibility='off');
+hold on
+yline(bias, '-', DisplayName='Bias', LineWidth=1.2)
+yline(lowerRL, '--', DisplayName='95% Residual Limits',  color = [.1 .1 .1], LineWidth=1.2)
+yline(upperRL, '--', HandleVisibility="off",  color = [.1 .1 .1], LineWidth=1.2)
+legend(Location="northwest")
+grid on
+ylim([-0.42, 0.42])
+yticks(-0.4:0.1:0.4)
+xlim([-0.05, 0.65])
+xticks([0:0.1:0.6])
+xlabel('Predicted Signal')
+ylabel('Measured Signal - Predicted Signal')
+title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
+ax = gca();
+ax.FontSize = 12;
+f.Position = [488   242   660   400];
+
+saveas(f, fullfile(projectfolder, 'Figures', ['Signal Residuals b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
+

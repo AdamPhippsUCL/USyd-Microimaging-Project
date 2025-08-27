@@ -11,7 +11,7 @@ Cancer_3 = {'4B', '4M'};
 Cancer_4 = {'6N' };
 Benign = {'4N', '5B', '5M', '5N', '6B',  '6M', '7M', '7N', '8B', '8M', '8N', '7B', '9B', '9N' };
 
-group = 'Cancer_G3';
+group = 'Cancer_G4';
 
 % Image
 seriesindx =11;
@@ -121,3 +121,39 @@ ax = gca();
 ax.FontSize = 12;
 f.Position = [488   242   660   400];
 saveas(f, fullfile(projectfolder, 'Figures', [group ' Signal Bland-Altman b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
+
+
+
+%% Residuals plot
+
+diff = (Measure-Pred);
+
+% Load Benign RL
+RLfolder = fullfile(projectfolder, 'Outputs', 'Signals', SeriesDescription);
+BenignRL = load(fullfile(RLfolder, 'BenignRL.mat')).RL;
+bias = BenignRL(1);
+lowerRL = BenignRL(2);
+upperRL = BenignRL(3);
+
+
+f=figure;
+scatter(Pred, diff ,   14, 'filled', 'MarkerFaceAlpha', 1, CData=COMP, HandleVisibility='off')
+hold on
+yline(bias, '-', DisplayName='Bias (Benign)', LineWidth=1.2)
+yline(lowerRL, '--', DisplayName='95% Residual Limits (Benign)',  color = [.1 .1 .1], LineWidth=1.2)
+yline(upperRL, '--', HandleVisibility="off",  color = [.1 .1 .1], LineWidth=1.2)
+legend(Location="northwest")
+grid on
+ylim([-0.42, 0.42])
+yticks(-0.4:0.1:0.4)
+xlim([-0.05, 0.55])
+xticks([0:0.1:0.5])
+xlabel('Predicted Signal')
+ylabel('Measured Signal - Predicted Signal')
+title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
+ax = gca();
+ax.FontSize = 12;
+% f.Position = [488   242   660   400];
+
+saveas(f, fullfile(projectfolder, 'Figures', [group ' Signal Residuals b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
+
