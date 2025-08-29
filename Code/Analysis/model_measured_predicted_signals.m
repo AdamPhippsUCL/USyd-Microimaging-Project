@@ -77,21 +77,19 @@ end
 
 %% Run modelling
 
-% BALL+SPHERE Model
 
-modelname = 'Ball+Sphere';
+% ============= ADC model
+
+modelname = 'ADC';
 fittingtechnique = 'LSQ';
-Nparam = 5;
+Nparam = 2;
 
-fs = 0.5; fslb = 0; fsub = 1;
-R = 6.5; Rlb = 6.4; Rub = 6.6;
-Ds = 0.55; Dslb = 0.54; Dsub = 0.56;
-Db = 1; Dblb = 0.1; Dbub = 3;
+D = 1; Dlb = 0.1; Dub = 3;
 S0 = 1; S0lb = 0.9; S0ub = 1.1;
 
-beta0 = [fs,R,Ds,Db,S0];
-lb = [fslb,Rlb,Dslb,Dblb,S0lb];
-ub = [fsub,Rub,Dsub,Dbub,S0ub];
+beta0 = [S0, D];
+lb = [S0lb, Dlb];
+ub = [S0ub, Dub];
 
 % Regularisation
 lambda0=0e-2;
@@ -102,7 +100,7 @@ lambda = lambda0*ones(1,Nparam);
 
 Y = reshape(MeasuredSignals, [Nvoxel, 1 , nscheme]);
 
-[measured_fs, ~, ~, measured_Db, ~, ~] = diffusion_model_fit( ...
+[~, measured_D] = diffusion_model_fit( ...
     Y, ...
     scheme, ...
     modelname = modelname,...
@@ -117,15 +115,13 @@ Y = reshape(MeasuredSignals, [Nvoxel, 1 , nscheme]);
 % Save
 folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Measured', modelname);
 mkdir(folder);
-save(fullfile(folder, 'fs.mat'), 'measured_fs')
-save(fullfile(folder, 'Db.mat'), 'measured_Db')
-
+save(fullfile(folder, 'D.mat'), 'measured_D')
 
 % == PREDICTED
 
 Y = reshape(PredictedSignals, [Nvoxel, 1 , nscheme]);
 
-[pred_fs, ~, ~, pred_Db, ~, ~] = diffusion_model_fit( ...
+[~, pred_D] = diffusion_model_fit( ...
     Y, ...
     scheme, ...
     modelname = modelname,...
@@ -140,5 +136,74 @@ Y = reshape(PredictedSignals, [Nvoxel, 1 , nscheme]);
 % Save
 folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Predicted', modelname);
 mkdir(folder);
-save(fullfile(folder, 'fs.mat'), 'pred_fs')
-save(fullfile(folder, 'Db.mat'), 'pred_Db')
+save(fullfile(folder, 'D.mat'), 'pred_D')
+
+
+
+
+% % ==================== BALL+SPHERE Model
+% 
+% modelname = 'Ball+Sphere';
+% fittingtechnique = 'LSQ';
+% Nparam = 5;
+% 
+% fs = 0.5; fslb = 0; fsub = 1;
+% R = 6.5; Rlb = 6.4; Rub = 6.6;
+% Ds = 0.55; Dslb = 0.54; Dsub = 0.56;
+% Db = 1; Dblb = 0.1; Dbub = 3;
+% S0 = 1; S0lb = 0.9; S0ub = 1.1;
+% 
+% beta0 = [fs,R,Ds,Db,S0];
+% lb = [fslb,Rlb,Dslb,Dblb,S0lb];
+% ub = [fsub,Rub,Dsub,Dbub,S0ub];
+% 
+% 
+% % Regularisation
+% lambda0=0e-2;
+% lambda = lambda0*ones(1,Nparam);
+% 
+% 
+% % == MEASURED
+% 
+% Y = reshape(MeasuredSignals, [Nvoxel, 1 , nscheme]);
+% 
+% [measured_fs, ~, ~, measured_Db, ~, ~] = diffusion_model_fit( ...
+%     Y, ...
+%     scheme, ...
+%     modelname = modelname,...
+%     fittingtechnique = fittingtechnique,...
+%     Nparam = Nparam,...
+%     beta0=beta0,...
+%     lambda=lambda,...
+%     lb=lb,...
+%     ub=ub...
+%     );
+% 
+% % Save
+% folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Measured', modelname);
+% mkdir(folder);
+% save(fullfile(folder, 'fs.mat'), 'measured_fs')
+% save(fullfile(folder, 'Db.mat'), 'measured_Db')
+% 
+% 
+% % == PREDICTED
+% 
+% Y = reshape(PredictedSignals, [Nvoxel, 1 , nscheme]);
+% 
+% [pred_fs, ~, ~, pred_Db, ~, ~] = diffusion_model_fit( ...
+%     Y, ...
+%     scheme, ...
+%     modelname = modelname,...
+%     fittingtechnique = fittingtechnique,...
+%     Nparam = Nparam,...
+%     beta0=beta0,...
+%     lambda=lambda,...
+%     lb=lb,...
+%     ub=ub...
+%     );
+% 
+% % Save
+% folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Predicted', modelname);
+% mkdir(folder);
+% save(fullfile(folder, 'fs.mat'), 'pred_fs')
+% save(fullfile(folder, 'Db.mat'), 'pred_Db')

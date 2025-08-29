@@ -18,6 +18,8 @@ SampleNums = load(fullfile(folder, "SampleNums.mat")).SampleNums;
 Bools = ismember(SampleNums, Benign);
 COMP = COMP(Bools, :);
 
+% =========== Ball+Sphere
+
 ModelName = 'Ball+Sphere';
 schemename = '20250224_UQ4 AllDELTA';
 fittingtechnique = 'LSQ';
@@ -38,6 +40,29 @@ pred_Db = load(fullfile(output_folder, 'Predicted', ModelName, 'Db')).pred_Db;
 
 pred_fs = pred_fs(Bools);
 pred_Db = pred_Db(Bools);
+
+
+% =========== ADC
+
+ModelName = 'ADC';
+schemename = '20250224_UQ4 AllDELTA';
+fittingtechnique = 'LSQ';
+
+% Output folder
+output_folder = fullfile(projectfolder, 'Outputs', 'Model Fitting' );
+
+% Load parameter estimates from measured signals
+measured_ADC = load(fullfile(output_folder, 'Measured',  ModelName, 'D')).measured_D;
+
+measured_ADC = measured_ADC(Bools);
+
+% Load parameter estimates from predicted signals
+pred_ADC = load(fullfile(output_folder, 'Predicted', ModelName, 'D')).pred_D;
+
+pred_ADC = pred_ADC(Bools);
+
+
+
 
 
 %% Plot results: direct comparison plot
@@ -106,8 +131,42 @@ ax.FontSize = 12;
 saveas(f2, fullfile(projectfolder, 'Figures', 'Predicted vs Measured Db.png'))
 
 
-%% Plot results: Bland-Altman
 
+% ADC
+
+f3=figure;
+scatter(pred_ADC, measured_ADC, 6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP);
+hold on
+plot([0.4, 2], [0.4, 2],  color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
+grid on
+xlim([0.36, 2.04])
+xticks([0.4:0.2:2])
+ylim([0.28,2.06])
+yticks(0.4:0.2:2)
+xlabel('Predicted ADC (x10^{-3} mm^2/s)')
+ylabel('Measured ADC (x10^{-3} mm^2/s)')
+grid on
+
+% R2 value
+SSres = sum( (pred_ADC - measured_ADC).^2 );
+SStot = length(measured_ADC)*var(measured_ADC);
+R2 = 1-SSres/SStot;
+
+text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
+    'Units', 'normalized', ...
+    'VerticalAlignment', 'top', ...
+    'HorizontalAlignment', 'left', ...
+    'BackgroundColor', 'white', ...
+    'EdgeColor', 'black');  % Optional border
+
+ax = gca();
+ax.FontSize = 12;
+
+saveas(f3, fullfile(projectfolder, 'Figures', 'Predicted vs Measured ADC.png'))
+
+
+%% Plot results: Bland-Altman
+% 
 % % SPHERE FRACTION
 % 
 % fs_avg = (pred_fs+measured_fs)/2;
@@ -167,7 +226,6 @@ saveas(f2, fullfile(projectfolder, 'Figures', 'Predicted vs Measured Db.png'))
 % 
 
 
-
 %% Residuals plot
 
 % SPHERE FRACTION
@@ -183,7 +241,7 @@ fs_lowerRL = mean(fs_diff)-1.96*std(fs_diff);
 
 % Save residual limits
 fs_RL = [fs_bias, fs_lowerRL, fs_upperRL];
-RLfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', ModelName);
+RLfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', 'Ball+Sphere');
 mkdir(RLfolder)
 save(fullfile(RLfolder, 'fs_BenignRL.mat'), 'fs_RL');
 
@@ -221,7 +279,7 @@ Db_lowerRL = mean(Db_diff)-1.96*std(Db_diff);
 
 % Save residual limits
 Db_RL = [Db_bias, Db_lowerRL, Db_upperRL];
-RLfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', ModelName);
+RLfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', 'Ball+Sphere');
 mkdir(RLfolder)
 save(fullfile(RLfolder, 'Db_BenignRL.mat'), 'Db_RL');
 
@@ -244,3 +302,42 @@ ax = gca();
 ax.FontSize = 12;
 
 saveas(f, fullfile(projectfolder, 'Figures', ['Benign Residuals Db.png']))
+
+
+
+% ADC
+
+ADC_diff = (measured_ADC-pred_ADC);
+
+% Bias
+ADC_bias = mean(ADC_diff);
+
+% 95% residual limits
+ADC_upperRL = mean(ADC_diff)+1.96*std(ADC_diff);
+ADC_lowerRL = mean(ADC_diff)-1.96*std(ADC_diff);
+
+% Save residual limits
+ADC_RL = [ADC_bias, ADC_lowerRL, ADC_upperRL];
+RLfolder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', 'ADC');
+mkdir(RLfolder)
+save(fullfile(RLfolder, 'ADC_BenignRL.mat'), 'ADC_RL');
+
+f=figure;
+scatter(pred_ADC, ADC_diff ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP, HandleVisibility='off');
+hold on
+yline(ADC_bias, '-', DisplayName='Bias', LineWidth=1.2)
+yline(ADC_lowerRL, '--', DisplayName='95% Residual Limits',  color = [.1 .1 .1], LineWidth=1.2)
+yline(ADC_upperRL, '--', HandleVisibility="off",  color = [.1 .1 .1], LineWidth=1.2)
+legend(Location="southeast")
+grid on
+ylim([-0.92, 0.92])
+yticks(-0.8:0.2:0.8)
+xlim([0.36, 2.04])
+xticks([0.4:0.2:2])
+xlabel('Predicted ADC (x10^{-3} mm^2/s)')
+ylabel('Measured - Predicted ADC (x10^{-3} mm^2/s)')
+
+ax = gca();
+ax.FontSize = 12;
+
+saveas(f, fullfile(projectfolder, 'Figures', ['Benign Residuals ADC.png']))

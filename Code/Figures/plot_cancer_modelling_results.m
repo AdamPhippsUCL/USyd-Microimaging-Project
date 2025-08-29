@@ -19,6 +19,9 @@ group = 'Cancer_G3';
 Bools = ismember(SampleNums, eval(group));
 COMP = COMP(Bools, :);
 
+
+% =========== Ball+Sphere
+
 ModelName = 'Ball+Sphere';
 schemename = '20250224_UQ4 AllDELTA';
 fittingtechnique = 'LSQ';
@@ -51,6 +54,32 @@ measured_Db = measured_Db(bool);
 COMP = COMP(bool, :);
 
 
+% =========== ADC
+
+ModelName = 'ADC';
+schemename = '20250224_UQ4 AllDELTA';
+fittingtechnique = 'LSQ';
+
+% Output folder
+output_folder = fullfile(projectfolder, 'Outputs', 'Model Fitting' );
+
+% Load parameter estimates from measured signals
+measured_ADC = load(fullfile(output_folder, 'Measured',  ModelName, 'D')).measured_D;
+
+measured_ADC = measured_ADC(Bools);
+
+% Load parameter estimates from predicted signals
+pred_ADC = load(fullfile(output_folder, 'Predicted', ModelName, 'D')).pred_D;
+
+pred_ADC = pred_ADC(Bools);
+
+% Remove voxels with low epithelium (stroma and lumen not of interest here)
+
+bool = (COMP(:,1)>0.4);
+
+pred_ADC = pred_ADC(bool);
+measured_ADC = measured_ADC(bool);
+COMP = COMP(bool, :);
 
 
 %% Plot results: Bland-Altman
@@ -122,7 +151,7 @@ COMP = COMP(bool, :);
 fs_diff = (measured_fs-pred_fs);
 
 % Load Benign RL
-RLfolder =  fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', ModelName);
+RLfolder =  fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', 'Ball+Sphere');
 BenignRL = load(fullfile(RLfolder, 'fs_BenignRL.mat')).fs_RL;
 fs_bias = BenignRL(1);
 fs_lowerRL = BenignRL(2);
@@ -149,12 +178,13 @@ ax.FontSize = 12;
 saveas(f, fullfile(projectfolder, 'Figures', [group ' Residuals fs.png']))
 
 
+
 % BALL-COMPARTMENT DIFFUSIVITY
 
 Db_diff = (measured_Db-pred_Db);
 
 % Load Benign RL
-RLfolder =  fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', ModelName);
+RLfolder =  fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', 'Ball+Sphere');
 BenignRL = load(fullfile(RLfolder, 'Db_BenignRL.mat')).Db_RL;
 Db_bias = BenignRL(1);
 Db_lowerRL = BenignRL(2);
@@ -179,3 +209,35 @@ ax = gca();
 ax.FontSize = 12;
 
 saveas(f, fullfile(projectfolder, 'Figures', [group ' Residuals Db.png']))
+
+
+% ADC
+
+ADC_diff = (measured_ADC-pred_ADC);
+
+% Load Benign RL
+RLfolder =  fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign RL', 'ADC');
+BenignRL = load(fullfile(RLfolder, 'ADC_BenignRL.mat')).ADC_RL;
+ADC_bias = BenignRL(1);
+ADC_lowerRL = BenignRL(2);
+ADC_upperRL = BenignRL(3);
+
+f=figure;
+scatter(pred_ADC, ADC_diff ,   14, 'filled', 'MarkerFaceAlpha', 1, CData=COMP, HandleVisibility='off')
+hold on
+yline(ADC_bias, '-', DisplayName='Bias (Benign)', LineWidth=1.2)
+yline(ADC_lowerRL, '--', DisplayName='95% Residual Limits (Benign)',  color = [.1 .1 .1], LineWidth=1.2)
+yline(ADC_upperRL, '--', HandleVisibility="off",  color = [.1 .1 .1], LineWidth=1.2)
+legend(Location="southeast")
+grid on
+ylim([-0.92, 0.92])
+yticks(-0.8:0.2:0.8)
+xlim([0.36, 2.04])
+xticks([0.4:0.2:2])
+xlabel('Predicted ADC (x10^{-3} mm^2/s)')
+ylabel('Measured - Predicted ADC (x10^{-3} mm^2/s)')
+
+ax = gca();
+ax.FontSize = 12;
+
+saveas(f, fullfile(projectfolder, 'Figures', [group ' Residuals ADC.png']))
