@@ -66,104 +66,105 @@ pred_ADC = pred_ADC(Bools);
 
 
 %% Plot results: direct comparison plot
-
-% SPHERE FRACTION
-
-f1=figure;
-scatter(pred_fs, measured_fs,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP);
-hold on
-plot([0, 0.3], [0, 0.3], color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
-xlim([-0.025,0.325])
-xticks([0:0.1:0.3])
-ylim([-0.05,0.48])
-xlabel('Predicted Sphere Fraction')
-ylabel('Measured Sphere Fraction')
-grid on
-
-% R2 value
-SSres = sum( (pred_fs - measured_fs).^2 );
-SStot = length(measured_fs)*var(measured_fs);
-R2 = 1-SSres/SStot;
-
-text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
-    'Units', 'normalized', ...
-    'VerticalAlignment', 'top', ...
-    'HorizontalAlignment', 'left', ...
-    'BackgroundColor', 'white', ...
-    'EdgeColor', 'black');  % Optional border
-
-ax = gca();
-ax.FontSize = 12;
-
-saveas(f1, fullfile(projectfolder, 'Figures', 'Predicted vs Measured Sphere Fraction.png'))
-
-
-% BALL-COMPARTMENT DIFFUSIVITY
-
-f2=figure;
-scatter(pred_Db, measured_Db, 6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP);
-hold on
-plot([0.6, 2], [0.6, 2],  color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
-grid on
-xlim([0.56, 2.04])
-xticks([0.6:0.2:2])
-ylim([0.35,2.2])
-yticks(0.6:0.2:2)
-xlabel('Predicted D_{b} (x10^{-3} mm^2/s)')
-ylabel('Measured D_{b} (x10^{-3} mm^2/s)')
-grid on
-
-% R2 value
-SSres = sum( (pred_Db - measured_Db).^2 );
-SStot = length(measured_Db)*var(measured_Db);
-R2 = 1-SSres/SStot;
-
-text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
-    'Units', 'normalized', ...
-    'VerticalAlignment', 'top', ...
-    'HorizontalAlignment', 'left', ...
-    'BackgroundColor', 'white', ...
-    'EdgeColor', 'black');  % Optional border
-
-ax = gca();
-ax.FontSize = 12;
-
-saveas(f2, fullfile(projectfolder, 'Figures', 'Predicted vs Measured Db.png'))
-
-
-
-% ADC
-
-f3=figure;
-scatter(pred_ADC, measured_ADC, 6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP);
-hold on
-plot([0.4, 2], [0.4, 2],  color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
-grid on
-xlim([0.36, 2.04])
-xticks([0.4:0.2:2])
-ylim([0.28,2.06])
-yticks(0.4:0.2:2)
-xlabel('Predicted ADC (x10^{-3} mm^2/s)')
-ylabel('Measured ADC (x10^{-3} mm^2/s)')
-grid on
-
-% R2 value
-SSres = sum( (pred_ADC - measured_ADC).^2 );
-SStot = length(measured_ADC)*var(measured_ADC);
-R2 = 1-SSres/SStot;
-
-text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
-    'Units', 'normalized', ...
-    'VerticalAlignment', 'top', ...
-    'HorizontalAlignment', 'left', ...
-    'BackgroundColor', 'white', ...
-    'EdgeColor', 'black');  % Optional border
-
-ax = gca();
-ax.FontSize = 12;
-
-saveas(f3, fullfile(projectfolder, 'Figures', 'Predicted vs Measured ADC.png'))
-
+% 
+% % SPHERE FRACTION
+% 
+% f1=figure;
+% scatter(pred_fs, measured_fs,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP);
+% hold on
+% plot([0, 0.3], [0, 0.3], color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
+% xlim([-0.025,0.325])
+% xticks([0:0.1:0.3])
+% ylim([-0.05,0.48])
+% xlabel('Predicted Sphere Fraction')
+% ylabel('Measured Sphere Fraction')
+% grid on
+% 
+% % R2 value
+% SSres = sum( (pred_fs - measured_fs).^2 );
+% SStot = length(measured_fs)*var(measured_fs);
+% R2 = 1-SSres/SStot;
+% 
+% text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
+%     'Units', 'normalized', ...
+%     'VerticalAlignment', 'top', ...
+%     'HorizontalAlignment', 'left', ...
+%     'BackgroundColor', 'white', ...
+%     'EdgeColor', 'black');  % Optional border
+% 
+% ax = gca();
+% ax.FontSize = 12;
+% 
+% saveas(f1, fullfile(projectfolder, 'Figures', 'Predicted vs Measured Sphere Fraction.png'))
+% 
+% 
+% 
+% % BALL-COMPARTMENT DIFFUSIVITY
+% 
+% f2=figure;
+% scatter(pred_Db, measured_Db, 6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP);
+% hold on
+% plot([0.6, 2], [0.6, 2],  color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
+% grid on
+% xlim([0.56, 2.04])
+% xticks([0.6:0.2:2])
+% ylim([0.35,2.2])
+% yticks(0.6:0.2:2)
+% xlabel('Predicted D_{ball} (x10^{-3} mm^2/s)')
+% ylabel('Measured D_{ball} (x10^{-3} mm^2/s)')
+% grid on
+% 
+% % R2 value
+% SSres = sum( (pred_Db - measured_Db).^2 );
+% SStot = length(measured_Db)*var(measured_Db);
+% R2 = 1-SSres/SStot;
+% 
+% text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
+%     'Units', 'normalized', ...
+%     'VerticalAlignment', 'top', ...
+%     'HorizontalAlignment', 'left', ...
+%     'BackgroundColor', 'white', ...
+%     'EdgeColor', 'black');  % Optional border
+% 
+% ax = gca();
+% ax.FontSize = 12;
+% 
+% saveas(f2, fullfile(projectfolder, 'Figures', 'Predicted vs Measured Db.png'))
+% 
+% 
+% 
+% % ADC
+% 
+% f3=figure;
+% scatter(pred_ADC, measured_ADC, 6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP);
+% hold on
+% plot([0.4, 2], [0.4, 2],  color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
+% grid on
+% xlim([0.36, 2.04])
+% xticks([0.4:0.2:2])
+% ylim([0.28,2.06])
+% yticks(0.4:0.2:2)
+% xlabel('Predicted ADC (x10^{-3} mm^2/s)')
+% ylabel('Measured ADC (x10^{-3} mm^2/s)')
+% grid on
+% 
+% % R2 value
+% SSres = sum( (pred_ADC - measured_ADC).^2 );
+% SStot = length(measured_ADC)*var(measured_ADC);
+% R2 = 1-SSres/SStot;
+% 
+% text(0.03, 0.945, ['R^2 = ' sprintf( '%0.3f', R2) ], ...
+%     'Units', 'normalized', ...
+%     'VerticalAlignment', 'top', ...
+%     'HorizontalAlignment', 'left', ...
+%     'BackgroundColor', 'white', ...
+%     'EdgeColor', 'black');  % Optional border
+% 
+% ax = gca();
+% ax.FontSize = 12;
+% 
+% saveas(f3, fullfile(projectfolder, 'Figures', 'Predicted vs Measured ADC.png'))
+% 
 
 %% Plot results: Bland-Altman
 % 
@@ -263,6 +264,8 @@ ylabel('Measured - Predicted Sphere Fraction')
 ax = gca();
 ax.FontSize = 12;
 
+f.Position = [680   458   600   380];
+
 saveas(f, fullfile(projectfolder, 'Figures', ['Benign Residuals Sphere Fraction.png']))
 
 
@@ -295,11 +298,13 @@ ylim([-0.72, 0.72])
 yticks(-0.6:0.2:0.6)
 xlim([0.56, 2.04])
 xticks([0.6:0.2:2])
-xlabel('Predicted D_b (x10^{-3} mm^2/s)')
-ylabel('Measured - Predicted D_b (x10^{-3} mm^2/s)')
+xlabel('Predicted D_{ball} (x10^{-3} mm^2/s)')
+ylabel('Measured - Predicted D_{ball} (x10^{-3} mm^2/s)')
 
 ax = gca();
 ax.FontSize = 12;
+
+f.Position = [680   458   600   380];
 
 saveas(f, fullfile(projectfolder, 'Figures', ['Benign Residuals Db.png']))
 
@@ -339,5 +344,7 @@ ylabel('Measured - Predicted ADC (x10^{-3} mm^2/s)')
 
 ax = gca();
 ax.FontSize = 12;
+
+f.Position = [680   458   600   380];
 
 saveas(f, fullfile(projectfolder, 'Figures', ['Benign Residuals ADC.png']))

@@ -15,9 +15,13 @@ COMP = load(fullfile(folder, "COMP.mat")).COMP;
 SampleNums = load(fullfile(folder, "SampleNums.mat")).SampleNums;
 
 % Cancer samples
-group = 'Cancer_G3';
+group = 'Cancer_G4';
 Bools = ismember(SampleNums, eval(group));
 COMP = COMP(Bools, :);
+
+% Remove voxels with low epithelium (stroma and lumen not of interest here)
+bool = (COMP(:,1)>0.4);
+COMP = COMP(bool, :);
 
 
 % =========== Ball+Sphere
@@ -43,15 +47,10 @@ pred_Db = load(fullfile(output_folder, 'Predicted', ModelName, 'Db')).pred_Db;
 pred_fs = pred_fs(Bools);
 pred_Db = pred_Db(Bools);
 
-% Remove voxels with low epithelium (stroma and lumen not of interest here)
-
-bool = (COMP(:,1)>0.4);
-
 pred_fs = pred_fs(bool);
 measured_fs = measured_fs(bool);
 pred_Db = pred_Db(bool);
 measured_Db = measured_Db(bool);
-COMP = COMP(bool, :);
 
 
 % =========== ADC
@@ -73,13 +72,9 @@ pred_ADC = load(fullfile(output_folder, 'Predicted', ModelName, 'D')).pred_D;
 
 pred_ADC = pred_ADC(Bools);
 
-% Remove voxels with low epithelium (stroma and lumen not of interest here)
-
-bool = (COMP(:,1)>0.4);
-
+% Remove voxels with low epithelium
 pred_ADC = pred_ADC(bool);
 measured_ADC = measured_ADC(bool);
-COMP = COMP(bool, :);
 
 
 %% Plot results: Bland-Altman
@@ -175,6 +170,9 @@ ylabel('Measured - Predicted Sphere Fraction')
 ax = gca();
 ax.FontSize = 12;
 
+
+f.Position = [680   458   600   380];
+
 saveas(f, fullfile(projectfolder, 'Figures', [group ' Residuals fs.png']))
 
 
@@ -202,11 +200,13 @@ ylim([-0.72, 0.72])
 yticks(-0.6:0.2:0.6)
 xlim([0.56, 2.04])
 xticks([0.6:0.2:2])
-xlabel('Predicted Db (x10^{-3} mm^2/s)')
-ylabel('Measured - Predicted Db (x10^{-3} mm^2/s)')
+xlabel('Predicted D_{ball} (x10^{-3} mm^2/s)')
+ylabel('Measured - Predicted D_{ball} (x10^{-3} mm^2/s)')
 
 ax = gca();
 ax.FontSize = 12;
+
+f.Position = [680   458   600   380];
 
 saveas(f, fullfile(projectfolder, 'Figures', [group ' Residuals Db.png']))
 
@@ -239,5 +239,7 @@ ylabel('Measured - Predicted ADC (x10^{-3} mm^2/s)')
 
 ax = gca();
 ax.FontSize = 12;
+
+f.Position = [680   458   600   380];
 
 saveas(f, fullfile(projectfolder, 'Figures', [group ' Residuals ADC.png']))

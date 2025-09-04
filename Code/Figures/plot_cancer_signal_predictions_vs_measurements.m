@@ -95,33 +95,33 @@ COMP = COMP(bool, :);
 % % saveas(f, fullfile(projectfolder, 'Figures', ['Predicted vs Measured signal b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
 
 
-%% Bland Altman
-
-avg = (Pred+Measure)/2;
-diff = (Measure-Pred);
-
-% Load Benign LOA
-LOAfolder = fullfile(projectfolder, 'Outputs', 'Signals', SeriesDescription);
-BenignLOA = load(fullfile(LOAfolder, 'BenignLOA.mat')).LOA;
-
-f=figure;
-scatter(avg, diff ,  14, 'filled', 'MarkerFaceAlpha', 1, CData=COMP, HandleVisibility='off')
-yline(BenignLOA(1), '-', DisplayName='Bias (Benign)', LineWidth=1.2)
-hold on
-yline(BenignLOA(2), '--', DisplayName='95% LOA (Benign)', LineWidth=1.2)
-yline(BenignLOA(3), '--', HandleVisibility="off", LineWidth=1.2)
-xlim([0, 0.8])
-ylim([-0.435, 0.435])
-legend(Location="northwest")
-grid on
-xlabel('Mean of Predicted and Measured Signal')
-ylabel('Measured Signal - Predicted Signal ')
-title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
-ax = gca();
-ax.FontSize = 12;
-f.Position = [488   242   660   400];
-saveas(f, fullfile(projectfolder, 'Figures', [group ' Signal Bland-Altman b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
-
+% %% Bland Altman
+% 
+% avg = (Pred+Measure)/2;
+% diff = (Measure-Pred);
+% 
+% % Load Benign LOA
+% LOAfolder = fullfile(projectfolder, 'Outputs', 'Signals', SeriesDescription);
+% BenignLOA = load(fullfile(LOAfolder, 'BenignLOA.mat')).LOA;
+% 
+% f=figure;
+% scatter(avg, diff ,  14, 'filled', 'MarkerFaceAlpha', 1, CData=COMP, HandleVisibility='off')
+% yline(BenignLOA(1), '-', DisplayName='Bias (Benign)', LineWidth=1.2)
+% hold on
+% yline(BenignLOA(2), '--', DisplayName='95% LOA (Benign)', LineWidth=1.2)
+% yline(BenignLOA(3), '--', HandleVisibility="off", LineWidth=1.2)
+% xlim([0, 0.8])
+% ylim([-0.435, 0.435])
+% legend(Location="northwest")
+% grid on
+% xlabel('Mean of Predicted and Measured Signal')
+% ylabel('Measured Signal - Predicted Signal ')
+% title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
+% ax = gca();
+% ax.FontSize = 12;
+% f.Position = [488   242   660   400];
+% saveas(f, fullfile(projectfolder, 'Figures', [group ' Signal Bland-Altman b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
+% 
 
 
 %% Residuals plot
@@ -153,7 +153,9 @@ ylabel('Measured Signal - Predicted Signal')
 title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
 ax = gca();
 ax.FontSize = 12;
-% f.Position = [488   242   660   400];
+
+
+f.Position = [680   458   600   380];
 
 saveas(f, fullfile(projectfolder, 'Figures', [group ' Signal Residuals b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
 
