@@ -321,7 +321,7 @@ saveas(f, fullfile(projectfolder, 'Figures', ['Benign Residuals Db.png']))
 % SPHERE RADIUS
 
 % -- IGNORE VOXELS WITH HIGH FLUID CONTENT IN RESIDUAL LIMITS CALCULATION
-RL_BOOL = (COMP(:,3)<0.5);
+RL_BOOL = (COMP(:,3)<0.4);
 
 
 R_diff = (measured_R-pred_R);
@@ -340,16 +340,16 @@ mkdir(RLfolder)
 save(fullfile(RLfolder, 'R_BenignRL.mat'), 'R_RL');
 
 f=figure;
-scatter(pred_R, R_diff ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP, HandleVisibility='off');
+scatter(pred_R(RL_BOOL), R_diff(RL_BOOL) ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP(RL_BOOL,:), HandleVisibility='off');
 hold on
 yline(R_bias, '-', DisplayName='Bias', LineWidth=1.2)
 yline(R_lowerRL, '--', DisplayName='95% Residual Limits',  color = [.1 .1 .1], LineWidth=1.2)
 yline(R_upperRL, '--', HandleVisibility="off",  color = [.1 .1 .1], LineWidth=1.2)
 legend(Location="southwest")
 grid on
-xlim([3.2, 7.2])
+xlim([3, 7])
 xticks(2:8)
-ylim([-4.8,6.1])
+ylim([-6,6])
 xlabel('Predicted R (µm)')
 ylabel('Measured - Predicted R (µm)')
 

@@ -78,69 +78,69 @@ end
 %% Run modelling
 
 
-% ============= ADC model
-
-modelname = 'ADC';
-fittingtechnique = 'LSQ';
-Nparam = 2;
-
-D = 1; Dlb = 0.1; Dub = 3;
-S0 = 1; S0lb = 0.9; S0ub = 1.1;
-
-beta0 = [S0, D];
-lb = [S0lb, Dlb];
-ub = [S0ub, Dub];
-
-% Regularisation
-lambda0=0e-2;
-lambda = lambda0*ones(1,Nparam);
-
-
-% == MEASURED
-
-Y = reshape(MeasuredSignals, [Nvoxel, 1 , nscheme]);
-
-[~, measured_D] = diffusion_model_fit( ...
-    Y, ...
-    scheme, ...
-    modelname = modelname,...
-    fittingtechnique = fittingtechnique,...
-    Nparam = Nparam,...
-    beta0=beta0,...
-    lambda=lambda,...
-    lb=lb,...
-    ub=ub...
-    );
-
-% Save
-folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Measured', modelname);
-mkdir(folder);
-save(fullfile(folder, 'D.mat'), 'measured_D')
-
-% == PREDICTED
-
-Y = reshape(PredictedSignals, [Nvoxel, 1 , nscheme]);
-
-% Normalise for S0 
-Y(:,:,2:end) = Y(:,:,2:end)./(sum(COMP,2));
-
-[~, pred_D] = diffusion_model_fit( ...
-    Y, ...
-    scheme, ...
-    modelname = modelname,...
-    fittingtechnique = fittingtechnique,...
-    Nparam = Nparam,...
-    beta0=beta0,...
-    lambda=lambda,...
-    lb=lb,...
-    ub=ub...
-    );
-
-% Save
-folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Predicted', modelname);
-mkdir(folder);
-save(fullfile(folder, 'D.mat'), 'pred_D')
-
+% % ============= ADC model
+% 
+% modelname = 'ADC';
+% fittingtechnique = 'LSQ';
+% Nparam = 2;
+% 
+% D = 1; Dlb = 0.1; Dub = 3;
+% S0 = 1; S0lb = 0.9; S0ub = 1.1;
+% 
+% beta0 = [S0, D];
+% lb = [S0lb, Dlb];
+% ub = [S0ub, Dub];
+% 
+% % Regularisation
+% lambda0=0e-2;
+% lambda = lambda0*ones(1,Nparam);
+% 
+% 
+% % == MEASURED
+% 
+% Y = reshape(MeasuredSignals, [Nvoxel, 1 , nscheme]);
+% 
+% [~, measured_D] = diffusion_model_fit( ...
+%     Y, ...
+%     scheme, ...
+%     modelname = modelname,...
+%     fittingtechnique = fittingtechnique,...
+%     Nparam = Nparam,...
+%     beta0=beta0,...
+%     lambda=lambda,...
+%     lb=lb,...
+%     ub=ub...
+%     );
+% 
+% % Save
+% folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Measured', modelname);
+% mkdir(folder);
+% save(fullfile(folder, 'D.mat'), 'measured_D')
+% 
+% % == PREDICTED
+% 
+% Y = reshape(PredictedSignals, [Nvoxel, 1 , nscheme]);
+% 
+% % Normalise for S0 
+% Y(:,:,2:end) = Y(:,:,2:end)./(sum(COMP,2));
+% 
+% [~, pred_D] = diffusion_model_fit( ...
+%     Y, ...
+%     scheme, ...
+%     modelname = modelname,...
+%     fittingtechnique = fittingtechnique,...
+%     Nparam = Nparam,...
+%     beta0=beta0,...
+%     lambda=lambda,...
+%     lb=lb,...
+%     ub=ub...
+%     );
+% 
+% % Save
+% folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Predicted', modelname);
+% mkdir(folder);
+% save(fullfile(folder, 'D.mat'), 'pred_D')
+% 
 
 
 
@@ -162,8 +162,8 @@ Nparam = 5;
 
 Nparam = 5;
 beta0 = [0.15, 6.5, 0.6, 0.8, 1];
-lb = [0, 6.5, 0.6, 0.1, 1];
-ub = [1, 6.5, 0.6, 3, 1];
+lb = [0, 2, 0.6, 0.1, 1];
+ub = [1, 12, 0.6, 3, 1];
 
 
 % Regularisation
@@ -177,7 +177,7 @@ Y = reshape(PredictedSignals, [Nvoxel, 1 , nscheme]);
 % Normalise for S0
 Y(:,:,2:end) = Y(:,:,2:end)./(sum(COMP,2));
 
-[pred_fs, ~, ~, pred_Db, ~, ~] = diffusion_model_fit( ...
+[pred_fs, pred_R, ~, pred_Db, ~, ~] = diffusion_model_fit( ...
     Y, ...
     scheme, ...
     modelname = modelname,...
@@ -194,12 +194,13 @@ folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Predicted', modeln
 mkdir(folder);
 save(fullfile(folder, 'fs.mat'), 'pred_fs')
 save(fullfile(folder, 'Db.mat'), 'pred_Db')
+save(fullfile(folder, 'R.mat'), 'pred_R')
 
 % == MEASURED
 
 Y = reshape(MeasuredSignals, [Nvoxel, 1 , nscheme]);
 
-[measured_fs, ~, ~, measured_Db, ~, ~] = diffusion_model_fit( ...
+[measured_fs, measured_R, ~, measured_Db, ~, ~] = diffusion_model_fit( ...
     Y, ...
     scheme, ...
     modelname = modelname,...
@@ -216,5 +217,6 @@ folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Measured', modelna
 mkdir(folder);
 save(fullfile(folder, 'fs.mat'), 'measured_fs')
 save(fullfile(folder, 'Db.mat'), 'measured_Db')
+save(fullfile(folder, 'R.mat'), 'measured_R')
 
 

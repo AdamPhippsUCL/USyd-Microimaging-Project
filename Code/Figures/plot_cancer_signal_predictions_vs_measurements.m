@@ -14,7 +14,7 @@ Benign = {'4N', '5B', '5M', '5N', '6B',  '6M', '7M', '7N', '8B', '8M', '8N', '7B
 group = 'Cancer_G4';
 
 % Image
-seriesindx =11;
+seriesindx =2;
 SeriesDescriptions = {
     'SE_b0_SPOIL5% (DS)',...
     'STEAM_ShortDELTA_15 (DS)',...
