@@ -1,7 +1,9 @@
-% Script to format modelling resilts into table
+% Script to format modelling results into table
 
 clear;
 projectfolder = pwd;
+
+%%
 
 % Load model fitting results
 RESULTS = load(fullfile(projectfolder, 'Outputs', 'Model Fitting', 'ESL signal profiles', 'Multi-sample', 'RESULTS.mat')).RESULTS;
@@ -31,7 +33,6 @@ for indx = 1:N
             T{indx, 'Component'} = {'Stroma'};
     end
 
-
     % Parameters and errors
     switch modelname
         case 'ADC'
@@ -42,7 +43,6 @@ for indx = 1:N
                 'D = ' sprintf('%.3f', params(2)) ' (' sprintf('%.4f', error(2)) ') x10^-3 mm^2/s' ...
             ]};
 
-
         case 'DKI'
             T{indx, 'Model Name'} = {modelname};
 
@@ -52,7 +52,6 @@ for indx = 1:N
                 'K = ' sprintf('%.3f', params(3)) ' (' sprintf('%.4f', error(3)) ')' ...
             ]};
 
-
         case 'Sphere'
             T{indx, 'Model Name'} = {'Sphere'};
             
@@ -61,7 +60,6 @@ for indx = 1:N
                 'D = ' sprintf('%.3f', params(2)) ' (' sprintf('%.4f', error(2)) ') x10^-3 mm^2/s; ' ...
                 'R = ' sprintf('%.3f', params(1)) ' (' sprintf('%.4f', error(1)) ') µm' ...
             ]};
-
 
         case 'Ball+Sphere'
             T{indx, 'Model Name'} = {'Ball + Sphere'};
@@ -79,9 +77,7 @@ for indx = 1:N
     % AIC
     T{indx, 'AIC'} = {sprintf('%.3f', AIC)};
 
-
 end
-
 
 % Save as excel sheet
 writetable(T, fullfile(projectfolder, 'Figures', 'modelling_results.xlsx'));

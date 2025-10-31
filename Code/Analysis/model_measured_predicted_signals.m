@@ -27,6 +27,7 @@ COMP = load(fullfile(folder, "COMP.mat")).COMP;
 SampleNums = load(fullfile(folder, "SampleNums.mat")).SampleNums;
 Nvoxel = length(SampleNums);
 
+
 %% Load predicted and measured signals
 
 % Initialise array for predicted signals
@@ -51,7 +52,6 @@ end
 
 
 %% Run ADC modelling
-
 
 % ============= ADC model
 

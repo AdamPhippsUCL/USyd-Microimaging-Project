@@ -1,5 +1,4 @@
-% Script to calculate predicted signals for each sample (using ESL
-% segmentations and ESL signal estimates)
+% Script to calculate predicted signals for each voxel (using ESL segmentations and aggregate ESL signal estimates)
 
 clear;
 projectfolder = pwd;
@@ -67,8 +66,8 @@ for seriesindx = 2:length(SeriesDescriptions)
         signals = reshape(signals, [1,1,1,3]);
         pred = sum(COMPOSITION.*repmat(signals, [size(COMPOSITION, 1:3)]), 4);
     
+
         % PER SAMPLE
-        
         samplelabels = {'N', 'M', 'B'};
     
         for slabindx = 1:length(samplelabels)
@@ -100,11 +99,12 @@ for seriesindx = 2:length(SeriesDescriptions)
     
     end
     
-    % Save
+    % Save measured and predicted signals
     folder = fullfile(projectfolder, 'Outputs', 'Signals');
     mkdir(folder)
     save(fullfile(folder, 'SampleNums.mat'), 'SampleNums')
     save(fullfile(folder, 'COMP.mat'), 'COMP')
+    
     seriesfolder = fullfile(folder, SeriesDescription);
     mkdir(seriesfolder);
     save(fullfile(seriesfolder, 'Measured.mat'), 'Measured')

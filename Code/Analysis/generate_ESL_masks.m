@@ -1,4 +1,4 @@
-% SCRIPT to generate ESL masks using 3DMGE, D, FA
+% Script to generate ESL masks using microscopy images: 3DMGE, D, FA
 
 clear;
 projectfolder = pwd;
@@ -42,7 +42,7 @@ switch SampleName
 end
 
 
-%% Generate masks
+%% Generate masks (Define MGE and D*FA thresholds)
 
 switch SampleName
 
@@ -77,6 +77,7 @@ switch SampleName
         STROMA = (dwFA>dwFAlow).*and(MGE<MGEhigh, MGE>MGElow);
         LUMEN = (MGE>MGEhigh);
         EPITHELIUM = and(~logical(STROMA), ~logical(LUMEN)).*(MGE>MGElow);
+
 
     case '20250522_UQ7'
 

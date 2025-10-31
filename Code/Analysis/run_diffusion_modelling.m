@@ -1,4 +1,4 @@
-% Script to run DW-MRI modelling on imaging data
+% Script to run DW-MRI modelling on imaging data (NOT USED IN CURRENT ANALYSIS)
 
 clear;
 projectfolder = pwd;

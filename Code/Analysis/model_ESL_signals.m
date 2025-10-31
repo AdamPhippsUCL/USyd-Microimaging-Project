@@ -13,11 +13,12 @@ SaveRESULTS = false;
 
 outputfolder = fullfile(projectfolder, 'Outputs', 'ESL Signal Estimation'); 
 
-samplename = 'Multi-sample'; % '20250224_UQ4', '20250407_UQ5', '20250414_UQ6';
+samplename = 'Multi-sample'; 
 
 signals = load(fullfile(outputfolder, samplename, 'signals.mat')).signals;
 scheme = load(fullfile(outputfolder, samplename, 'scheme.mat')).scheme;
 nscheme = length(scheme);
+
 
 %% Modelling details
 
@@ -99,6 +100,7 @@ for compindx = 1:length(components)
         
     end
 
+
     for modindx = 1:length(modelnames)
 
         modelname = modelnames{modindx};
@@ -175,6 +177,7 @@ for compindx = 1:length(components)
         params_var =  J*(signal_var*J');
         params_err = sqrt(diag(params_var));
 
+
         % == Format results
         
         n = length(RESULTS)+1;
@@ -188,6 +191,7 @@ for compindx = 1:length(components)
         RESULTS(n).ParamError = transpose(params_err);
         RESULTS(n).FitResidual = resnorm;
         RESULTS(n).AIC=AIC;
+
 
         if DisplayPredictions
 
@@ -247,16 +251,17 @@ for compindx = 1:length(components)
 
         end
 
-        % OLD CODE NOT UPDATED
 
-        % % == Profile likelihood
+        % ======= CODE NOT UPDATED
+
+        % % == Paramater likelihood profile
         % 
         % fixedindx = 1;
         % 
         % Nvals = 100;
         % low = (40*lb(fixedindx)+ub(fixedindx))/40;
         % high = (40*ub(fixedindx)+lb(fixedindx))/40;
-        % fixedvals = linspace(low,high,Nvals);%linspace(lb(fixedindx), ub(fixedindx),Nvals);
+        % fixedvals = linspace(low,high,Nvals); %linspace(lb(fixedindx), ub(fixedindx),Nvals);
         % valspacing = fixedvals(2)-fixedvals(1);
         % resnorms = zeros(1,Nvals);
         % 
@@ -292,10 +297,12 @@ for compindx = 1:length(components)
         % figure
         % scatter(fixedvals, resnorms)
         % ylim([0, 0.005])
-        % %   
+
+        % ================   
 
     end
 end
+
 
 % Save RESULTS
 if SaveRESULTS
@@ -303,6 +310,7 @@ if SaveRESULTS
     mkdir(folder);
     save(fullfile(folder, 'RESULTS.mat'), 'RESULTS')
 end
+
 
 
 %% Model fitting function (for Jacobian error estimation)
