@@ -1,4 +1,4 @@
-% MATLAB script to test diffusion tensor calculation
+% Script for diffusion tensor processing
 
 clear;
 projectfolder = pwd;

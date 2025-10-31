@@ -1,5 +1,4 @@
-% Display error on signal predictions (using ESL) compared to signal
-% measurements (For benign samples)
+% Compare predicted and measured signals across all voxels in benign tissue
 
 clear;
 projectfolder = pwd;
@@ -62,71 +61,6 @@ Measure = Measured(Bools);
 COMP = COMPOSITION(Bools, :);
 
 
-%% MAKE FIGURES
-
-% f=figure;
-% scatter(Pred, Measure,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData= COMP);
-% hold on
-% plot([0 0.8],[0, 0.8], color = [.1 .1 .1], LineStyle = '--', LineWidth = 1.2);
-% 
-% ylim([-0.02, 0.8])
-% xlim([-0.02, 0.8])
-% grid on
-% xlabel('Predicted Signal')
-% ylabel('Measured Signal')
-% title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
-% 
-% text(0.025, 0.97, ['R^2 = ' sprintf( '%0.3f', R2(1)) ' (' sprintf('%0.3f', R2(2)) ', ' sprintf('%0.3f', R2(3)) ')'], ...
-%     'Units', 'normalized', ...
-%     'VerticalAlignment', 'top', ...
-%     'HorizontalAlignment', 'left', ...
-%     'BackgroundColor', 'white', ...
-%     'EdgeColor', 'black');  % Optional border
-% 
-% f.Position = [488   242   660   400];
-% ax = gca();
-% ax.FontSize = 12;
-% 
-% saveas(f, fullfile(projectfolder, 'Figures', ['Predicted vs Measured signal b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
-% 
-
-%% Bland Altman
-
-% avg = (Pred+Measure)/2;
-% diff = (Measure-Pred);
-% 
-% % Bias
-% bias = mean(diff);
-% 
-% % Limits of agreement
-% upperLOA = mean(diff)+1.96*std(diff);
-% lowerLOA = mean(diff)-1.96*std(diff);
-% 
-% % Save LOA
-% LOA = [bias, lowerLOA, upperLOA];
-% LOAfolder = fullfile(projectfolder, 'Outputs', 'Signals', SeriesDescription);
-% save(fullfile(LOAfolder, 'BenignLOA.mat'), 'LOA');
-% 
-% f=figure;
-% scatter(avg, diff ,  6, 'filled', 'MarkerFaceAlpha', 0.7, CData=COMP, HandleVisibility='off');
-% yline(mean(diff), '-', DisplayName='Bias', LineWidth=1.2)
-% hold on
-% yline(mean(diff)+1.96*std(diff), '--', DisplayName='95% LOA',  color = [.1 .1 .1], LineWidth=1.2)
-% yline(mean(diff)-1.96*std(diff), '--', HandleVisibility="off",  color = [.1 .1 .1], LineWidth=1.2)
-% xlim([0, 0.8])
-% ylim([-0.435, 0.435])
-% legend
-% grid on
-% xlabel('Mean of Predicted and Measured Signal')
-% ylabel('Measured Signal - Predicted Signal ')
-% title(['b = ' num2str(bval) ' s/mm^2 ; Delta = ' num2str(DELTA) ' ms'])
-% ax = gca();
-% ax.FontSize = 12;
-% f.Position = [488   242   660   400];
-% 
-% saveas(f, fullfile(projectfolder, 'Figures', ['Signal Bland-Altman b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
-
-
 %% Residuals plot
 
 diff = (Measure-Pred);
@@ -172,8 +106,6 @@ text(0.685, 0.95, ['R^2 = ' sprintf( '%0.3f', R2(1)) ' (' sprintf('%0.3f', R2(2)
     'EdgeColor', 'black');  % Optional border
 
 saveas(f, fullfile(projectfolder, 'Figures', ['Signal Residuals b' num2str(bval) '_Delta' num2str(DELTA) '.png']))
-
-
 
 
 

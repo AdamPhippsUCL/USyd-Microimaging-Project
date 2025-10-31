@@ -84,68 +84,6 @@ pred_ADC = pred_ADC(bool);
 measured_ADC = measured_ADC(bool);
 
 
-%% Plot results: Bland-Altman
-% 
-% % ==== SPHERE FRACTION
-% 
-% fs_avg = (pred_fs+measured_fs)/2;
-% fs_diff = measured_fs-pred_fs;
-% 
-% % Load benign LOA
-% LOA_folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign LOA', ModelName);
-% load(fullfile(LOA_folder, 'fs_LOA.mat'));
-% 
-% f1 = figure;
-% scatter(fs_avg, fs_diff, 14, 'filled', 'MarkerFaceAlpha', 1, CData=COMP, HandleVisibility='off')
-% yline(fs_LOA(1), '-', DisplayName='Bias (Benign)', LineWidth=1.2)
-% hold on
-% yline(fs_LOA(2), '--', DisplayName='95% LOA (Benign)', LineWidth=1.2)
-% yline(fs_LOA(3), '--', HandleVisibility="off", LineWidth=1.2)
-% xlim([-0.05 0.45])
-% xticks(0:0.1:0.4)
-% ylim([-0.24, 0.24])
-% yticks(-0.4:0.1:0.4)
-% xlabel('Mean of Measured and Predicted Sphere Fraction')
-% ylabel('Measured - Predicted Sphere Fraction')
-% legend(Location='northwest')
-% grid on
-% ax = gca();
-% ax.FontSize = 12;
-% f1.Position = [488   242   660   400];
-% saveas(f1, fullfile(projectfolder, 'Figures', [group ' Bland-Altman Sphere Fraction.png']))
-% 
-% 
-% 
-% % ==== BALL-COMPARTMENT DIFFUSIVITY
-% 
-% Db_avg = (pred_Db+measured_Db)/2;
-% Db_diff = measured_Db-pred_Db;
-% 
-% % Load Benign LOA
-% LOA_folder = fullfile(projectfolder, 'Outputs', 'Model Fitting', 'Benign LOA', ModelName);
-% load( fullfile(LOA_folder,  'Db_LOA.mat'))
-% 
-% f2 = figure;
-% scatter(Db_avg, Db_diff ,  14, 'filled', 'MarkerFaceAlpha', 1, CData=COMP, HandleVisibility='off')
-% yline(Db_LOA(1), '-', DisplayName='Bias (Benign)', LineWidth=1.2)
-% hold on
-% yline(Db_LOA(2), '--', DisplayName='95% LOA (Benign)', LineWidth=1.2)
-% yline(Db_LOA(3), '--', HandleVisibility="off", LineWidth=1.2)
-% xlim([0.32 2.08])
-% xticks(linspace(0.2,2.2,11))
-% ylim([-.72, .72])
-% yticks(-0.8:0.2:0.8)
-% xlabel('Mean of Measured and Predicted D_b (x10^{-3} mm^2/s)')
-% ylabel('Measured - Predicted D_b (x10^{-3} mm^2/s)')
-% legend(Location='northeast')
-% grid on
-% ax = gca();
-% ax.FontSize = 12;
-% 
-% f2.Position = [488   242   660   400];
-% saveas(f2, fullfile(projectfolder, 'Figures', [group ' Bland-Altman Db.png']))
-
-
 
 %% SPHERE FRACTION
 
@@ -190,7 +128,7 @@ ys = linspace(ymin, ymax, 400);
 
 [X, Y] = meshgrid(xs, ys);
 
-alphaVals = 0.1*(and(Y<fs_upperRL, Y>fs_lowerRL));%0.5*exp(-(Y-fs_bias).^2/(2*((fs_upperRL-fs_lowerRL)/3.92)^2));
+alphaVals = 0.1*(and(Y<fs_upperRL, Y>fs_lowerRL));
 
 % Create base color (e.g. blue)
 C = ones(size(Y,1), size(Y,2), 3);  % RGB array
@@ -258,7 +196,7 @@ ys = linspace(ymin, ymax, 400);
 
 [X, Y] = meshgrid(xs, ys);
 
-alphaVals = 0.1*(and(Y<Db_upperRL, Y>Db_lowerRL));%0.5*exp(-(Y-fs_bias).^2/(2*((fs_upperRL-fs_lowerRL)/3.92)^2));
+alphaVals = 0.1*(and(Y<Db_upperRL, Y>Db_lowerRL));
 
 % Create base color (e.g. blue)
 C = ones(size(Y,1), size(Y,2), 3);  % RGB array
@@ -330,7 +268,7 @@ ys = linspace(ymin, ymax, 400);
 
 [X, Y] = meshgrid(xs, ys);
 
-alphaVals = 0.1*(and(Y<R_upperRL, Y>R_lowerRL));%0.5*exp(-(Y-fs_bias).^2/(2*((fs_upperRL-fs_lowerRL)/3.92)^2));
+alphaVals = 0.1*(and(Y<R_upperRL, Y>R_lowerRL));
 
 % Create base color (e.g. blue)
 C = ones(size(Y,1), size(Y,2), 3);  % RGB array
