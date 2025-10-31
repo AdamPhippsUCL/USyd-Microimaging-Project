@@ -1,10 +1,10 @@
-% MATLAB script to show SGL masks
+% MATLAB script to show example ESL masks
 
 clear;
 projectfolder = pwd;
 
 % Sample
-SampleNum = 6;
+SampleNum = 1;
 SampleNames = {'20250224_UQ4', '20250407_UQ5', '20250414_UQ6', '20250522_UQ7', '20250523_UQ8', '20250524_UQ9'};
 SampleName = SampleNames{SampleNum};
 
@@ -33,9 +33,9 @@ displaymasks(:,:,:,3) = logical(LUMEN);
 %% Define slice and region to present
 
 % SAMPLE NUMBER
-snum = 'UQ9N';
+snum = 'UQ4N';
 
-sl=120;
+sl=140;
 switch snum
     case 'UQ4B'
         xs = 40:220;
@@ -83,7 +83,6 @@ imshow(squeeze(MGE(sl,xs,ys)),[0 prctile(squeeze(MGE(sl,xs,ys)), 99.9, 'all')]);
 saveas(f1, fullfile(projectfolder, 'Figures', 'Example_Mask_MGE.png'));
 
 f2=figure;
-% imshow(squeeze(dwFA(sl,xs,ys)),[0 prctile(squeeze(dwFA(sl,xs,ys)), 99.9, 'all')]);
 imshow(squeeze(dwFA(sl,xs,ys)),[0 5e-4]);
 saveas(f2, fullfile(projectfolder, 'Figures', 'Example_Mask_dwFA.png'));
 

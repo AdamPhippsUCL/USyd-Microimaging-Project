@@ -148,27 +148,16 @@ end
 
 modelname = 'Ball+Sphere';
 fittingtechnique = 'LSQ';
-Nparam = 5;
-
-% fs = 0.5; fslb = 0; fsub = 1;
-% R = 6.5; Rlb = 6.4; Rub = 6.6;
-% Ds = 0.55; Dslb = 0.54; Dsub = 0.56;
-% Db = 1; Dblb = 0.1; Dbub = 3;
-% S0 = 1; S0lb = 0.9; S0ub = 1.1;
-% 
-% beta0 = [fs,R,Ds,Db,S0];
-% lb = [fslb,Rlb,Dslb,Dblb,S0lb];
-% ub = [fsub,Rub,Dsub,Dbub,S0ub];
 
 Nparam = 5;
-beta0 = [0.15, 6.5, 0.6, 0.8, 1];
-lb = [0, 2, 0.6, 0.1, 1];
-ub = [1, 12, 0.6, 3, 1];
+beta0 = [0.24, 6.4, 0.6, 0.8, 1];
+lb = [0, 2, 0.4, 0.2, 1];
+ub = [1, 12, 0.8, 3, 1];
 
 
 % Regularisation
-lambda0=0e-2;
-lambda = lambda0*ones(1,Nparam);
+lambda0 = 2e-2;
+lambda = lambda0*[0,1,1,0,1];
 
 % == PREDICTED
 
