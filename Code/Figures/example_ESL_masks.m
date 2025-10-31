@@ -1,4 +1,4 @@
-% MATLAB script to show example ESL masks
+% Script to show example ESL masks
 
 clear;
 projectfolder = pwd;
